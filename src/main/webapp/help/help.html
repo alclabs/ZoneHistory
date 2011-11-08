@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <title>Zone History Help</title>
+
+   <style type="text/css">
+        html, body {
+           font-family: sans-serif;
+           color: black;
+           height: 100%;
+           padding: 5px;
+           margin: 0;
+        }
+
+        h1 {
+           font-size: medium;
+           color: blue;
+        }
+
+        h2 {
+           font-size: medium;
+           color: black;
+        }
+
+        div.innerDiv {
+           padding-left: 10px;
+        }
+
+        table {
+           border-collapse:collapse;
+           border: 1px solid black;
+        }
+        td, th {
+           border: 1px solid black;
+           padding: 5px;
+        }
+        th {
+           background-color:blue;
+           color:white;
+        }
+    </style>
+</head>
+<body>
+   <p>
+      The Zone History add-on is intended to present historical information about the zone. Currently this amounts
+      to displaying the percentage of time that the zone is in different "equipment colors" using a pie chart.  A
+      concept of "satisfaction" is also displayed.  A zone is considered satisfied if it is either unoccupied or
+      it's occupied and operational (the color green).
+   </p>
+   <h1>Using the Interface</h1>
+   <div class="innerDiv">
+      <h2>System Tree</h2>
+      <p>
+         On the left of the page is the system tree.  This tree is a "thin" tree that only shows zone equipment and
+         their parents (up to the system root).  Selecting any item in the tree causes the page to immediately collect
+         and display the results.  If an area is selected, the main pie chart shows an aggregate view of all zone
+         equipment below that area.  Also, a table is shown below the pie chart that lists each zone equipment that
+         is aggregated together, and shows their individual satisfaction and pie charts.  If an equipment is selected, the
+         individual pie chart for that equipment is shown as the main pie chart and no zone equipment table is
+         displayed.
+      </p>
+      <h2>Time Range</h2>
+      <p>
+         At the top of the page is a drop down menu that allows for the selection of the time range that is analyzed.
+         The time range always ends at the present time (which means that field communications will almost always need
+         to be performed to display the result).  The drop down allows you to decide how far back in time to analyze.
+         Either today, yesterday, last week or last month (always starting at midnight on that day) up until the current
+         time.
+      </p>
+      <h2>Main Pie Chart</h2>
+      <p>
+         Once an item in the tree has been selected (and the data collected and processed) a large pie chart is
+         displayed to the right of the tree.  This pie chart contains the results for the tree item that was selected.
+         If the item is a single zone equipment, then the pie chart shows the percentage of time over the requested
+         time range that the equipment was in each color and a "satisfaction" total below the pie chart.  If the
+         selected tree item is an area, then the pie chart shows the average for all the zone equipment beneath it.
+         Moving the mouse over a section of the pie expands it and highlights the associated entry in the color legend
+         (which is to the right of the tree).
+      </p>
+      <h2>Zone Equipment Table</h2>
+      <p>
+         If an area is selected in the system tree, a table that shows the individual details for each zone equipment
+         beneath that area is show below the main pie chart.  Each row of the table contains the display path to the
+         equipment, the "satisfaction" total and a small pie chart for the zone.  Clicking anywhere in a row
+         will select that zone equipment in the system tree and therefore display the zone using the large pie chart.
+      </p>
+   </div>
+   <h1>Including in Views</h1>
+   <div class="innerDiv">
+      <img src="vbcontentproperties.png" alt="Picture of the WebApp Content properties panel in ViewBuilder" align="right" style="padding-left: 10px"/>
+      <p>
+         This add-on also offers the ability to include the pie chart in a ViewBuilder view.  To do this, place a "WebApp
+         Content" control on a view.  Once this is done, select the control and fill out the properties.
+      </p>
+      <p>
+         The "WebApp Name" property should be the name from the "Application" column of the "Web Applications" page
+         (which is the name of the WAR file without the .war extension).  Leave "Content Path" empty (no
+         other content paths are currently supported).  Pick the location to use for the pie chart.  Remember, if the
+         location is above a zone equipment, all zone equipment below that location will be analyzed and their results
+         aggregated together in the displayed pie chart.  This can be an expensive operation, so use carefully.
+      </p>
+      <p>
+         Lastly, set up any parameters that you need in order to control the behavior of the included content.  The
+         available parameters are:
+      </p>
+      <table class="params">
+         <thead>
+            <tr>
+               <th>Name</th>
+               <th>Default Value</th>
+               <th>Meaning</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr>
+               <td>prevdays</td>
+               <td>0</td>
+               <td>Equipment color data is analyzed from midnight of this number of days ago until the current time.
+                   Values are capped at 31.</td>
+            </tr>
+            <tr>
+               <td>showlegend</td>
+               <td>false</td>
+               <td>Specify "true" to show the legend of what each color in the pie chart means.</td>
+            </tr>
+            <tr>
+               <td>showtotal</td>
+               <td>false</td>
+               <td>Specify "true" to show the total "satisfaction" below the pie chart.</td>
+            </tr>
+         </tbody>
+      </table>
+   </div>
+</body>
+</html>
