@@ -11,21 +11,21 @@
 =============================================================================*/
 package com.controlj.addon.zonehistory;
 
-import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
+import com.controlj.green.addonsupport.access.Location;
 
 public class ColorTrendSource
 {
    private final String displayPath;
    private final String transientLookupString;
 
-   public ColorTrendSource(EquipmentColorTrendSource source) throws Exception
+   public ColorTrendSource(Location eqLocation) throws Exception
    {
-       String parentPath = source.getLocation().getParent().getDisplayPath();
+       String parentPath = eqLocation.getParent().getDisplayPath();
        parentPath = parentPath.substring(parentPath.lastIndexOf("/") + 1);
-       String childDisplayPath = source.getLocation().getDisplayPath();
+       String childDisplayPath = eqLocation.getDisplayPath();
 
        displayPath = childDisplayPath.substring(childDisplayPath.indexOf(parentPath));
-       transientLookupString = source.getLocation().getTransientLookupString();
+       transientLookupString = eqLocation.getTransientLookupString();
    }
 
    public ColorTrendSource(String displayPath, String transientLookupString)

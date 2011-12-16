@@ -12,6 +12,7 @@
 package com.controlj.addon.zonehistory.util;
 
 import com.controlj.green.addonsupport.AddOnInfo;
+import com.controlj.green.addonsupport.FileLogger;
 
 import java.io.PrintWriter;
 

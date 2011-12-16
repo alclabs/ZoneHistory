@@ -22,11 +22,11 @@
 
 package com.controlj.addon.zonehistory.servlets;
 
-import com.controlj.addon.zonehistory.ColorAndSetPointAcceptor;
+import com.controlj.addon.zonehistory.SetpointWithEnabledColorTrendAcceptor;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.addon.zonehistory.util.TreeIcon;
 import com.controlj.green.addonsupport.access.*;
-import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
+import com.controlj.green.addonsupport.access.aspect.SetPoint;
 import com.controlj.green.addonsupport.access.util.LocationSort;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -94,12 +94,12 @@ public class TreeDataServlet extends HttpServlet
 
    private Collection<Location> getChildren(Location location)
    {
-      AspectAcceptor<EquipmentColorTrendSource> acceptor = new ColorAndSetPointAcceptor();
+      AspectAcceptor<SetPoint> acceptor = new SetpointWithEnabledColorTrendAcceptor();
 
       List<Location> treeChildren = new ArrayList<Location>();
       for (Location child : location.getChildren(LocationSort.PRESENTATION))
       {
-         if (child.has(EquipmentColorTrendSource.class, acceptor))
+         if (child.has(SetPoint.class, acceptor))
             treeChildren.add(child);
       }
       return treeChildren;
