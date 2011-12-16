@@ -44,7 +44,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     {
                         // sort by satisfaction - low to high
                         tableData = tableChartData.sort(function(a, b) {
-                            return b.rowChart.satisfaction - a.rowChart.satisfaction;
+                            return a.rowChart.satisfaction - b.rowChart.satisfaction;
                         });
                         clearTable();
                         drawTable(tableData, 30);
