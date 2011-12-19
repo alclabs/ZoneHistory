@@ -38,6 +38,10 @@ public class ColorTrendReport
                     AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                     if (!eqAspect.getDevice().isOutOfService())
                     {
+                        if (ColorTrendProcessor.trace)
+                        {
+                            Logging.LOGGER.println("------ Processing "+equipment.getDisplayName());
+                        }
                         results.put(new ColorTrendSource(equipment), processTrendData(source, range).getColorMap());
                     }
                 } catch (Exception e) {

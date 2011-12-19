@@ -1,8 +1,11 @@
 package com.controlj.addon.zonehistory;
 
+import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.EquipmentColor;
 import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
 import com.controlj.green.addonsupport.access.trend.TrendProcessor;
+import com.controlj.green.addonsupport.access.trend.TrendRange;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +15,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
     private long lastTransitionTime;
+    public static final boolean trace = false;
 
     private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
 
@@ -25,6 +29,11 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
         lastTransitionTime = startTime.getTime();
         if (startBookend != null)
             lastColor = startBookend.value();
+
+        if (trace)
+        {
+            Logging.LOGGER.println("Process Start @"+startTime);
+        }
     }
 
     public void processData(TrendEquipmentColorSample sample)
@@ -35,6 +44,10 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 
         lastTransitionTime = transitionTime;
         lastColor = sample.value();
+        if (trace)
+        {
+            Logging.LOGGER.println("Processing data of "+lastColor+" @ "+sample.getTime());
+        }
     }
 
     private void updateColorTotal(EquipmentColor color, long timeInterval)
@@ -51,10 +64,51 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
         updateColorTotal(lastColor, start.getTime() - lastTransitionTime);
         lastTransitionTime = end.getTime();
         updateColorTotal(EquipmentColor.UNKNOWN, lastTransitionTime - start.getTime());
+        lastColor = EquipmentColor.UNKNOWN;
+        if (trace)
+        {
+            Logging.LOGGER.println("Processing hole from "+start+" to "+end);
+        }
     }
 
-    public void processEnd(Date endTime, TrendEquipmentColorSample endBookend)
+    public void processEnd(@NotNull Date endTime, TrendEquipmentColorSample endBookend)
     {
-        updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
+        if (endBookend != null) // if there is data after this
+        {
+            updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
+        } else
+        {   // we don't really know the color because there are no more samples
+            updateColorTotal(EquipmentColor.UNKNOWN, endTime.getTime() - lastTransitionTime);
+        }
+
+        if (trace)
+        {
+            Logging.LOGGER.println("Processing end @"+endTime);
+        }
+    }
+
+    public double getPercentCoverage()
+    {
+        double measuredTime = 0d;
+        double unknownTime = 0d;
+        for (EquipmentColor color : colorMap.keySet()) {
+            if (color != EquipmentColor.UNKNOWN)
+            {
+                measuredTime += colorMap.get(color);
+            } else
+            {
+                unknownTime += colorMap.get(color);
+            }
+        }
+        return (measuredTime) / (measuredTime + unknownTime) * 100.0;
+    }
+
+    public long getTotalTime()
+    {
+        long totalTime = 0;
+        for (Long time : colorMap.values()) {
+            totalTime += time;
+        }
+        return totalTime;
     }
 }

@@ -17,6 +17,8 @@ dependencies {
    compile 'taglibs:standard:1.1.2'
    compile 'org.json:json:20090211'
    testCompile 'org.spockframework:spock-core:0.5-groovy-1.8', { exclude(org: 'org.codehaus.groovy', module: 'groovy-all') }
+   testCompile 'org.hamcrest:hamcrest-all:1.1'
+
    groovy 'org.codehaus.groovy:groovy:1.8.3'
 
    providedCompile 'com.controlj.green:addonsupport-api-addon:1.2.+'

@@ -7,8 +7,9 @@ import com.controlj.green.addonsupport.access.trend.TrendType
 import static java.util.Calendar.*
 import static java.util.concurrent.TimeUnit.*
 import static com.controlj.green.addonsupport.access.EquipmentColor.*
+import static org.hamcrest.Matchers.closeTo
 
-class UnhappyTimeProcessorTest extends Specification
+class ColorTrendProcessorTest extends Specification
 {
     def date(int year, int month, int day) { new Date(year-1900, month, day) }
     class TestSample implements TrendEquipmentColorSample
@@ -31,6 +32,8 @@ class UnhappyTimeProcessorTest extends Specification
     def ONE_DAY = MILLISECONDS.convert(1, DAYS)
     def TWO_DAYS = MILLISECONDS.convert(2, DAYS)
 
+
+
     def "test when no data"()
     {
         given:
@@ -43,6 +46,7 @@ class UnhappyTimeProcessorTest extends Specification
             processor.processEnd(end, (TrendEquipmentColorSample) null)
         then:
             processor.colorMap == [(UNKNOWN) : TWO_DAYS]
+            processor.percentCoverage == 0
     }
 
     def "test when only bookends"()
@@ -57,8 +61,10 @@ class UnhappyTimeProcessorTest extends Specification
             def processor = new ColorTrendProcessor()
             processor.processStart(start, startBookend)
             processor.processEnd(end, (TrendEquipmentColorSample) null)
-        then: "the value of the start bookend should be the value for the whole time requested"
-            processor.colorMap == [(OCCUPIED) : TWO_DAYS]
+
+        then: "the value should be unknown for the time requested"
+            processor.colorMap == [(UNKNOWN) : TWO_DAYS]
+            processor.percentCoverage == 0
 
         when: "only have a end bookend (no start bookend)"
             processor = new ColorTrendProcessor()
@@ -66,6 +72,7 @@ class UnhappyTimeProcessorTest extends Specification
             processor.processEnd(end, endBookend)
         then: "the value should be unknown for the time requested"
             processor.colorMap == [(UNKNOWN) : TWO_DAYS]
+            processor.percentCoverage == 0
 
         when: "have both start and end bookend"
             processor = new ColorTrendProcessor()
@@ -73,6 +80,7 @@ class UnhappyTimeProcessorTest extends Specification
             processor.processEnd(end, endBookend)
         then: "the value of the start bookend should be the value for the whole time requested"
             processor.colorMap == [(OCCUPIED) : TWO_DAYS]
+            processor.percentCoverage == 100.0
     }
 
     def "test change of color within range"()
@@ -92,6 +100,17 @@ class UnhappyTimeProcessorTest extends Specification
 
         then: "map should have two different colors each with 1 day's time in each"
             processor.colorMap == [(OCCUPIED) : ONE_DAY, (OPERATIONAL) : ONE_DAY]
+            processor.percentCoverage == 100.0
+
+        when: "there is data, but no ending bookend"
+            processor = new ColorTrendProcessor()
+            processor.processStart(start, startBookend)
+            processor.processData(rangeSample)
+            processor.processEnd(end, (TrendEquipmentColorSample) null)
+
+        then: "map should have only the first day, with unknown for the rest"
+            processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : ONE_DAY]
+            processor.percentCoverage == 50.0
     }
 
     def "test holes within range - same color at start, middle, and end"()
@@ -109,6 +128,7 @@ class UnhappyTimeProcessorTest extends Specification
             processor.processEnd(end, endBookend)
         then: "should expect one color with 2 days of data"
             processor.colorMap == [(OCCUPIED) : TWO_DAYS, (UNKNOWN) : ONE_DAY]
+            ((double)processor.percentCoverage) closeTo(66.6, 0.1)
 
         when: "a hole at the start of the beginning of the range"
             processor = new ColorTrendProcessor();
@@ -147,6 +167,8 @@ class UnhappyTimeProcessorTest extends Specification
             processor.processEnd(end, endBookend)
         then: "expect 2 of 1st bookend, 1 day testSample1, 2 days testSample2"
             processor.colorMap == [(OPERATIONAL) : ONE_DAY, (OCCUPIED) : TWO_DAYS, (MODERATE_COOLING) : TWO_DAYS, (UNKNOWN) : TWO_DAYS]
+            processor.totalTime == ONE_DAY * 7
+            ((double)processor.percentCoverage) closeTo(500.0/7.0, 0.1)
     }
 
 
