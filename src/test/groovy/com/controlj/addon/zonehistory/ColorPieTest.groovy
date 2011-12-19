@@ -122,7 +122,7 @@ class ColorPieTest extends Specification
         when:
             double satisfaction = pie.getSatisfaction()
         then: "Divide by zero"
-            Double.isNaN(satisfaction)
+            satisfaction == 100
     }
 
     def "given null ColorSlice collection"()

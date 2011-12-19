@@ -29,6 +29,11 @@ public class ColorSlice
         return ((double)timeInColor / ((double)totalTime*numEquipment)) * 100.0;
     }
 
+    public long getTimeInColor()
+    {
+        return timeInColor;
+    }
+
     public void addTimeInColor(long timeInColor)
     {
         this.timeInColor += timeInColor;

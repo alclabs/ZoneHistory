@@ -127,7 +127,7 @@ class ColorTrendProcessorTest extends Specification
             processor.processHole(start+1, end-1)
             processor.processEnd(end, endBookend)
         then: "should expect one color with 2 days of data"
-            processor.colorMap == [(OCCUPIED) : TWO_DAYS, (UNKNOWN) : ONE_DAY]
+            processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : TWO_DAYS]
             ((double)processor.percentCoverage) closeTo(66.6, 0.1)
 
         when: "a hole at the start of the beginning of the range"

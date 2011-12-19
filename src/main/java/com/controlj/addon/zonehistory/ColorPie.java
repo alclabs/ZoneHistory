@@ -28,6 +28,18 @@ public class ColorPie
         return totalTime;
     }
 
+    public long getTotalKnownTime()
+    {
+        long result = 0;
+        for (ColorSlice slice : colorSlices) {
+            if (!slice.getEquipmentColor().equals(EquipmentColor.UNKNOWN))
+            {
+                result += slice.getTimeInColor();
+            }
+        }
+        return result;
+    }
+
     public double getSlicePercent(ColorSlice slice)
     {
         return slice.getPercentTimeInColor(totalTime, numEquipment);
@@ -35,16 +47,22 @@ public class ColorPie
 
     public double getSatisfaction()
     {
-        double happyPercent = 0.0, unhappyPercent = 0.0;
-        for (ColorSlice cs : colorSlices)
+        long happyTime = 0, unhappyTime = 0;
+        long knownTime = getTotalKnownTime();
+
+        if (knownTime == 0)
+        {
+            return -1;  // marker value for all unknown
+        }
+        else for (ColorSlice cs : colorSlices)
         {
             if (cs.getEquipmentColor() == EquipmentColor.UNOCCUPIED || cs.getEquipmentColor() == EquipmentColor.OPERATIONAL ||
-                cs.getEquipmentColor() == EquipmentColor.SPECKLED_GREEN)
-                happyPercent += cs.getPercentTimeInColor(totalTime, numEquipment);
-            else
-                unhappyPercent += cs.getPercentTimeInColor(totalTime, numEquipment);
+                cs.getEquipmentColor() == EquipmentColor.SPECKLED_GREEN || cs.getEquipmentColor()==EquipmentColor.OCCUPIED)
+                happyTime += cs.getTimeInColor();
+            else if (cs.getEquipmentColor() != EquipmentColor.UNKNOWN)
+                unhappyTime += cs.getTimeInColor();
         }
 
-        return happyPercent / (happyPercent + unhappyPercent) * 100.0;
+        return happyTime * 100.0 / (happyTime + unhappyTime);
     }
 }

@@ -30,7 +30,9 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
                 if (showTotal)
                 {
-                    var mainSatisfaction = "Satisfaction: " + Math.round(mainChartData.satisfaction) + "%";
+                    var satisfactionNumber = Math.round(mainChartData.satisfaction);
+                    var satisfactionText = satisfactionNumber==-1?"N/A":satisfactionNumber+"%";
+                    var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
                     var textY = getCoords(2*radius+10, animationScale);
                     var text = mainChartLocation.text(textX, textY, mainSatisfaction);
@@ -127,7 +129,7 @@ function drawTable(tableData, sparklineDiameter)
         var satisfactionNumber = Math.round(item.rowChart.satisfaction);
         var tableRow =
                 "<tr class="+style+" onclick=\"$(\'#tree\').dynatree(\'getTree\').activateKey(\'" + transientLookup + "\')\"><td>" +
-                eqLink + '</td><td style="text-align: center;">' + satisfactionNumber + "%" +
+                eqLink + '</td><td style="text-align: center;">' + (satisfactionNumber==-1?"N/A":(satisfactionNumber + "%")) +
                 '</td><td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
 
