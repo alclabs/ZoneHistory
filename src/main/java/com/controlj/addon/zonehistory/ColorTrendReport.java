@@ -50,7 +50,7 @@ public class ColorTrendReport
                 }
             }
 
-            return new ColorTrendResults(endDate.getTime() - startDate.getTime(), results);
+            return new ColorTrendResults(results);
          }
       });
    }

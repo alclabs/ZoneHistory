@@ -24,9 +24,16 @@ public class ColorSlice
         return color.getColor();
     }
 
-    public double getPercentTimeInColor(long totalTime, int numEquipment)
+    public double getPercentTimeInColor(long totalTime)
     {
-        return ((double)timeInColor / ((double)totalTime*numEquipment)) * 100.0;
+        if (totalTime == 0)
+        {
+            return 100.0;
+        }
+        else
+        {
+            return (double)timeInColor / totalTime * 100.0;
+        }
     }
 
     public long getTimeInColor()

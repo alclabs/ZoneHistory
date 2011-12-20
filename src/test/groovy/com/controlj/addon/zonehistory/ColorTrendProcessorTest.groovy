@@ -128,15 +128,15 @@ class ColorTrendProcessorTest extends Specification
             processor.processEnd(end, endBookend)
         then: "should expect one color with 2 days of data"
             processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : TWO_DAYS]
-            ((double)processor.percentCoverage) closeTo(66.6, 0.1)
+            ((double)processor.percentCoverage) closeTo(33.3, 0.1)
 
         when: "a hole at the start of the beginning of the range"
             processor = new ColorTrendProcessor();
             processor.processStart(start, startBookend)
             processor.processHole(start, start+1)
             processor.processEnd(end, endBookend)
-        then: "should expect to see two days of the color of the beginning bookend"
-            processor.colorMap == [(OCCUPIED) : TWO_DAYS, (UNKNOWN) : ONE_DAY]
+        then: "should expect to see 0 days of Occupied and total duration of unknown"
+            processor.colorMap == [(OCCUPIED) : 0, (UNKNOWN) : ONE_DAY * 3]
 
         when: "a hole at the end of the range"
             processor = new ColorTrendProcessor();

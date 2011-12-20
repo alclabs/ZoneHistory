@@ -17,12 +17,10 @@ import java.util.*;
 
 public class ColorTrendResults
 {
-   private final long totalTime;
    private final Map<ColorTrendSource, Map<EquipmentColor, Long>> results;
 
-   public ColorTrendResults(long totalTime, Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
+   public ColorTrendResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
    {
-      this.totalTime = totalTime;
       this.results = results;
    }
 
@@ -34,15 +32,15 @@ public class ColorTrendResults
    public ColorPie getPieForSource(ColorTrendSource source)
    {
       Map<EquipmentColor, Long> equipmentColorMap = results.get(source);
-      return computeResult(totalTime, Collections.singleton(equipmentColorMap));
+      return computeResult(Collections.singleton(equipmentColorMap));
    }
 
    public ColorPie getTotalPie()
    {
-      return computeResult(totalTime, results.values());
+      return computeResult(results.values());
    }
 
-   private ColorPie computeResult(long totalTime, Collection<Map<EquipmentColor, Long>> mapList)
+   private ColorPie computeResult(Collection<Map<EquipmentColor, Long>> mapList)
    {
       Map<EquipmentColor, ColorSlice> results = new HashMap<EquipmentColor, ColorSlice>();
       for (Map<EquipmentColor, Long> colorMap : mapList)
@@ -60,6 +58,6 @@ public class ColorTrendResults
             slice.addTimeInColor(colorEntry.getValue());
          }
       }
-      return new ColorPie(results.values(), totalTime, mapList.size());
+      return new ColorPie(results.values());
    }
 }

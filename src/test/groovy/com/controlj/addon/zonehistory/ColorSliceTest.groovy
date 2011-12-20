@@ -17,19 +17,9 @@ class ColorSliceTest  extends Specification
         given: "New slice and correct time"
             ColorSlice cs = slice(OPERATIONAL, 5000L)
         when:
-            double percent = Math.round(cs.getPercentTimeInColor(10000L, 3))
+            double percent = Math.round(cs.getPercentTimeInColor(10000L))
         then: "determine if percent is correct"
-            percent == Math.round(100 * 5000L / 10000L / 3)
-    }
-
-    def "Negative slice time" ()
-    {
-        given:
-            ColorSlice cs = slice(OPERATIONAL, -5000L)
-        when:
-            double percent = Math.round(cs.getPercentTimeInColor(10000L, 3))
-        then: "determine if percent is negative"
-            percent == Math.round(100 * -5000L / 10000L / 3)
+            percent == Math.round(100 * 5000L / 10000L)
     }
 
     def "Zero slice time"()
@@ -37,8 +27,8 @@ class ColorSliceTest  extends Specification
         given:
             ColorSlice cs = slice(OPERATIONAL, 0L)
         when:
-            double percent = Math.round(cs.getPercentTimeInColor(10000L, 3))
+            double percent = Math.round(cs.getPercentTimeInColor(10000L))
         then: "determine if percent is zero"
-            percent == Math.round(100 * 0L / 10000L / 3)
+            percent == 0
     }
 }

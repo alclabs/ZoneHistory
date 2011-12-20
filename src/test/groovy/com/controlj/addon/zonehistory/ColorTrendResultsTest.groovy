@@ -21,7 +21,7 @@ class ColorTrendResultsTest extends Specification
             def map2 = [(MODERATE_COOLING) : 2000L, (UNOCCUPIED) : 5000L]
             def map3 = [(OPERATIONAL) : 1000L, (MODERATE_HEATING) : 3000L]
             def sourcesMap = [(source()) : map1, (source()) : map2, (source()) : map3]
-            ColorTrendResults results = new ColorTrendResults(14000L, sourcesMap)
+            ColorTrendResults results = new ColorTrendResults(sourcesMap)
 
         when: "computeResults executes"
             def pie = results.getTotalPie()
@@ -29,7 +29,7 @@ class ColorTrendResultsTest extends Specification
         then: "compare results"
             slices == [slice(MODERATE_COOLING, 2000), slice(MODERATE_HEATING, 3000), slice(OCCUPIED, 1000),
                        slice(OPERATIONAL, 3000), slice(UNOCCUPIED, 5000)]
-            results.totalTime == 14000L
+            pie.totalKnownTime == 14000L
     }
 
     def "Test if computeResults gives empty list"()
@@ -39,7 +39,7 @@ class ColorTrendResultsTest extends Specification
             def map2 = [(MODERATE_COOLING) : 2000L, (UNOCCUPIED) : 5000L]
             def map3 = [(OPERATIONAL) : 1000L, (MODERATE_HEATING) : 3000L]
             def sourcesMap = [(source()) : map1, (source()) : map2, (source()) : map3]
-            ColorTrendResults results = new ColorTrendResults(14000L, sourcesMap)
+            ColorTrendResults results = new ColorTrendResults(sourcesMap)
 
         when: "execution of computeResults"
             def pie = results.getTotalPie()

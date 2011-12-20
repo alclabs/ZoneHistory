@@ -12,6 +12,13 @@ class ColorPieTest extends Specification
         colorSlice.timeInColor = time
         colorSlice
     }
+
+    long totalSliceTime(List<ColorSlice> slices)
+    {
+        slices.inject(0) { acc, slice ->
+            acc + slice.timeInColor
+        }
+    }
     
     def "Given all colors, get the correct satisfaction for the color pie" ()
     {
@@ -25,12 +32,32 @@ class ColorPieTest extends Specification
             ColorSlice cs7 = slice(HEATING_ALARM, 20000L)
             ColorSlice cs8 = slice(UNKNOWN, 40000L)
 
-            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5, cs6, cs7, cs8], 300000L, 5) // five hours, five equipment
+            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5, cs6, cs7, cs8]) // five hours, five equipment
+            long totalKnown = totalSliceTime([cs1, cs2, cs3, cs4, cs5, cs6, cs7])
+
         when: "pie calculates satisfaction"
             double satisfaction = pie.getSatisfaction();
         then:
-            Math.round(satisfaction) == 100 * (50000L + 40000L + 30000L) / 300000L
+            Math.round(satisfaction) == Math.round(100 * totalSliceTime([cs1, cs2, cs5]) / totalKnown)
+
+        expect:
+            Math.round(pie.getSlicePercent(cs1)) == Math.round(cs1.getTimeInColor() *100 / totalKnown )
     }
+
+    def "all unknown"()
+    {
+        given:
+            ColorSlice cs1 = slice(UNKNOWN, 40000L)
+
+            ColorPie pie = new ColorPie([cs1])
+
+            double satisfaction = pie.getSatisfaction();
+
+        expect:
+            satisfaction == -1
+            Math.round(pie.getSlicePercent(cs1)) == 100
+    }
+
 
     def "No satisfaction colors"()
     {
@@ -41,7 +68,7 @@ class ColorPieTest extends Specification
             ColorSlice cs4 = slice(HEATING_ALARM, 70000L)
             ColorSlice cs5 = slice(UNKNOWN, 30000L)
 
-            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5], 200000L, 5)
+            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5])
         when:
             double satisfaction = pie.getSatisfaction()
         then:
@@ -54,81 +81,19 @@ class ColorPieTest extends Specification
             ColorSlice cs1 = slice(UNOCCUPIED, 50000L)
             ColorSlice cs2 = slice(OPERATIONAL, 40000L)
             ColorSlice cs3 = slice(SPECKLED_GREEN, 20000L)
-
-            ColorPie pie = new ColorPie([cs1, cs2, cs3], 110000, 5)
+            ColorSlice cs4 = slice(OCCUPIED, 50000L)
+            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4])
         when:
             double satisfaction = pie.getSatisfaction()
         then:
             Math.round(satisfaction) == 100.0
-
-
     }
 
-    def "only one equipment" ()
-    {
-        given:
-            ColorSlice cs1 = slice(MODERATE_COOLING, 50000L)
-            ColorSlice cs2 = slice(MODERATE_HEATING, 40000L)
-            ColorSlice cs3 = slice(OPERATIONAL, 10000L)
-            ColorSlice cs4 = slice(HEATING_ALARM, 70000L)
-            ColorSlice cs5 = slice(UNKNOWN, 30000L)
-
-            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5], 200000L, 1)
-        when:
-            double satisfaction = pie.getSatisfaction()
-        then:
-            Math.round(satisfaction) == 100 * (10000L /  200000L)
-    }
-
-    def "given no equipment" ()
-    {
-        given:
-            ColorSlice cs1 = slice(MODERATE_COOLING, 50000L)
-            ColorSlice cs2 = slice(MODERATE_HEATING, 40000L)
-            ColorSlice cs3 = slice(OPERATIONAL, 10000L)
-            ColorSlice cs4 = slice(HEATING_ALARM, 70000L)
-            ColorSlice cs5 = slice(UNKNOWN, 30000L)
-
-            ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5], 200000L, 0)
-        when:
-            double satisfaction = pie.getSatisfaction()
-        then:
-            Double.isNaN(satisfaction)
-    }
-
-    def "given negative total time"()
-    {
-        given:
-            ColorSlice cs1 = slice(OPERATIONAL, 80000L)
-            ColorSlice cs2 = slice(UNKNOWN, 20000L)
-            ColorSlice cs3 = slice(COOLING_ALARM, 50000L)
-
-            ColorPie pie = new ColorPie([cs1, cs2, cs3], -150000L, 2)
-        when:
-            double satisfaction = Math.round(pie.getSatisfaction())
-        then: "negative time is the same as positive time"
-            satisfaction == Math.round(100 * 80000L / 150000L)
-            // result is due to pie.getSatisfaction's happyPercent and unhappyPercent both being negative
-            // therefore when divided, the result is the same.
-    }
-
-    def "given no time" ()
-    {
-        given:
-            ColorSlice cs1 = slice(OPERATIONAL, 80000L)
-            ColorSlice cs2 = slice(UNKNOWN, 20000L)
-
-            ColorPie pie = new ColorPie([cs1, cs2], 0L, 2)
-        when:
-            double satisfaction = pie.getSatisfaction()
-        then: "Divide by zero"
-            satisfaction == 100
-    }
 
     def "given null ColorSlice collection"()
     {
         when:
-            new ColorPie(null, 50000L, 2)
+            new ColorPie(null)
         then:
             thrown(NullPointerException)
     }

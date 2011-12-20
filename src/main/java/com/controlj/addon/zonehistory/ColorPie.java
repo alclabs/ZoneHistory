@@ -8,14 +8,12 @@ import java.util.Collections;
 public class ColorPie
 {
     private final Collection<ColorSlice> colorSlices;
-    private final long totalTime;
-    private final int numEquipment;
+    private final long totalKnownTime;
 
-    public ColorPie(Collection<ColorSlice> colorSlices, long totalTime, int numEquipment)
+    public ColorPie(Collection<ColorSlice> colorSlices)
     {
         this.colorSlices = Collections.unmodifiableCollection(colorSlices);
-        this.totalTime = totalTime;
-        this.numEquipment = numEquipment;
+        this.totalKnownTime = computeTotalKnownTime();
     }
 
     public Collection<ColorSlice> getColorSlices()
@@ -23,16 +21,16 @@ public class ColorPie
         return colorSlices;
     }
 
-    public long getTotalTime()
+    public long getTotalKnownTime()
     {
-        return totalTime;
+        return totalKnownTime;
     }
 
-    public long getTotalKnownTime()
+    private long computeTotalKnownTime()
     {
         long result = 0;
         for (ColorSlice slice : colorSlices) {
-            if (!slice.getEquipmentColor().equals(EquipmentColor.UNKNOWN))
+            if (slice.getEquipmentColor() != EquipmentColor.UNKNOWN)
             {
                 result += slice.getTimeInColor();
             }
@@ -42,13 +40,13 @@ public class ColorPie
 
     public double getSlicePercent(ColorSlice slice)
     {
-        return slice.getPercentTimeInColor(totalTime, numEquipment);
+        return slice.getPercentTimeInColor(totalKnownTime);
     }
 
     public double getSatisfaction()
     {
         long happyTime = 0, unhappyTime = 0;
-        long knownTime = getTotalKnownTime();
+        long knownTime = computeTotalKnownTime();
 
         if (knownTime == 0)
         {
