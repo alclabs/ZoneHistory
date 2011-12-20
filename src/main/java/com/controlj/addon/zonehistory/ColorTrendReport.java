@@ -1,6 +1,6 @@
 package com.controlj.addon.zonehistory;
 
-import com.controlj.addon.zonehistory.util.FindNodes;
+import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.InvalidConnectionRequestException;
 import com.controlj.green.addonsupport.access.*;
@@ -34,7 +34,7 @@ public class ColorTrendReport
             for (EquipmentColorTrendSource source : sources)
             {
                 try {
-                    Location equipment = FindNodes.findMyEquipment(source.getLocation());
+                    Location equipment = LocationUtilities.findMyEquipment(source.getLocation());
                     AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                     if (!eqAspect.getDevice().isOutOfService())
                     {
@@ -42,7 +42,7 @@ public class ColorTrendReport
                         {
                             Logging.LOGGER.println("------ Processing "+equipment.getDisplayName());
                         }
-                        results.put(new ColorTrendSource(equipment), processTrendData(source, range).getColorMap());
+                        results.put(new ColorTrendSource(start, equipment), processTrendData(source, range).getColorMap());
                     }
                 } catch (Exception e) {
                     Logging.LOGGER.println("Error processing trend data");

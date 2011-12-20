@@ -3,11 +3,12 @@ package com.controlj.addon.zonehistory.util;
 import com.controlj.green.addonsupport.access.Location;
 import com.controlj.green.addonsupport.access.LocationType;
 import com.controlj.green.addonsupport.access.UnresolvableException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Static utilities to find nodes.
  */
-public class FindNodes
+public class LocationUtilities
 {
     /**
      * Finds a parent equipment
@@ -23,6 +24,20 @@ public class FindNodes
            }
        }
        return insideEq;
+   }
+
+   public static String relativeDisplayPath(@NotNull Location ancestor, @NotNull Location descendant) throws UnresolvableException {
+       StringBuilder result = new StringBuilder();
+       Location current = descendant.getParent();
+
+       result.append(descendant.getDisplayName());
+
+       while (!current.equals(ancestor)) {
+           result.insert(0, " / ");
+           result.insert(0, current.getDisplayName());
+           current = current.getParent();
+       }
+       return result.toString();
    }
 
 }
