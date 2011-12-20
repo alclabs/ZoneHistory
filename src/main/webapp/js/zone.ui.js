@@ -58,6 +58,7 @@ $(function()
 
 function runReport()
 {
+   $("#welcome").css('display','none');
    clearTable();
 
    var location = getActiveNodeKey();

@@ -24,8 +24,9 @@ public class ResultsServlet extends HttpServlet
        response.setContentType("application/json");
        final String loc = request.getParameter("location");
        final WebContext webContext = extractWebContext(request); // this will be null if NOT from an ViewBuilder include
-       final Date startDate = determineStartDate(request.getParameter("prevdays"));
-       final Date endDate = new Date();
+       String daysString = request.getParameter("prevdays");
+       final Date startDate = determineStartDate(daysString);
+       final Date endDate = determineEndDate(daysString);
        final HttpServletResponse finalResponse = response;
 
        try
@@ -75,29 +76,51 @@ public class ResultsServlet extends HttpServlet
 
    private Date determineStartDate(String daysString)
    {
-      int numberOfDays = 0;
-      try
-      {
-         numberOfDays = Integer.parseInt(daysString);
-      }
-      catch (NumberFormatException e)
-      {
-         e.printStackTrace(Logging.LOGGER);
-      }
+      int numberOfDays = getNumberOfDays(daysString);
 
-      if (numberOfDays < 0)
-         numberOfDays = 0;
-      else if (numberOfDays > 31)
-         numberOfDays = 31;
+      return getMidnight(numberOfDays);
+   }
 
-      Calendar cal = Calendar.getInstance();
-      cal.set(Calendar.HOUR, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
-      cal.set(Calendar.MILLISECOND, 0);
-      cal.add(Calendar.DAY_OF_MONTH, 0 - numberOfDays);
+   private Date determineEndDate(String daysString)
+   {
+       int numberOfDays = getNumberOfDays(daysString);
+       if (numberOfDays == 0)
+       {
+           return new Date();
+       }
+       return getMidnight(0);
+   }
 
-      return cal.getTime();
+   private int getNumberOfDays(String daysString)
+   {
+       int numberOfDays = 0;
+       try
+       {
+          numberOfDays = Integer.parseInt(daysString);
+       }
+       catch (NumberFormatException e)
+       {
+          e.printStackTrace(Logging.LOGGER);
+       }
+
+       if (numberOfDays < 0)
+          numberOfDays = 0;
+       else if (numberOfDays > 31)
+          numberOfDays = 31;
+
+       return numberOfDays;
+   }
+
+   private Date getMidnight(int daysAgo)
+   {
+       Calendar cal = Calendar.getInstance();
+       cal.set(Calendar.HOUR, 0);
+       cal.set(Calendar.MINUTE, 0);
+       cal.set(Calendar.SECOND, 0);
+       cal.set(Calendar.MILLISECOND, 0);
+       cal.add(Calendar.DAY_OF_MONTH, 0 - daysAgo);
+
+       return cal.getTime();
    }
 
    private JSONArray createTable(ColorTrendResults colorTrendResults) throws JSONException
