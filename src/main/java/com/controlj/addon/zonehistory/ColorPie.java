@@ -8,12 +8,12 @@ import java.util.Collections;
 public class ColorPie
 {
     private final Collection<ColorSlice> colorSlices;
-    private final long totalKnownTime;
+    private long totalKnownTime = 0, totalTime = 0, satisfiedTime = 0;
 
     public ColorPie(Collection<ColorSlice> colorSlices)
     {
         this.colorSlices = Collections.unmodifiableCollection(colorSlices);
-        this.totalKnownTime = computeTotalKnownTime();
+        computeTotalTimes();
     }
 
     public Collection<ColorSlice> getColorSlices()
@@ -26,41 +26,42 @@ public class ColorPie
         return totalKnownTime;
     }
 
-    private long computeTotalKnownTime()
+    public long getTotalTime()
     {
-        long result = 0;
+        return totalTime;
+    }
+
+    private void computeTotalTimes()
+    {
+
         for (ColorSlice slice : colorSlices) {
-            if (slice.getEquipmentColor() != EquipmentColor.UNKNOWN)
+            long sliceTime = slice.getTimeInColor();
+            EquipmentColor color = slice.getEquipmentColor();
+            if (color != EquipmentColor.UNKNOWN)
             {
-                result += slice.getTimeInColor();
+                totalKnownTime += sliceTime;
             }
+            if (color == EquipmentColor.UNOCCUPIED || color == EquipmentColor.OPERATIONAL ||
+                color == EquipmentColor.SPECKLED_GREEN || color == EquipmentColor.OCCUPIED)
+            {
+                satisfiedTime += sliceTime;
+            }
+            totalTime += sliceTime;
         }
-        return result;
     }
 
     public double getSlicePercent(ColorSlice slice)
     {
-        return slice.getPercentTimeInColor(totalKnownTime);
+        return slice.getPercentTimeInColor(totalTime);
     }
 
     public double getSatisfaction()
     {
-        long happyTime = 0, unhappyTime = 0;
-        long knownTime = computeTotalKnownTime();
-
-        if (knownTime == 0)
+        if (totalKnownTime == 0)
         {
             return -1;  // marker value for all unknown
         }
-        else for (ColorSlice cs : colorSlices)
-        {
-            if (cs.getEquipmentColor() == EquipmentColor.UNOCCUPIED || cs.getEquipmentColor() == EquipmentColor.OPERATIONAL ||
-                cs.getEquipmentColor() == EquipmentColor.SPECKLED_GREEN || cs.getEquipmentColor()==EquipmentColor.OCCUPIED)
-                happyTime += cs.getTimeInColor();
-            else if (cs.getEquipmentColor() != EquipmentColor.UNKNOWN)
-                unhappyTime += cs.getTimeInColor();
-        }
 
-        return happyTime * 100.0 / (happyTime + unhappyTime);
+        return satisfiedTime * 100.0 / totalKnownTime;
     }
 }

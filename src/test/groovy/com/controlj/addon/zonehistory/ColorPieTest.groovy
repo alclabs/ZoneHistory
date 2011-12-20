@@ -33,15 +33,16 @@ class ColorPieTest extends Specification
             ColorSlice cs8 = slice(UNKNOWN, 40000L)
 
             ColorPie pie = new ColorPie([cs1, cs2, cs3, cs4, cs5, cs6, cs7, cs8]) // five hours, five equipment
-            long totalKnown = totalSliceTime([cs1, cs2, cs3, cs4, cs5, cs6, cs7])
+            long totalTime = totalSliceTime([cs1, cs2, cs3, cs4, cs5, cs6, cs7, cs8])
+            long totalKnownTime = totalTime - cs8.getTimeInColor();
 
         when: "pie calculates satisfaction"
             double satisfaction = pie.getSatisfaction();
         then:
-            Math.round(satisfaction) == Math.round(100 * totalSliceTime([cs1, cs2, cs5]) / totalKnown)
+            Math.round(satisfaction) == Math.round(100 * totalSliceTime([cs1, cs2, cs5]) / totalKnownTime)
 
         expect:
-            Math.round(pie.getSlicePercent(cs1)) == Math.round(cs1.getTimeInColor() *100 / totalKnown )
+            Math.round(pie.getSlicePercent(cs1)) == Math.round(cs1.getTimeInColor() *100 / totalTime )
     }
 
     def "all unknown"()
