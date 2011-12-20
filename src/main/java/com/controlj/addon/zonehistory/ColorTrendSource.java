@@ -21,13 +21,6 @@ public class ColorTrendSource
 
    public ColorTrendSource(Location ancestor, Location eqLocation) throws Exception
    {
-       /*
-       String parentPath = eqLocation.getParent().getDisplayPath();
-       parentPath = parentPath.substring(parentPath.lastIndexOf("/") + 1);
-       String childDisplayPath = eqLocation.getDisplayPath();
-
-       displayPath = childDisplayPath.substring(childDisplayPath.indexOf(parentPath));
-       */
        displayPath = LocationUtilities.relativeDisplayPath(ancestor, eqLocation);
        transientLookupString = eqLocation.getTransientLookupString();
    }

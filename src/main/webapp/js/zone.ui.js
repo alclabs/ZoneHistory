@@ -9,6 +9,7 @@ $(function()
                 title: "System",
                 selectMode:1,
                 autoCollapse:true,
+                autoFocus:false,
 
                 initAjax:
                 {

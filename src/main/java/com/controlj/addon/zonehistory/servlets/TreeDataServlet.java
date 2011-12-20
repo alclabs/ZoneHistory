@@ -117,9 +117,6 @@ public class TreeDataServlet extends HttpServlet
       {
          JSONObject next = new JSONObject();
 
-         if (!location.hasParent())
-            next.put("activate", true);
-
          next.put("title", location.getDisplayName());
          next.put("key", location.getTransientLookupString());
          next.put("path", location.getDisplayPath());
