@@ -20,6 +20,7 @@ dependencies {
 
    testCompile 'org.spockframework:spock-core:0.5-groovy-1.8', { exclude(org: 'org.codehaus.groovy', module: 'groovy-all') }
    testCompile 'org.hamcrest:hamcrest-all:1.1'
+   testCompile 'com.googlecode.multithreadedtc:multithreadedtc:1.01'
 
    groovy 'org.codehaus.groovy:groovy:1.8.3'
 

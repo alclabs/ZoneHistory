@@ -31,15 +31,14 @@
         <servlet-class>com.controlj.addon.zonehistory.servlets.TreeDataServlet</servlet-class>
     </servlet>
 
+    <servlet-mapping>
+        <servlet-name>treedata</servlet-name>
+        <url-pattern>/servlets/treedata/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>results</servlet-name>
         <servlet-class>com.controlj.addon.zonehistory.servlets.ResultsServlet</servlet-class>
-    </servlet>
-
-
-    <servlet>
-        <servlet-name>view_include</servlet-name>
-        <jsp-file>/view_include.jsp</jsp-file>
     </servlet>
 
     <servlet-mapping>
@@ -47,15 +46,26 @@
         <url-pattern>/servlets/results/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>resetcache</servlet-name>
+        <servlet-class>com.controlj.addon.zonehistory.servlets.ResetCacheServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>resetcache</servlet-name>
+        <url-pattern>/resetcache</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>view_include</servlet-name>
+        <jsp-file>/view_include.jsp</jsp-file>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>view_include</servlet-name>
         <url-pattern>/include_content</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>treedata</servlet-name>
-        <url-pattern>/servlets/treedata/*</url-pattern>
-    </servlet-mapping>
 
    <security-constraint>
       <web-resource-collection>

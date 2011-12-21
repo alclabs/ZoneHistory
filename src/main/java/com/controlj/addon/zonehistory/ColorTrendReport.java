@@ -1,5 +1,6 @@
 package com.controlj.addon.zonehistory;
 
+import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.cache.ZoneHistory;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
 import com.controlj.addon.zonehistory.util.LocationUtilities;
@@ -26,7 +27,7 @@ public class ColorTrendReport
    public ColorTrendResults runReport(final Date startDate, final Date endDate, final Location start)
          throws SystemException, ActionExecutionException
    {
-      final TrendRange range = TrendRangeFactory.byDateRange(startDate, endDate);
+      final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
       return system.runReadAction(new ReadActionResult<ColorTrendResults>()
       {
          @Override public ColorTrendResults execute(@NotNull SystemAccess systemAccess) throws Exception
@@ -44,38 +45,56 @@ public class ColorTrendReport
                 zoneHistories = ZoneHistoryCache.INSTANCE.addDescendantZoneHistories(start, newHistories);
              }
             timer.stop();
-            Logging.LOGGER.println("Search for trend sources beneath '"+start.getDisplayPath()+"' took "+timer);
+            //Logging.LOGGER.println("Search for trend sources beneath '"+start.getDisplayPath()+"' took "+timer);
 
 
             StopWatch processTimer = new StopWatch();
             processTimer.start();
             processTimer.suspend();
 
+            boolean firstZone = true;
+
             Map<ColorTrendSource, Map<EquipmentColor, Long>> results = new HashMap<ColorTrendSource, Map<EquipmentColor, Long>>();
             for (ZoneHistory zoneHistory : zoneHistories)
             {
-                EquipmentColorTrendSource source = zoneHistory.getEquipmentColorLocation().getAspect(EquipmentColorTrendSource.class);
-                try {
-                    Location equipment = LocationUtilities.findMyEquipment(source.getLocation());
-                    AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
-                    if (!eqAspect.getDevice().isOutOfService())
-                    {
-                        if (ColorTrendProcessor.trace)
-                        {
-                            Logging.LOGGER.println("------ Processing "+equipment.getDisplayName());
-                        }
-                        processTimer.resume();
-                        ColorTrendProcessor processor = processTrendData(source, range);
-                        processTimer.suspend();
+                Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
+                Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
 
-                        results.put(new ColorTrendSource(start, equipment), processor.getColorMap());
+                if (firstZone) {
+                    //Logging.LOGGER.println("For "+equipment.getDisplayName()+", cache has "+zoneHistory.getCacheSize()+" entries and object is "+zoneHistory);
+                    firstZone = false;
+                }
+
+                DateRange range = new DateRange(startDate, endDate);
+                Map<EquipmentColor, Long> colorMap = zoneHistory.getMapForDates(range);
+
+                if (colorMap == null) {
+                    EquipmentColorTrendSource source = equipmentColorLocation.getAspect(EquipmentColorTrendSource.class);
+                    try {
+                        AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
+                        if (!eqAspect.getDevice().isOutOfService())
+                        {
+                            if (ColorTrendProcessor.trace)
+                            {
+                                Logging.LOGGER.println("------ Processing "+equipment.getDisplayName());
+                            }
+                            processTimer.resume();
+                            ColorTrendProcessor processor = processTrendData(source, trendRange);
+                            processTimer.suspend();
+
+                            colorMap = zoneHistory.addMap(range, processor.getColorMap());
+                        }
+                    } catch (Exception e) {
+                        Logging.LOGGER.println("Error processing trend data");
+                        e.printStackTrace(Logging.LOGGER);
                     }
-                } catch (Exception e) {
-                    Logging.LOGGER.println("Error processing trend data");
-                    e.printStackTrace(Logging.LOGGER);
+                }
+                if (colorMap != null) {
+                    results.put(new ColorTrendSource(start, equipment), colorMap);
                 }
             }
-            Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
+            //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
+            //Logging.LOGGER.println();
             return new ColorTrendResults(results);
          }
       });

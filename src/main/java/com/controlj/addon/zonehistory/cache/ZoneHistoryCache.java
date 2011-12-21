@@ -35,7 +35,6 @@ public enum ZoneHistoryCache {
                     result.add(getOfficialZoneHistory(newHistory));
                 }
                 ancestryMap.put(lus, result);
-                result = newHistories;
             } else {
                 result = existingHistories;
             }
@@ -44,7 +43,7 @@ public enum ZoneHistoryCache {
     }
 
     private ZoneHistory getOfficialZoneHistory(ZoneHistory newHistory) {
-        String lus = newHistory.getEquipmentColorLocation().getTransientLookupString();
+        String lus = newHistory.getEquipmentColorLookupString();
         synchronized (this) {
             ZoneHistory zoneHistory = zoneHistoryMap.get(lus);
             if (zoneHistory == null) {
@@ -53,5 +52,10 @@ public enum ZoneHistoryCache {
             }
             return zoneHistory;
         }
+    }
+
+    public synchronized void reset() {
+        ancestryMap.clear();
+        zoneHistoryMap.clear();
     }
 }
