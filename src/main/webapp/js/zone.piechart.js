@@ -126,9 +126,10 @@ function drawTable(tableData, sparklineDiameter)
         var rowId = 'lil_chart_' + index;
         var style = index % 2 == 1 ? "odd" : "even"
         var transientLookup = item.eqTransLookup;
+        var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.satisfaction);
         var tableRow =
-                "<tr class="+style+" onclick=\"$(\'#tree\').dynatree(\'getTree\').activateKey(\'" + transientLookup + "\')\"><td>" +
+                "<tr class="+style+" onclick=\"jumpToTreeLocation(\'"+path+"\')\"><td>" +
                 eqLink + '</td><td style="text-align: center;">' + (satisfactionNumber==-1?"N/A":(satisfactionNumber + "%")) +
                 '</td><td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 

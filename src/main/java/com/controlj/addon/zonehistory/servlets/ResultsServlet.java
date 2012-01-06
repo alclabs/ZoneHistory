@@ -134,6 +134,7 @@ public class ResultsServlet extends HttpServlet
 
          tableRow.put("eqDisplayName", cts.getDisplayPath());
          tableRow.put("eqTransLookup", cts.getTransientLookupString());
+         tableRow.put("eqTransLookupPath", cts.getTransientLookupPathString());
          tableRow.put("rowChart", toChartJSON(colorTrendResults.getPieForSource(cts)));
 
          tableData.put(tableRow);

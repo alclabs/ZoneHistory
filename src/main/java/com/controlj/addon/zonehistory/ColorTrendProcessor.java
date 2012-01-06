@@ -73,18 +73,21 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 
     public void processEnd(@NotNull Date endTime, TrendEquipmentColorSample endBookend)
     {
-        if (endBookend != null) // if there is data after this
-        {
-            updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
-        } else
-        {   // we don't really know the color because there are no more samples
-            updateColorTotal(EquipmentColor.UNKNOWN, endTime.getTime() - lastTransitionTime);
-        }
-
         if (trace)
         {
             Logging.LOGGER.println("Processing end @"+endTime);
         }
+
+        if (endBookend != null) // if there is data after this
+        {
+            updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
+            if (trace) Logging.LOGGER.println("End has bookend at "+endBookend.getTime());
+        } else
+        {   // we don't really know the color because there are no more samples
+            updateColorTotal(EquipmentColor.UNKNOWN, endTime.getTime() - lastTransitionTime);
+            if (trace) Logging.LOGGER.println("End has no bookend");
+        }
+
     }
 
     public double getPercentCoverage()

@@ -57,6 +57,16 @@ $(function()
 
 });
 
+function jumpToTreeLocation(keyPath)
+{
+    var dynatree = $('#tree').dynatree('getTree');
+    dynatree.loadKeyPath(keyPath, function(node,status) {
+        if (status == 'ok') {
+            node.activate();
+        }
+    });
+}
+
 function runReport()
 {
    $("#welcome").css('display','none');
