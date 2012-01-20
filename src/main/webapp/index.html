@@ -109,8 +109,12 @@
          background-color: #eeeeee;
       }
 
-      a.help {
+      .right {
          float: right;
+      }
+
+      a.dim:link, a.dim:visited {
+          color:#999;
       }
    </style>
 
@@ -133,7 +137,10 @@
         <td id="treecell" height="100%"><div id="tree"></div></td>
         <td id="rhs">
             <div id="rhscontent">
-            <a href="help/help.html" class="help">Help</a>
+            <div class="right">
+                <a href="help/help.html">Help</a><br/>
+                <a href="resetcache" class="dim" target="_blank">Clear Cache</a>
+            </div>
             <table id="results_table">
                <tbody>
                    <tr>

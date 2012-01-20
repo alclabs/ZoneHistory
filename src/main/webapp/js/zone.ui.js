@@ -33,6 +33,8 @@ $(function()
                     runReport();
                 },
 
+                //onPostInit : treeInitialized, // see comment in treeInitialized below
+
                 cache: false
             }
     );
@@ -56,6 +58,18 @@ $(function()
     })
 
 });
+
+// Will be used later to allow links from charts on a graphic to the whole application
+function treeInitialized() {
+    if (location.search) {
+        var splits = location.split("=", 2);
+        if (splits.length === 2) {
+            if (splits[0] === "loc") {
+                jumpToTreeLocation(splits[1]);
+            }
+        }
+    }
+}
 
 function jumpToTreeLocation(keyPath)
 {
