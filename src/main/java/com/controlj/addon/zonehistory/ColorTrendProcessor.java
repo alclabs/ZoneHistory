@@ -15,7 +15,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
     private long lastTransitionTime;
-    public static final boolean trace = false;
+    public static boolean trace = false;
 
     private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
 

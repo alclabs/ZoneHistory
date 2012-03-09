@@ -21,7 +21,47 @@ public class ColorSlice
 
     public Color getActualColor()
     {
-        return color.getColor();
+        switch (color) {
+            case HARDWARE_COMM_ERROR:
+                return new Color(255,0,255);
+
+            case UNOCCUPIED:
+                return new Color(80,80,80);
+
+            case HEATING_ALARM:
+                return new Color(255,0,0);
+
+            case MAXIMUM_HEATING:
+                return new Color(0,0,255);
+
+            case MODERATE_HEATING:
+                return new Color(0,255,255);
+
+            case OPERATIONAL:
+                return new Color(0,255,0);
+
+            case SPECKLED_GREEN:
+                return new Color(144,238,144);
+
+            case MODERATE_COOLING:
+                return new Color(255,255,0);
+
+            case MAXIMUM_COOLING:
+                return new Color(255,136,0);
+
+            case COOLING_ALARM:
+                return new Color(255,0,0);
+
+            case OCCUPIED:
+                return new Color(255,255,255);
+
+            case CORAL:
+                return new Color(255,130,114);
+
+            default:
+                return color.getColor();
+        }
+
     }
 
     public double getPercentTimeInColor(long totalTime)
