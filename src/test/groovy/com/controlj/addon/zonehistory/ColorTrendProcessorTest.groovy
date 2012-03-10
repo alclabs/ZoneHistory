@@ -62,9 +62,9 @@ class ColorTrendProcessorTest extends Specification
             processor.processStart(start, startBookend)
             processor.processEnd(end, (TrendEquipmentColorSample) null)
 
-        then: "the value should be unknown for the time requested"
-            processor.colorMap == [(UNKNOWN) : TWO_DAYS]
-            processor.percentCoverage == 0
+        then: "the value should be occupied for the time requested"
+            processor.colorMap == [(OCCUPIED) : TWO_DAYS]
+            processor.percentCoverage == 100
 
         when: "only have a end bookend (no start bookend)"
             processor = new ColorTrendProcessor()
@@ -109,8 +109,8 @@ class ColorTrendProcessorTest extends Specification
             processor.processEnd(end, (TrendEquipmentColorSample) null)
 
         then: "map should have only the first day, with unknown for the rest"
-            processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : ONE_DAY]
-            processor.percentCoverage == 50.0
+            processor.colorMap == [(OCCUPIED) : ONE_DAY, (OPERATIONAL) : ONE_DAY]
+            processor.percentCoverage == 100.0
     }
 
     def "test holes within range - same color at start, middle, and end"()

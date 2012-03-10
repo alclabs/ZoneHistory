@@ -22,6 +22,9 @@ public class ZoneHistory {
     }
 
     public synchronized Map<EquipmentColor, Long> getMapForDates(DateRange range) {
+        if (range.getStart().equals(getMidnightToday())) {
+            return null;    // don't cache values for today, they are still changing.
+        }
         return cache.get(range);
     }
 

@@ -60,7 +60,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 
     public void processHole(Date start, Date end)
     {
-        // todo - lastTransision and start
+        // todo - lastTransition and start
         updateColorTotal(lastColor, start.getTime() - lastTransitionTime);
         lastTransitionTime = end.getTime();
         updateColorTotal(EquipmentColor.UNKNOWN, lastTransitionTime - start.getTime());
@@ -78,13 +78,17 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
             Logging.LOGGER.println("Processing end @"+endTime);
         }
 
+        // If trending COV or server side color, we don't get any updates from the last transition till current time
+        // treat it all as good
+        updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
+
         if (endBookend != null) // if there is data after this
         {
-            updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
+            //updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
             if (trace) Logging.LOGGER.println("End has bookend at "+endBookend.getTime());
         } else
         {   // we don't really know the color because there are no more samples
-            updateColorTotal(EquipmentColor.UNKNOWN, endTime.getTime() - lastTransitionTime);
+            //updateColorTotal(EquipmentColor.UNKNOWN, endTime.getTime() - lastTransitionTime);
             if (trace) Logging.LOGGER.println("End has no bookend");
         }
 
