@@ -67,17 +67,20 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     var piePercentages = [];
     var pieLabels = [];
     var pieColors = [];
-    var pieSum = 0.0;
+    var sumOfTiny = 0.0;
 
     data = data.sort(function(a, b)
     {
         return b.percent - a.percent;
     });
 
+    // Graphael limits the entries for the legend to 7 entries total;
+    // everything else is combined into an ambiguous "others" as the 7th entry
+    // that does not allow to choose the color we want. So we combine them
     for (var index in data)
     {
         var temp = data[index];
-        if (temp.percent > 0.5)
+        if (index < 6)
         {
             pieLabels.push("%%.%%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
             piePercentages.push(temp.percent);
@@ -85,15 +88,14 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
         }
         else
         {
-            pieSum += temp.percent;
+            sumOfTiny += temp.percent;
         }
     }
 
-    // fix to allow our own "others" column
-    if (pieSum != 0.0)
+    if (sumOfTiny != 0.0)
     {
         pieLabels.push("%%.%%: Others");
-        piePercentages.push(pieSum);
+        piePercentages.push(sumOfTiny);
         pieColors.push("rgb(0, 0, 0)");
     }
     chartLocation.clear();
