@@ -4,7 +4,6 @@ import com.controlj.green.addonsupport.access.AspectAcceptor;
 import com.controlj.green.addonsupport.access.Location;
 import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
 import com.controlj.green.addonsupport.access.aspect.SetPoint;
-import com.sun.tools.internal.xjc.outline.Aspect;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

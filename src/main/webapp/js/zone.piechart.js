@@ -71,9 +71,9 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     for (var index in data)
     {
         var temp = data[index];
-        if (Math.floor(temp.percent) > 0)
+        if (temp.percent > 0.1)
         {
-            pieLabels.push("%%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
+            pieLabels.push("%%.%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
             piePercentages.push(temp.percent);
             pieColors.push("rgb(" + temp["rgb-red"] + ", " + temp["rgb-green"] + ", " + temp["rgb-blue"] + ")");
         }
