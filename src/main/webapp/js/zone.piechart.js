@@ -24,17 +24,18 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
     var obj = { "location":node, "prevdays":prevDays };
     $.getJSON("servlets/results", obj,
-            function(data) {
+            function(data)
+            {
                 var mainChartData = data.mainChart;
                 drawChart(mainChartData.colors, showLegend, isWebContext, mainChartLocation, radius);
 
                 if (showTotal)
                 {
                     var satisfactionNumber = Math.round(mainChartData.satisfaction);
-                    var satisfactionText = satisfactionNumber==-1?"N/A":satisfactionNumber+"%";
+                    var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
                     var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2*radius+10, animationScale);
+                    var textY = getCoords(2 * radius + 10, animationScale);
                     var text = mainChartLocation.text(textX, textY, mainSatisfaction);
                     text.attr({ "fill": textColor, "font-weight": "normal" });
                 }
@@ -45,7 +46,8 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     if (tableChartData)
                     {
                         // sort by satisfaction - low to high
-                        tableData = tableChartData.sort(function(a, b) {
+                        tableData = tableChartData.sort(function(a, b)
+                        {
                             return a.rowChart.satisfaction - b.rowChart.satisfaction;
                         });
                         clearTable();
@@ -65,19 +67,32 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     var piePercentages = [];
     var pieLabels = [];
     var pieColors = [];
+    var pieSum = 0.0;
 
-    data = data.sort(function(a,b) {return b.percent - a.percent;});
+    data = data.sort(function(a, b)
+    {
+        return b.percent - a.percent;
+    });
 
     for (var index in data)
     {
         var temp = data[index];
-        if (temp.percent > 0.1)
+        if (temp.percent > 0.5)
         {
-            pieLabels.push("%%.%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
+            pieLabels.push("%%.%%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
             piePercentages.push(temp.percent);
             pieColors.push("rgb(" + temp["rgb-red"] + ", " + temp["rgb-green"] + ", " + temp["rgb-blue"] + ")");
         }
+        else
+        {
+            pieSum += temp.percent;
+        }
     }
+
+    // fix to allow our own "others" column
+    pieLabels.push("%%.%%: Remaining");
+    piePercentages.push(pieSum);
+    pieColors.push("rgb(0, 0, 0)");
 
     chartLocation.clear();
 
@@ -88,9 +103,9 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     var params = {}
     if (drawLegend)
     {
-      params.legend = pieLabels;
-      params.legendpos = "east";
-      params.legendColor = useWhiteTextForLegend ? '#fff' : '#000';
+        params.legend = pieLabels;
+        params.legendpos = "east";
+        params.legendColor = useWhiteTextForLegend ? '#fff' : '#000';
     }
     var pie = chartLocation.g.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
 
@@ -129,9 +144,9 @@ function drawTable(tableData, sparklineDiameter)
         var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.satisfaction);
         var tableRow =
-                "<tr class="+style+" onclick=\"jumpToTreeLocation(\'"+path+"\')\"><td>" +
-                eqLink + '</td><td style="text-align: center;">' + (satisfactionNumber==-1?"N/A":(satisfactionNumber + "%")) +
-                '</td><td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
+                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\"><td>" +
+                        eqLink + '</td><td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) +
+                        '</td><td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
 
         $("#detailsTable tbody").append(tableRow);
