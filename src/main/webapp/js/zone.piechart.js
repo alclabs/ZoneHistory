@@ -90,10 +90,12 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     }
 
     // fix to allow our own "others" column
-    pieLabels.push("%%.%%: Remaining");
-    piePercentages.push(pieSum);
-    pieColors.push("rgb(0, 0, 0)");
-
+    if (pieSum != 0.0)
+    {
+        pieLabels.push("%%.%%: Others");
+        piePercentages.push(pieSum);
+        pieColors.push("rgb(0, 0, 0)");
+    }
     chartLocation.clear();
 
     // Raphael has a bug where if a single color is specified in the piechart params then it is ignored.  However,
