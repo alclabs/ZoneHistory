@@ -2,7 +2,7 @@
 // and then apply it.
 configurations { gradleScript }
 repositories { mavenRepo url: 'http://repo.alcshare.com' }
-dependencies { gradleScript group: 'com.alcshare', name: 'alclabs-gradle', ext: 'gradle', version: '1.13' }
+dependencies { gradleScript group: 'com.alcshare', name: 'alclabs-gradle', ext: 'gradle', version: '1.16' }
 apply from: configurations.gradleScript.resolve().iterator().next()
 
 info {
@@ -18,15 +18,15 @@ dependencies {
    compile 'org.json:json:20090211'
    compile 'commons-lang:commons-lang:2.4'
 
-   testCompile 'org.spockframework:spock-core:0.5-groovy-1.8', { exclude(org: 'org.codehaus.groovy', module: 'groovy-all') }
+   testCompile 'org.spockframework:spock-core:0.6-groovy-1.8'
    testCompile 'org.hamcrest:hamcrest-all:1.1'
    testCompile 'com.googlecode.multithreadedtc:multithreadedtc:1.01'
 
-   groovy 'org.codehaus.groovy:groovy:1.8.3'
+   groovy 'org.codehaus.groovy:groovy-all:1.8.6'
 
-   providedCompile 'com.controlj.green:addonsupport-api-addon:1.2.+'
-   providedCompile 'com.controlj.green:directaccess-api-addon:1.2.+'
-   providedCompile 'com.controlj.green:webaccess-api-addon:1.2.+'
+   providedCompile 'com.controlj.green:addonsupport-api-addon:1.2.0'
+   providedCompile 'com.controlj.green:directaccess-api-addon:1.2.0'
+   providedCompile 'com.controlj.green:webaccess-api-addon:1.2.0'
    providedCompile 'javax.servlet:servlet-api:2.5'
 }
 
