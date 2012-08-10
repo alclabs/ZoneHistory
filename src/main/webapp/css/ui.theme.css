@@ -1,0 +1,87 @@
+html, body {
+         font-family: sans-serif;
+         color: black;
+         height: 100%;
+         width: 100%;
+         padding: 0;
+         margin: 0;
+         overflow:hidden;
+      }
+
+      #tree {
+         width:300px;
+         min-height:100%;
+         height:100%;
+         float:left;
+         overflow:scroll;
+      }
+
+      #treecell {
+         height:100%;
+         overflow:hidden;
+         padding:0px;
+      }
+
+      #rhs {
+          height:100%;
+          width:100%;
+          padding:0px;
+          overflow:hidden;
+      }
+
+      #rhscontent {
+          width:100%;
+          min-height:100%;
+          max-height:100%;
+          height:100%;
+          overflow:scroll;
+      }
+
+      body > table > tbody {
+          height:100%;
+          width:100%;
+      }
+
+      #results_table {
+         height: 480px;
+      }
+
+      #results_table, #zoneDetails, a.help {
+          margin: 10px;
+      }
+
+      ul.dynatree-container {
+          border: none;
+          overflow: visible;
+          margin-left: 0px;
+      }
+
+      th {
+         font-size: 1em;
+         padding: 3px 7px 2px 7px;
+      }
+
+      td {
+         vertical-align: top;
+      }
+
+      #detailsTable td {
+          vertical-align:middle;
+          padding:2px;
+      }
+
+      div.graph {
+         min-width: 40%;
+      }
+
+      tr.odd {
+         background-color: #eeeeee;
+      }
+
+      .right {
+         float: right;
+      }
+
+      a.dim:link, a.dim:visited {
+          color:#999;
+      }

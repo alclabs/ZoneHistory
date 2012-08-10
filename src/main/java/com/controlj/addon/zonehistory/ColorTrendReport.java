@@ -8,8 +8,11 @@ import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.InvalidConnectionRequestException;
 import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.access.aspect.AttachedEquipment;
-import com.controlj.green.addonsupport.access.trend.*;
 import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
+import com.controlj.green.addonsupport.access.trend.TrendData;
+import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
+import com.controlj.green.addonsupport.access.trend.TrendRange;
+import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
 import org.apache.commons.lang.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 
