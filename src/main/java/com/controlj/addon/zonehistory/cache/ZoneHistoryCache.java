@@ -10,43 +10,55 @@ import java.util.Map;
 /**
  *
  */
-public enum ZoneHistoryCache {
+public enum ZoneHistoryCache
+{
     INSTANCE;
 
     private Map<String, Collection<ZoneHistory>> ancestryMap = new HashMap<String, Collection<ZoneHistory>>();
     private Map<String, ZoneHistory> zoneHistoryMap = new HashMap<String, ZoneHistory>();
 
-    public Collection<ZoneHistory> getDescendantZoneHistories(Location loc) {
+    public Collection<ZoneHistory> getDescendantZoneHistories(Location loc)
+    {
         String lus = loc.getTransientLookupString();
 
-        synchronized (this) {
+        synchronized (this)
+        {
             return ancestryMap.get(lus);
         }
     }
 
-    public Collection<ZoneHistory> addDescendantZoneHistories(Location loc, Collection<ZoneHistory> newHistories) {
+    public Collection<ZoneHistory> addDescendantZoneHistories(Location loc, Collection<ZoneHistory> newHistories)
+    {
         Collection<ZoneHistory> result;
         String lus = loc.getTransientLookupString();
-        synchronized (this) {
+        synchronized (this)
+        {
             Collection<ZoneHistory> existingHistories = ancestryMap.get(lus);
-            if (existingHistories == null) {
+            if (existingHistories == null)
+            {
                 result = new ArrayList<ZoneHistory>();
-                for (ZoneHistory newHistory : newHistories) {
+                for (ZoneHistory newHistory : newHistories)
+                {
                     result.add(getOfficialZoneHistory(newHistory));
                 }
                 ancestryMap.put(lus, result);
-            } else {
+            }
+            else
+            {
                 result = existingHistories;
             }
             return result;
         }
     }
 
-    private ZoneHistory getOfficialZoneHistory(ZoneHistory newHistory) {
+    private ZoneHistory getOfficialZoneHistory(ZoneHistory newHistory)
+    {
         String lus = newHistory.getEquipmentColorLookupString();
-        synchronized (this) {
+        synchronized (this)
+        {
             ZoneHistory zoneHistory = zoneHistoryMap.get(lus);
-            if (zoneHistory == null) {
+            if (zoneHistory == null)
+            {
                 zoneHistoryMap.put(lus, newHistory);
                 zoneHistory = newHistory;
             }
@@ -54,7 +66,8 @@ public enum ZoneHistoryCache {
         }
     }
 
-    public synchronized void reset() {
+    public synchronized void reset()
+    {
         ancestryMap.clear();
         zoneHistoryMap.clear();
     }

@@ -4,14 +4,13 @@ import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.EquipmentColor;
 import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
 import com.controlj.green.addonsupport.access.trend.TrendProcessor;
-import com.controlj.green.addonsupport.access.trend.TrendRange;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
+public class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
     private long lastTransitionTime;
@@ -32,7 +31,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
 
         if (trace)
         {
-            Logging.LOGGER.println("Process Start @"+startTime);
+            Logging.LOGGER.println("Process Start @" + startTime);
         }
     }
 
@@ -46,7 +45,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
         lastColor = sample.value();
         if (trace)
         {
-            Logging.LOGGER.println("Processing data of "+lastColor+" @ "+sample.getTime());
+            Logging.LOGGER.println("Processing data of " + lastColor + " @ " + sample.getTime());
         }
     }
 
@@ -67,7 +66,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
         lastColor = EquipmentColor.UNKNOWN;
         if (trace)
         {
-            Logging.LOGGER.println("Processing hole from "+start+" to "+end);
+            Logging.LOGGER.println("Processing hole from " + start + " to " + end);
         }
     }
 
@@ -75,7 +74,7 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
     {
         if (trace)
         {
-            Logging.LOGGER.println("Processing end @"+endTime);
+            Logging.LOGGER.println("Processing end @" + endTime);
         }
 
         // If trending COV or server side color, we don't get any updates from the last transition till current time
@@ -85,8 +84,9 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
         if (endBookend != null) // if there is data after this
         {
             //updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
-            if (trace) Logging.LOGGER.println("End has bookend at "+endBookend.getTime());
-        } else
+            if (trace) Logging.LOGGER.println("End has bookend at " + endBookend.getTime());
+        }
+        else
         {   // we don't really know the color because there are no more samples
             //updateColorTotal(EquipmentColor.UNKNOWN, endTime.getTime() - lastTransitionTime);
             if (trace) Logging.LOGGER.println("End has no bookend");
@@ -98,11 +98,13 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
     {
         double measuredTime = 0d;
         double unknownTime = 0d;
-        for (EquipmentColor color : colorMap.keySet()) {
+        for (EquipmentColor color : colorMap.keySet())
+        {
             if (color != EquipmentColor.UNKNOWN)
             {
                 measuredTime += colorMap.get(color);
-            } else
+            }
+            else
             {
                 unknownTime += colorMap.get(color);
             }
@@ -113,7 +115,8 @@ class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
     public long getTotalTime()
     {
         long totalTime = 0;
-        for (Long time : colorMap.values()) {
+        for (Long time : colorMap.values())
+        {
             totalTime += time;
         }
         return totalTime;

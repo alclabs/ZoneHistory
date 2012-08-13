@@ -9,17 +9,20 @@
    Author(s) jmurph
    $Log: $    
 =============================================================================*/
-package com.controlj.addon.zonehistory;
+package com.controlj.addon.zonehistory.reports;
 
+import com.controlj.addon.zonehistory.ColorPie;
+import com.controlj.addon.zonehistory.ColorSlice;
+import com.controlj.addon.zonehistory.ColorTrendSource;
 import com.controlj.green.addonsupport.access.EquipmentColor;
 
 import java.util.*;
 
-public class ColorTrendResults
+public class ReportResults
 {
    private final Map<ColorTrendSource, Map<EquipmentColor, Long>> results;
 
-   public ColorTrendResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
+   public ReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
    {
       this.results = results;
    }
