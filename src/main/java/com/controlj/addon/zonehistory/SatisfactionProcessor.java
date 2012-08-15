@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ColorTrendProcessor implements TrendProcessor<TrendEquipmentColorSample>
+public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
     private long lastTransitionTime;

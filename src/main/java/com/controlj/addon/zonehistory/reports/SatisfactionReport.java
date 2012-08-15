@@ -1,6 +1,6 @@
 package com.controlj.addon.zonehistory.reports;
 
-import com.controlj.addon.zonehistory.ColorTrendProcessor;
+import com.controlj.addon.zonehistory.SatisfactionProcessor;
 import com.controlj.addon.zonehistory.ColorTrendSource;
 import com.controlj.addon.zonehistory.EnabledColorTrendWithSetpointAcceptor;
 import com.controlj.addon.zonehistory.cache.DateRange;
@@ -38,7 +38,7 @@ public class SatisfactionReport extends Report
     public ReportResults runReport() throws SystemException, ActionExecutionException
     {
         final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
-        ReportResults results = system.runReadAction(new ReadActionResult<ReportResults>()
+        return system.runReadAction(new ReadActionResult<ReportResults>()
         {
             @Override
             public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
@@ -56,6 +56,7 @@ public class SatisfactionReport extends Report
 
                     zoneHistories = ZoneHistoryCache.INSTANCE.addDescendantZoneHistories(location, newHistories);
                 }
+
                 timer.stop();
                 //Logging.LOGGER.println("Search for trend sources beneath '"+start.getDisplayPath()+"' took "+timer);
 
@@ -69,8 +70,8 @@ public class SatisfactionReport extends Report
                 Map<ColorTrendSource, Map<EquipmentColor, Long>> results = new HashMap<ColorTrendSource, Map<EquipmentColor, Long>>();
                 for (ZoneHistory zoneHistory : zoneHistories)
                 {
-                    com.controlj.green.addonsupport.access.Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
-                    com.controlj.green.addonsupport.access.Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
+                    Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
+                    Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
 
                     if (firstZone)
                     {
@@ -89,12 +90,11 @@ public class SatisfactionReport extends Report
                             AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                             if (!eqAspect.getDevice().isOutOfService())
                             {
-                                if (ColorTrendProcessor.trace)
-                                {
+                                if (SatisfactionProcessor.trace)
                                     Logging.LOGGER.println("------ Processing " + equipment.getDisplayName());
-                                }
+
                                 processTimer.resume();
-                                ColorTrendProcessor processor = processTrendData(source, trendRange);
+                                SatisfactionProcessor processor = processTrendData(source, trendRange);
                                 processTimer.suspend();
 
                                 colorMap = zoneHistory.addMap(range, processor.getColorMap());
@@ -106,6 +106,7 @@ public class SatisfactionReport extends Report
                             e.printStackTrace(Logging.LOGGER);
                         }
                     }
+
                     if (colorMap != null)
                     {
                         results.put(new ColorTrendSource(location, equipment), colorMap);
@@ -116,16 +117,11 @@ public class SatisfactionReport extends Report
                 return new ReportResults(results);
             }
         });
-
-
-
-        // must convert to JSON or return generic results object
-        return results;
     }
 
-    private ColorTrendProcessor processTrendData(EquipmentColorTrendSource source, TrendRange range) throws TrendException
+    private SatisfactionProcessor processTrendData(EquipmentColorTrendSource source, TrendRange range) throws TrendException
     {
         TrendData<TrendEquipmentColorSample> tdata = source.getTrendData(range);
-        return tdata.process(new ColorTrendProcessor());
+        return tdata.process(new SatisfactionProcessor());
     }
 }

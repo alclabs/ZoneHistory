@@ -61,6 +61,7 @@ public class ReportResults
             slice.addTimeInColor(colorEntry.getValue());
          }
       }
+
       return new ColorPie(results.values());
    }
 }

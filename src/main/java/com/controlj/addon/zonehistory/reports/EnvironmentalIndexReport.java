@@ -1,9 +1,9 @@
 package com.controlj.addon.zonehistory.reports;
 
-import com.controlj.green.addonsupport.access.ActionExecutionException;
-import com.controlj.green.addonsupport.access.Location;
-import com.controlj.green.addonsupport.access.SystemConnection;
-import com.controlj.green.addonsupport.access.SystemException;
+import com.controlj.green.addonsupport.access.*;
+import com.controlj.green.addonsupport.access.trend.TrendRange;
+import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -24,10 +24,20 @@ public class EnvironmentalIndexReport extends Report
     @Override
     public ReportResults runReport() throws SystemException, ActionExecutionException
     {
+        final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
+        return system.runReadAction(new ReadActionResult<ReportResults>()
+        {
+            @Override
+            public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
+            {
+                ReportResults results = null;
 
 
 
 
-        return null;
+
+                return results;
+            }
+        });
     }
 }
