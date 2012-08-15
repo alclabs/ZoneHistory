@@ -1,9 +1,12 @@
 package com.controlj.addon.zonehistory.servlets;
 
-import com.controlj.addon.zonehistory.*;
+import com.controlj.addon.zonehistory.charts.ColorPie;
+import com.controlj.addon.zonehistory.charts.ColorSlice;
+import com.controlj.addon.zonehistory.util.ColorTrendSource;
 import com.controlj.addon.zonehistory.reports.Report;
 import com.controlj.addon.zonehistory.reports.ReportFactory;
 import com.controlj.addon.zonehistory.reports.ReportResults;
+import com.controlj.addon.zonehistory.reports.SatisfactionReportResults;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.web.WebContext;
@@ -53,11 +56,11 @@ public class ResultsServlet extends HttpServlet
                     Report report = new ReportFactory().createReport(action, startDate, endDate, location, systemConnection);
                     ReportResults reportResults = report.runReport();
                     JSONObject results = new JSONObject();
-                    results.put("mainChart", toChartJSON(reportResults.getTotalPie()));
+                    results.put("mainChart", toChartJSON(reportResults.makePieChart()));
 
                     // if there is more than 1 eq, create table with their respective charts
                     if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
-                        results.put("table", createTable(reportResults));
+                        results.put("table", createTable((SatisfactionReportResults)reportResults)); // BROKEN!!!!
 
                     results.write(finalResponse.getWriter());
                 }
@@ -129,19 +132,19 @@ public class ResultsServlet extends HttpServlet
         return cal.getTime();
     }
 
-    private JSONArray createTable(ReportResults reportResults) throws JSONException
+    private JSONArray createTable(SatisfactionReportResults satisfactionReportResults) throws JSONException
     {
         // for each EquipmentColorTrendSource, get the results and compile into a JSON array
         JSONArray tableData = new JSONArray();
 
-        for (ColorTrendSource cts : reportResults.getSources())
+        for (ColorTrendSource cts : satisfactionReportResults.getSources())
         {
             JSONObject tableRow = new JSONObject();
 
             tableRow.put("eqDisplayName", cts.getDisplayPath());
             tableRow.put("eqTransLookup", cts.getTransientLookupString());
             tableRow.put("eqTransLookupPath", cts.getTransientLookupPathString());
-            tableRow.put("rowChart", toChartJSON(reportResults.getPieForSource(cts)));
+            tableRow.put("rowChart", toChartJSON(satisfactionReportResults.getPieForSource(cts)));
 
             tableData.put(tableRow);
         }

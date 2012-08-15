@@ -18,7 +18,7 @@ public class EnviromentalIndexProcessor implements TrendProcessor<TrendAnalogSam
 
     public EnviromentalIndexProcessor(int numberOfBuckets, List<DateRange> unoccupiedTimes)
     {
-        this.percentageBuckets = new ArrayList<Long>(numberOfBuckets + 1);
+        this.percentageBuckets = new ArrayList<Long>(numberOfBuckets);
         this.unoccupiedTimes = unoccupiedTimes;
     }
 
@@ -51,14 +51,13 @@ public class EnviromentalIndexProcessor implements TrendProcessor<TrendAnalogSam
     @Override
     public void processData(@NotNull TrendAnalogSample sample)
     {
-        totalTime = lastTransitionTime + sample.getTimeInMillis();
         placeIntoBucket(sample);
     }
 
     @Override
     public void processEnd(@NotNull Date date, @Nullable TrendAnalogSample sample)
     {
-        this.percentageBuckets.set(percentageBuckets.size() - 1, unoccupiedTime);
+//        this.percentageBuckets.set(percentageBuckets.size() - 1, unoccupiedTime);
 
 //        if (sample != null)
 //            placeIntoBucket(sample);
@@ -77,6 +76,7 @@ public class EnviromentalIndexProcessor implements TrendProcessor<TrendAnalogSam
     private void placeIntoBucket(TrendAnalogSample sample)
     {
         long duration = sample.getTimeInMillis() - lastTransitionTime;
+        totalTime += duration;
         lastTransitionTime = sample.getTimeInMillis();
 
         if (isUnoccupied(sample.getTime()))

@@ -1,4 +1,4 @@
-package com.controlj.addon.zonehistory;
+package com.controlj.addon.zonehistory.util;
 
 import com.controlj.green.addonsupport.access.AspectAcceptor;
 import com.controlj.green.addonsupport.access.Location;

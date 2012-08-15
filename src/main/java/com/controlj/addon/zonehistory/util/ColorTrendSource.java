@@ -9,9 +9,8 @@
    Author(s) jmurph
    $Log: $    
 =============================================================================*/
-package com.controlj.addon.zonehistory;
+package com.controlj.addon.zonehistory.util;
 
-import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.green.addonsupport.access.Location;
 import com.controlj.green.addonsupport.access.UnresolvableException;
 

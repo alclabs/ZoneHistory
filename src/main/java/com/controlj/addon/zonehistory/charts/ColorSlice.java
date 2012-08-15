@@ -1,4 +1,4 @@
-package com.controlj.addon.zonehistory;
+package com.controlj.addon.zonehistory.charts;
 
 import com.controlj.green.addonsupport.access.EquipmentColor;
 import java.awt.*;

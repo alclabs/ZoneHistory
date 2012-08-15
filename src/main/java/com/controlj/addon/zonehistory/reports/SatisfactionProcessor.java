@@ -1,4 +1,4 @@
-package com.controlj.addon.zonehistory;
+package com.controlj.addon.zonehistory.reports;
 
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.EquipmentColor;

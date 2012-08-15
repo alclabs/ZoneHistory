@@ -1,8 +1,7 @@
 package com.controlj.addon.zonehistory.reports;
 
-import com.controlj.addon.zonehistory.SatisfactionProcessor;
-import com.controlj.addon.zonehistory.ColorTrendSource;
-import com.controlj.addon.zonehistory.EnabledColorTrendWithSetpointAcceptor;
+import com.controlj.addon.zonehistory.util.ColorTrendSource;
+import com.controlj.addon.zonehistory.util.EnabledColorTrendWithSetpointAcceptor;
 import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.cache.ZoneHistory;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class SatisfactionReport extends Report
+public class SatisfactionReport implements Report
 {
     private final Date startDate, endDate;
     private final Location location;
@@ -38,10 +37,10 @@ public class SatisfactionReport extends Report
     public ReportResults runReport() throws SystemException, ActionExecutionException
     {
         final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
-        return system.runReadAction(new ReadActionResult<ReportResults>()
+        return system.runReadAction(new ReadActionResult<SatisfactionReportResults>()
         {
             @Override
-            public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
+            public SatisfactionReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
                 StopWatch timer = new StopWatch();
                 timer.start();
@@ -65,7 +64,7 @@ public class SatisfactionReport extends Report
                 processTimer.start();
                 processTimer.suspend();
 
-                boolean firstZone = true;
+//                boolean firstZone = true;
 
                 Map<ColorTrendSource, Map<EquipmentColor, Long>> results = new HashMap<ColorTrendSource, Map<EquipmentColor, Long>>();
                 for (ZoneHistory zoneHistory : zoneHistories)
@@ -73,11 +72,11 @@ public class SatisfactionReport extends Report
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
 
-                    if (firstZone)
-                    {
+//                    if (firstZone)
+//                    {
                         //Logging.LOGGER.println("For "+equipment.getDisplayName()+", cache has "+zoneHistory.getCacheSize()+" entries and object is "+zoneHistory);
-                        firstZone = false;
-                    }
+//                        firstZone = false;
+//                    }
 
                     DateRange range = new DateRange(startDate, endDate);
                     Map<EquipmentColor, Long> colorMap = zoneHistory.getMapForDates(range);
@@ -114,7 +113,7 @@ public class SatisfactionReport extends Report
                 }
                 //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
                 //Logging.LOGGER.println();
-                return new ReportResults(results);
+                return new SatisfactionReportResults(results);
             }
         });
     }

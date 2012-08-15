@@ -8,6 +8,7 @@ import static java.util.Calendar.*
 import static java.util.concurrent.TimeUnit.*
 import static com.controlj.green.addonsupport.access.EquipmentColor.*
 import static org.hamcrest.Matchers.closeTo
+import com.controlj.addon.zonehistory.reports.SatisfactionProcessor
 
 class ColorTrendProcessorTest extends Specification
 {
