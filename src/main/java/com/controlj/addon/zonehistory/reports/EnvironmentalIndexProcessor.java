@@ -10,16 +10,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class EnviromentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
+public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
 {
     private long totalTime, lastTransitionTime, unoccupiedTime;
     private List<Long> percentageBuckets;
     private final List<DateRange> unoccupiedTimes;
+    private final int buckets;
 
-    public EnviromentalIndexProcessor(int numberOfBuckets, List<DateRange> unoccupiedTimes)
+    public EnvironmentalIndexProcessor(int numberOfBuckets, List<DateRange> unoccupiedTimes)
     {
         this.percentageBuckets = new ArrayList<Long>(numberOfBuckets);
         this.unoccupiedTimes = unoccupiedTimes;
+        this.buckets = numberOfBuckets;
     }
 
     public List<Long> getPercentageBuckets()
@@ -30,6 +32,11 @@ public class EnviromentalIndexProcessor implements TrendProcessor<TrendAnalogSam
     public long getTotalTime()
     {
         return totalTime;
+    }
+
+    public long getOccupiedTime()
+    {
+        return totalTime - unoccupiedTime;
     }
 
     public long getUnoccupiedTime()
@@ -83,9 +90,17 @@ public class EnviromentalIndexProcessor implements TrendProcessor<TrendAnalogSam
             unoccupiedTime += duration;
         else
         {
-            int index = (int) (sample.doubleValue() / (percentageBuckets.size() - 2)); // we only want unoccupied time in the very last spot
-            long currentValue = percentageBuckets.get(index);
-            percentageBuckets.set(index, currentValue + duration);
+            int index = (int) (sample.doubleValue() / (this.buckets - 2)); // we only want unoccupied time in the very last spot
+
+            try
+            {
+                long currentValue = percentageBuckets.get(index);
+                percentageBuckets.set(index, currentValue + duration);
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                percentageBuckets.add(index, duration);
+            }
         }
     }
 

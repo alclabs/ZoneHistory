@@ -28,7 +28,7 @@ class ReportResultsTest extends Specification
             SatisfactionReportResults results = new SatisfactionReportResults(sourcesMap)
 
         when: "computeResults executes"
-            def pie = results.makePieChart()
+            def pie = results.buildPieChart()
             List slices = pie.colorSlices.sort { ColorSlice a, b ->  a.equipmentColor.name() <=> b.equipmentColor.name() }
         then: "compare results"
             slices == [slice(MODERATE_COOLING, 2000), slice(MODERATE_HEATING, 3000), slice(OCCUPIED, 1000),
@@ -46,7 +46,7 @@ class ReportResultsTest extends Specification
             SatisfactionReportResults results = new SatisfactionReportResults(sourcesMap)
 
         when: "execution of computeResults"
-            def pie = results.makePieChart()
+            def pie = results.buildPieChart()
         then: "test if resulting list of colors is empty"
             !pie.colorSlices.isEmpty()
     }

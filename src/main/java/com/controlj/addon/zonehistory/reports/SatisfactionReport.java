@@ -1,10 +1,10 @@
 package com.controlj.addon.zonehistory.reports;
 
-import com.controlj.addon.zonehistory.util.ColorTrendSource;
-import com.controlj.addon.zonehistory.util.EnabledColorTrendWithSetpointAcceptor;
 import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.cache.ZoneHistory;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
+import com.controlj.addon.zonehistory.util.ColorTrendSource;
+import com.controlj.addon.zonehistory.util.EnabledColorTrendWithSetpointAcceptor;
 import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
@@ -24,6 +24,7 @@ public class SatisfactionReport implements Report
     private final Date startDate, endDate;
     private final Location location;
     private final SystemConnection system;
+    private List<DateRange> unoccupiedTimes;
 
     public SatisfactionReport(Date start, Date end, Location startingLocation, SystemConnection system)
     {
@@ -58,7 +59,6 @@ public class SatisfactionReport implements Report
 
                 timer.stop();
                 //Logging.LOGGER.println("Search for trend sources beneath '"+start.getDisplayPath()+"' took "+timer);
-
 
                 StopWatch processTimer = new StopWatch();
                 processTimer.start();
@@ -97,6 +97,7 @@ public class SatisfactionReport implements Report
                                 processTimer.suspend();
 
                                 colorMap = zoneHistory.addMap(range, processor.getColorMap());
+                                unoccupiedTimes = processor.getUnoccupiedTimeList();
                             }
                         }
                         catch (Exception e)
@@ -123,4 +124,9 @@ public class SatisfactionReport implements Report
         TrendData<TrendEquipmentColorSample> tdata = source.getTrendData(range);
         return tdata.process(new SatisfactionProcessor());
     }
+
+     public List<DateRange> getUnoccupiedTimes()
+     {
+         return unoccupiedTimes;
+     }
 }

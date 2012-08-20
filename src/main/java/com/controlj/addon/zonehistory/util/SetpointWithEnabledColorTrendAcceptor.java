@@ -14,9 +14,11 @@ public class SetpointWithEnabledColorTrendAcceptor implements AspectAcceptor<Set
     public boolean accept(@NotNull SetPoint setPoint)
     {
         Location location = setPoint.getLocation();
-        Collection<EquipmentColorTrendSource> sources = location.find(EquipmentColorTrendSource.class, new AspectAcceptor<EquipmentColorTrendSource>() {
+        Collection<EquipmentColorTrendSource> sources = location.find(EquipmentColorTrendSource.class, new AspectAcceptor<EquipmentColorTrendSource>()
+        {
             @Override
-            public boolean accept(@NotNull EquipmentColorTrendSource equipmentColorTrendSource) {
+            public boolean accept(@NotNull EquipmentColorTrendSource equipmentColorTrendSource)
+            {
                 return equipmentColorTrendSource.isEnabled();
             }
         });

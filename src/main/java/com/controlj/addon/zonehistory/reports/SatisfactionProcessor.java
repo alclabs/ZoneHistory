@@ -1,17 +1,18 @@
 package com.controlj.addon.zonehistory.reports;
 
+import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.EquipmentColor;
 import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
 import com.controlj.green.addonsupport.access.trend.TrendProcessor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
+    private List<DateRange> unoccupiedTimeList;
+
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
     private long lastTransitionTime;
     public static boolean trace = false;
@@ -23,16 +24,22 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         return colorMap;
     }
 
+    public List<DateRange> getUnoccupiedTimeList()
+    {
+        return unoccupiedTimeList;
+    }
+
+
     public void processStart(Date startTime, TrendEquipmentColorSample startBookend)
     {
+        unoccupiedTimeList = new ArrayList<DateRange>();
         lastTransitionTime = startTime.getTime();
+
         if (startBookend != null)
             lastColor = startBookend.value();
 
         if (trace)
-        {
             Logging.LOGGER.println("Process Start @" + startTime);
-        }
     }
 
     public void processData(TrendEquipmentColorSample sample)
@@ -41,12 +48,14 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
 
         updateColorTotal(lastColor, transitionTime - lastTransitionTime);
 
+        if (lastColor == EquipmentColor.UNOCCUPIED)
+            unoccupiedTimeList.add(new DateRange(new Date(lastTransitionTime), sample.getTime()));
+
         lastTransitionTime = transitionTime;
         lastColor = sample.value();
+
         if (trace)
-        {
             Logging.LOGGER.println("Processing data of " + lastColor + " @ " + sample.getTime());
-        }
     }
 
     private void updateColorTotal(EquipmentColor color, long timeInterval)
@@ -64,21 +73,22 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         lastTransitionTime = end.getTime();
         updateColorTotal(EquipmentColor.UNKNOWN, lastTransitionTime - start.getTime());
         lastColor = EquipmentColor.UNKNOWN;
+
         if (trace)
-        {
             Logging.LOGGER.println("Processing hole from " + start + " to " + end);
-        }
     }
 
     public void processEnd(@NotNull Date endTime, TrendEquipmentColorSample endBookend)
     {
         if (trace)
-        {
             Logging.LOGGER.println("Processing end @" + endTime);
-        }
+
+        if (lastColor == EquipmentColor.UNOCCUPIED)
+            unoccupiedTimeList.add(new DateRange(new Date(lastTransitionTime), endTime));
 
         // If trending COV or server side color, we don't get any updates from the last transition till current time
         // treat it all as good
+
         updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
 
         if (endBookend != null) // if there is data after this

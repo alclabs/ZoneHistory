@@ -1,19 +1,13 @@
 package com.controlj.addon.zonehistory.servlets;
 
-import com.controlj.addon.zonehistory.charts.ColorPie;
-import com.controlj.addon.zonehistory.charts.ColorSlice;
-import com.controlj.addon.zonehistory.util.ColorTrendSource;
 import com.controlj.addon.zonehistory.reports.Report;
 import com.controlj.addon.zonehistory.reports.ReportFactory;
 import com.controlj.addon.zonehistory.reports.ReportResults;
-import com.controlj.addon.zonehistory.reports.SatisfactionReportResults;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.web.WebContext;
 import com.controlj.green.addonsupport.web.WebContextFactory;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
@@ -32,7 +26,7 @@ public class ResultsServlet extends HttpServlet
         final String loc = request.getParameter("location");
         final WebContext webContext = extractWebContext(request); // this will be null if NOT from an ViewBuilder include
         String daysString = request.getParameter("prevdays");
-        final String action = request.getParameter("action") == null ? "color" : "notColor";
+        final String action = request.getParameter("action");
         final Date startDate = determineStartDate(daysString);
         final Date endDate = determineEndDate(daysString);
         final HttpServletResponse finalResponse = response;
@@ -56,11 +50,11 @@ public class ResultsServlet extends HttpServlet
                     Report report = new ReportFactory().createReport(action, startDate, endDate, location, systemConnection);
                     ReportResults reportResults = report.runReport();
                     JSONObject results = new JSONObject();
-                    results.put("mainChart", toChartJSON(reportResults.makePieChart()));
+                    results.put("mainChart", reportResults.convertToJSON());
 
                     // if there is more than 1 eq, create table with their respective charts
                     if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
-                        results.put("table", createTable((SatisfactionReportResults)reportResults)); // BROKEN!!!!
+                        results.put("table", reportResults.createDetailsTable()); // BROKEN!!!!
 
                     results.write(finalResponse.getWriter());
                 }
@@ -130,51 +124,5 @@ public class ResultsServlet extends HttpServlet
         cal.add(Calendar.DAY_OF_MONTH, 0 - daysAgo);
 
         return cal.getTime();
-    }
-
-    private JSONArray createTable(SatisfactionReportResults satisfactionReportResults) throws JSONException
-    {
-        // for each EquipmentColorTrendSource, get the results and compile into a JSON array
-        JSONArray tableData = new JSONArray();
-
-        for (ColorTrendSource cts : satisfactionReportResults.getSources())
-        {
-            JSONObject tableRow = new JSONObject();
-
-            tableRow.put("eqDisplayName", cts.getDisplayPath());
-            tableRow.put("eqTransLookup", cts.getTransientLookupString());
-            tableRow.put("eqTransLookupPath", cts.getTransientLookupPathString());
-            tableRow.put("rowChart", toChartJSON(satisfactionReportResults.getPieForSource(cts)));
-
-            tableData.put(tableRow);
-        }
-
-        // Place objects into JSONArray which will be packaged into a single JSONObject called "Table"
-        return tableData;
-    }
-
-    private JSONObject toChartJSON(ColorPie hr) throws JSONException
-    {
-        JSONObject obj = new JSONObject();
-        obj.put("satisfaction", hr.getSatisfaction());
-
-        JSONArray array = new JSONArray();
-        for (ColorSlice cs : hr.getColorSlices())
-            array.put(singleResultIntoJSONObject(cs, hr.getSlicePercent(cs)));
-        obj.put("colors", array);
-
-        return obj;
-    }
-
-    private JSONObject singleResultIntoJSONObject(ColorSlice cs, double slicePercent) throws JSONException
-    {
-        JSONObject obj = new JSONObject();
-        obj.put("color", cs.getEquipmentColor());
-        obj.put("percent", slicePercent);
-        obj.put("rgb-red", cs.getActualColor().getRed());
-        obj.put("rgb-green", cs.getActualColor().getGreen());
-        obj.put("rgb-blue", cs.getActualColor().getBlue());
-
-        return obj;
     }
 }
