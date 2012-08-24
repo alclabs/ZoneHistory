@@ -26,13 +26,11 @@ public class PieChart
         this.slices.add(singleSlice);
     }
 
-    // more to add later for math - get single slice for colors, etc
-
     // convert to g.Raphael JSON
     public JSONObject convertToJSON() throws JSONException
     {
         JSONObject obj = new JSONObject();
-        obj.put("satisfaction", 34.0);
+        obj.put("satisfaction", 0.0); // will be changed to something else (doesn't matter right now)
 
         JSONArray array = new JSONArray();
         for (PieSlice cs : this.slices)

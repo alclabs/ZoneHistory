@@ -65,10 +65,12 @@ public class EnvironmentalIndexReport implements Report
                 // need to get EqColorTrndSource for the eq at the location.
                 // if !null, process using the SatisfactionReportProcessor, get the unoccupiedRanges, and pass to the EIProcessor
                 SatisfactionReport report = new SatisfactionReport(startDate, endDate, location.getParent(), system);
+                report.runReport();
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
 
                 // run an ei report using the unoccupied times found in the SatisfactionProcessor (modify to record the unoccupied times)
                 Map<AnalogTrendSource, List<Long>> results = new HashMap<AnalogTrendSource, List<Long>>();
+                long occupiedTime = 0l;
                 for (ZoneHistory zoneHistory : zoneHistories)
                 {
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
@@ -82,10 +84,10 @@ public class EnvironmentalIndexReport implements Report
                         if (!eqAspect.getDevice().isOutOfService())
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-                            long occupiedTime = processor.getOccupiedTime();
+                            occupiedTime = processor.getOccupiedTime();
                             List<Long> buckets = processor.getPercentageBuckets();
 
-                            buckets.add(occupiedTime); // always place in the last location
+//                            buckets.add(occupiedTime); // always place in the last location
                             results.put(source, buckets);
                         }
                     }
@@ -96,7 +98,7 @@ public class EnvironmentalIndexReport implements Report
                     }
                 }
 
-                return new EnvironmentalIndexReportResults(results);
+                return new EnvironmentalIndexReportResults(results, occupiedTime);
             }
         });
     }

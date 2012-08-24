@@ -20,6 +20,9 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
     public EnvironmentalIndexProcessor(int numberOfBuckets, List<DateRange> unoccupiedTimes)
     {
         this.percentageBuckets = new ArrayList<Long>(numberOfBuckets);
+        for(int i = 0; i < numberOfBuckets; i++)
+            percentageBuckets.add(i, 0l);
+
         this.unoccupiedTimes = unoccupiedTimes;
         this.buckets = numberOfBuckets;
     }
@@ -90,7 +93,7 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
             unoccupiedTime += duration;
         else
         {
-            int index = (int) (sample.doubleValue() / (this.buckets - 2)); // we only want unoccupied time in the very last spot
+            int index = (int) (sample.doubleValue() / this.buckets) - 1; // we only want unoccupied time in the very last spot
 
             try
             {

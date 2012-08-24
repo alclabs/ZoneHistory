@@ -24,7 +24,7 @@ public class SatisfactionReport implements Report
     private final Date startDate, endDate;
     private final Location location;
     private final SystemConnection system;
-    private List<DateRange> unoccupiedTimes;
+    private final List<DateRange> unoccupiedTimes;
 
     public SatisfactionReport(Date start, Date end, Location startingLocation, SystemConnection system)
     {
@@ -32,12 +32,14 @@ public class SatisfactionReport implements Report
         this.endDate = end;
         this.location = startingLocation;
         this.system = system;
+        this.unoccupiedTimes = new ArrayList<DateRange>();
     }
 
     @Override
     public ReportResults runReport() throws SystemException, ActionExecutionException
     {
         final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
+
         return system.runReadAction(new ReadActionResult<SatisfactionReportResults>()
         {
             @Override
@@ -74,7 +76,7 @@ public class SatisfactionReport implements Report
 
 //                    if (firstZone)
 //                    {
-                        //Logging.LOGGER.println("For "+equipment.getDisplayName()+", cache has "+zoneHistory.getCacheSize()+" entries and object is "+zoneHistory);
+                    //Logging.LOGGER.println("For "+equipment.getDisplayName()+", cache has "+zoneHistory.getCacheSize()+" entries and object is "+zoneHistory);
 //                        firstZone = false;
 //                    }
 
@@ -83,9 +85,10 @@ public class SatisfactionReport implements Report
 
                     if (colorMap == null)
                     {
-                        EquipmentColorTrendSource source = equipmentColorLocation.getAspect(EquipmentColorTrendSource.class);
                         try
                         {
+                            EquipmentColorTrendSource source = equipmentColorLocation.getAspect(EquipmentColorTrendSource.class);
+
                             AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                             if (!eqAspect.getDevice().isOutOfService())
                             {
@@ -97,7 +100,8 @@ public class SatisfactionReport implements Report
                                 processTimer.suspend();
 
                                 colorMap = zoneHistory.addMap(range, processor.getColorMap());
-                                unoccupiedTimes = processor.getUnoccupiedTimeList();
+                                checkDateRanges(processor.getUnoccupiedTimeList());
+                                zoneHistory.addUnoccupiedTimes(unoccupiedTimes);
                             }
                         }
                         catch (Exception e)
@@ -106,15 +110,18 @@ public class SatisfactionReport implements Report
                             e.printStackTrace(Logging.LOGGER);
                         }
                     }
+                    else
+                        checkDateRanges(zoneHistory.getUnoccupiedTimes());
 
                     if (colorMap != null)
                     {
                         results.put(new ColorTrendSource(location, equipment), colorMap);
                     }
                 }
+
                 //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
                 //Logging.LOGGER.println();
-                return new SatisfactionReportResults(results);
+                return new SatisfactionReportResults(results, unoccupiedTimes);
             }
         });
     }
@@ -125,8 +132,17 @@ public class SatisfactionReport implements Report
         return tdata.process(new SatisfactionProcessor());
     }
 
-     public List<DateRange> getUnoccupiedTimes()
-     {
-         return unoccupiedTimes;
-     }
+    public List<DateRange> getUnoccupiedTimes()
+    {
+        return unoccupiedTimes;
+    }
+
+    private void checkDateRanges(List<DateRange> ranges)
+    {
+        for (DateRange dateRange : ranges)
+        {
+            if (!unoccupiedTimes.contains(dateRange))
+                unoccupiedTimes.add(dateRange);
+        }
+    }
 }

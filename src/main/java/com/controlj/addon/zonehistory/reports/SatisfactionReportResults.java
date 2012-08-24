@@ -11,6 +11,7 @@
 =============================================================================*/
 package com.controlj.addon.zonehistory.reports;
 
+import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.charts.ColorPie;
 import com.controlj.addon.zonehistory.charts.ColorSlice;
 import com.controlj.addon.zonehistory.util.ColorTrendSource;
@@ -23,23 +24,31 @@ import java.util.*;
 
 public class SatisfactionReportResults implements ReportResults
 {
-   private final Map<ColorTrendSource, Map<EquipmentColor, Long>> results;
+    private final Map<ColorTrendSource, Map<EquipmentColor, Long>> results;
+    private final List<DateRange> unoccupiedTimes;
 
-   public SatisfactionReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
-   {
-      this.results = results;
-   }
+    public SatisfactionReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
+    {
+        this.results = results;
+        unoccupiedTimes = Collections.emptyList();
+    }
 
-   public Set<ColorTrendSource> getSources()
-   {
-      return results.keySet();
-   }
+    public SatisfactionReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results, List<DateRange> unoccupiedRanges)
+    {
+        this.results = results;
+        this.unoccupiedTimes = unoccupiedRanges;
+    }
 
-   public ColorPie getPieForSource(ColorTrendSource source)
-   {
-      Map<EquipmentColor, Long> equipmentColorMap = results.get(source);
-      return computeResult(Collections.singleton(equipmentColorMap));
-   }
+    public Set<ColorTrendSource> getSources()
+    {
+        return results.keySet();
+    }
+
+    public ColorPie getPieForSource(ColorTrendSource source)
+    {
+        Map<EquipmentColor, Long> equipmentColorMap = results.get(source);
+        return computeResult(Collections.singleton(equipmentColorMap));
+    }
 
     public ColorPie buildPieChart()
     {
@@ -47,7 +56,7 @@ public class SatisfactionReportResults implements ReportResults
     }
 
     @Override
-    public JSONObject convertToJSON() throws JSONException
+    public JSONObject convertResultsToJSON() throws JSONException
     {
         ColorPie hr = this.buildPieChart();
         return convertToJSON(hr);
@@ -89,26 +98,26 @@ public class SatisfactionReportResults implements ReportResults
     }
 
     private ColorPie computeResult(Collection<Map<EquipmentColor, Long>> mapList)
-   {
-      Map<EquipmentColor, ColorSlice> results = new HashMap<EquipmentColor, ColorSlice>();
-      for (Map<EquipmentColor, Long> colorMap : mapList)
-      {
-         for (Map.Entry<EquipmentColor, Long> colorEntry : colorMap.entrySet())
-         {
-            EquipmentColor color = colorEntry.getKey();
-            ColorSlice slice = results.get(color);
-            if (slice == null)
+    {
+        Map<EquipmentColor, ColorSlice> results = new HashMap<EquipmentColor, ColorSlice>();
+        for (Map<EquipmentColor, Long> colorMap : mapList)
+        {
+            for (Map.Entry<EquipmentColor, Long> colorEntry : colorMap.entrySet())
             {
-               slice = new ColorSlice(color);
-               results.put(color, slice);
+                EquipmentColor color = colorEntry.getKey();
+                ColorSlice slice = results.get(color);
+                if (slice == null)
+                {
+                    slice = new ColorSlice(color);
+                    results.put(color, slice);
+                }
+                // add to a slice's timeInColor
+                slice.addTimeInColor(colorEntry.getValue());
             }
-            // add to a slice's timeInColor
-            slice.addTimeInColor(colorEntry.getValue());
-         }
-      }
+        }
 
-      return new ColorPie(results.values());
-   }
+        return new ColorPie(results.values());
+    }
 
     private JSONObject singleResultIntoJSONObject(ColorSlice cs, double slicePercent) throws JSONException
     {

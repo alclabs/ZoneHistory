@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 public interface ReportResults
 {
-    public JSONObject convertToJSON() throws JSONException;
+    public JSONObject convertResultsToJSON() throws JSONException;
     public JSONArray createDetailsTable() throws JSONException;
     // probably will need to include method to return raw percentages
     // in order to allow the chart creator easy access to the correct data

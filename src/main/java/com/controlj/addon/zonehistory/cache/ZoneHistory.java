@@ -13,6 +13,7 @@ public class ZoneHistory
     private final static long ONE_DAY_MILLIS = 1000L * 60 * 60 * 24;
     private final String equipmentColorLookupString;
     private HashMap<DateRange, Map<EquipmentColor, Long>> cache = new HashMap<DateRange, Map<EquipmentColor, Long>>();
+    private List<DateRange> unoccupiedTimes;
 
     public ZoneHistory(Location equipmentColorLocation)
     {
@@ -43,6 +44,16 @@ public class ZoneHistory
         }
 
         return result;
+    }
+
+    public synchronized void addUnoccupiedTimes(List<DateRange> ranges)
+    {
+        this.unoccupiedTimes = ranges;
+    }
+
+    public synchronized List<DateRange> getUnoccupiedTimes()
+    {
+        return this.unoccupiedTimes;
     }
 
     public int getCacheSize()

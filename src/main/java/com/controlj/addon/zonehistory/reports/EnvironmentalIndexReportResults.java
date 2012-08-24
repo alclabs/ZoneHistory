@@ -8,45 +8,68 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class EnvironmentalIndexReportResults implements ReportResults
 {
     private final Map<AnalogTrendSource, List<Long>> sourceMap;
+    private final long occupiedTime;
 
-    public EnvironmentalIndexReportResults(Map<AnalogTrendSource, List<Long>> sourceTimes)
+    public EnvironmentalIndexReportResults(Map<AnalogTrendSource, List<Long>> sourceTimes, long occupiedTime)
     {
         this.sourceMap = sourceTimes;
+        this.occupiedTime = occupiedTime;
     }
 
-    public PieChart buildTotalPie()
+    @Override
+    public JSONObject convertResultsToJSON() throws JSONException
     {
+        return this.buildTotalPie().convertToJSON();
+    }
+
+    @Override
+    public JSONArray createDetailsTable() throws JSONException
+    {
+        // build individual pie charts and place them into arrays
+        return null;
+    }
+
+    // here to make the large (total) pie chart for all the sources in an area for the test; if only one source, no problem
+    private PieChart buildTotalPie()
+    {
+        List<Long> totalPieData = new ArrayList<Long>();
+        for (int i = 0; i < sourceMap.keySet().size(); i++)
+            totalPieData.add(0l);
+
+        // look at each arraylist and add up all the elements at the same indicies, place into slices
         for (AnalogTrendSource source : sourceMap.keySet())
-        {
-            for (int i = 0; i < sourceMap.get(source).size() - 2; i++)
-            {
-                //
-            }
-        }
+            totalPieData = addTwoLists(totalPieData, sourceMap.get(source));
 
-        return new PieChart();
+        return buildPieChart(totalPieData);
     }
 
-    private PieChart buildSourcePie(AnalogTrendSource source) throws Exception
+    // take a list and add the contents to the other
+    private List<Long> addTwoLists(List<Long> list1, List<Long> list2)
     {
-        if (!sourceMap.containsKey(source))
-            throw new Exception("Key Not found");
+        boolean isList1Longer = list1.size() >= list2.size();
+        List<Long> longerList = isList1Longer ? list1 : list2;
+        int smallerListSize = isList1Longer ? list2.size() : list1.size();
 
-        List<Long> sourceData = sourceMap.get(source);
-        long occupiedTime = sourceData.get(sourceData.size() - 1);
-        sourceData = sourceData.subList(0, sourceData.size() - 2);
+        for (int i = 0; i < smallerListSize; i++)
+            longerList.set(i, list1.get(i) + list2.get(i));
 
+        return longerList;
+    }
+
+    private PieChart buildPieChart(List<Long> data)
+    {
         PieChart chart = new PieChart();
-        for (int i = 0; i < sourceData.size(); i++)
+        for (int i = 0; i < data.size(); i++)
         {
-            long num = sourceData.get(i);
-            PieSlice slice = new PieSlice(num / occupiedTime, getPercentageColor(i / sourceData.size()));
+            long num = data.get(i);
+            PieSlice slice = new PieSlice(num / occupiedTime, getPercentageColor(i / data.size()));
             chart.addSlice(slice);
         }
 
@@ -60,20 +83,5 @@ public class EnvironmentalIndexReportResults implements ReportResults
         int green = 255 * ratio;
 
         return new Color(red, green, 0);
-    }
-
-    public JSONObject convertToJSON() throws JSONException
-    {
-        // use public to get total pie
-        PieChart chart = this.buildTotalPie();
-        // private to get internal pies
-
-        return this.buildTotalPie().convertToJSON();
-    }
-
-    @Override
-    public JSONArray createDetailsTable() throws JSONException
-    {
-        return null;
     }
 }
