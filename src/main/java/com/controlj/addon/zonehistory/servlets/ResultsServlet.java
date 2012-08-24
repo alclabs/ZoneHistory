@@ -46,15 +46,15 @@ public class ResultsServlet extends HttpServlet
                     else
                         location = geoTree.resolve(loc);
 
-
                     Report report = new ReportFactory().createReport(action, startDate, endDate, location, systemConnection);
                     ReportResults reportResults = report.runReport();
+
                     JSONObject results = new JSONObject();
-                    results.put("mainChart", reportResults.convertResultsToJSON());
+                    results.put("mainChart", new ReportFactory().createPieChartJSONBuilder(report).buildPieChartJSON(report, reportResults));
 
                     // if there is more than 1 eq, create table with their respective charts
-                    if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
-                        results.put("table", reportResults.createDetailsTable());
+//                    if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
+//                        results.put("table", reportResults.createDetailsTable());
 
                     results.write(finalResponse.getWriter());
                 }

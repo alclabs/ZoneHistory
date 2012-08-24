@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EnvironmentalIndexReportResults implements ReportResults
+public class EnvironmentalIndexReportResults
 {
     private final Map<AnalogTrendSource, List<Long>> sourceMap;
     private final long occupiedTime;
@@ -23,13 +23,13 @@ public class EnvironmentalIndexReportResults implements ReportResults
         this.occupiedTime = occupiedTime;
     }
 
-    @Override
+//    @Override
     public JSONObject convertResultsToJSON() throws JSONException
     {
         return this.buildTotalPie().convertToJSON();
     }
 
-    @Override
+//    @Override
     public JSONArray createDetailsTable() throws JSONException
     {
         // build individual pie charts and place them into arrays

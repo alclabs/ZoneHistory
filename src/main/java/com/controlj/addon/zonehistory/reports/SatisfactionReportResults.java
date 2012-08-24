@@ -21,7 +21,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class SatisfactionReportResults implements ReportResults
+public class SatisfactionReportResults
 {
     private final Map<ColorTrendSource, Map<EquipmentColor, Long>> results;
 
@@ -51,7 +51,7 @@ public class SatisfactionReportResults implements ReportResults
         return computeResult(results.values());
     }
 
-    @Override
+//    @Override
     public JSONObject convertResultsToJSON() throws JSONException
     {
         ColorPie hr = this.buildPieChart();
@@ -71,7 +71,7 @@ public class SatisfactionReportResults implements ReportResults
         return obj;
     }
 
-    @Override
+//    @Override
     public JSONArray createDetailsTable() throws JSONException
     {
         // for each EquipmentColorTrendSource, get the results and compile into a JSON array

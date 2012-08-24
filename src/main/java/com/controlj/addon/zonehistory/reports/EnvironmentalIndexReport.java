@@ -35,10 +35,10 @@ public class EnvironmentalIndexReport implements Report
     public ReportResults runReport() throws SystemException, ActionExecutionException
     {
         final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
-        return system.runReadAction(new ReadActionResult<EnvironmentalIndexReportResults>()
+        return system.runReadAction(new ReadActionResult<ReportResults>()
         {
             @Override
-            public EnvironmentalIndexReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
+            public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
                 // check the cache for this location (during the time range)
                 Collection<ZoneHistory> zoneHistories = ZoneHistoryCache.INSTANCE.getDescendantZoneHistories(location);
@@ -62,21 +62,19 @@ public class EnvironmentalIndexReport implements Report
                     zoneHistories = ZoneHistoryCache.INSTANCE.addDescendantZoneHistories(location, newHistories);
                 }
 
-                // need to get EqColorTrndSource for the eq at the location.
+                // need to get EqColorTrendSource for the equip at the location.
                 // if !null, process using the SatisfactionReportProcessor, get the unoccupiedRanges, and pass to the EIProcessor
                 SatisfactionReport report = new SatisfactionReport(startDate, endDate, location.getParent(), system);
                 report.runReport();
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
 
-                // run an ei report using the unoccupied times found in the SatisfactionProcessor (modify to record the unoccupied times)
-                Map<AnalogTrendSource, List<Long>> results = new HashMap<AnalogTrendSource, List<Long>>();
-                long occupiedTime = 0l;
+                ReportResults reportResults = new ReportResults();
+
                 for (ZoneHistory zoneHistory : zoneHistories)
                 {
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
 
-//                    DateRange range = new DateRange(startDate, endDate);
                     AnalogTrendSource source = equipmentColorLocation.getAspect(AnalogTrendSource.class);
                     try
                     {
@@ -84,11 +82,14 @@ public class EnvironmentalIndexReport implements Report
                         if (!eqAspect.getDevice().isOutOfService())
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-                            occupiedTime = processor.getOccupiedTime();
-                            List<Long> buckets = processor.getPercentageBuckets();
 
-//                            buckets.add(occupiedTime); // always place in the last location
-                            results.put(source, buckets);
+                            List<Long> buckets = processor.getPercentageBuckets();
+                            ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime());
+
+                            for (int i = 0; i < buckets.size(); i++)
+                                reportData.addData(i, buckets.get(i));
+
+                            reportResults.addData(source, reportData);
                         }
                     }
                     catch (Exception e)
@@ -98,7 +99,7 @@ public class EnvironmentalIndexReport implements Report
                     }
                 }
 
-                return new EnvironmentalIndexReportResults(results, occupiedTime);
+                return reportResults;
             }
         });
     }

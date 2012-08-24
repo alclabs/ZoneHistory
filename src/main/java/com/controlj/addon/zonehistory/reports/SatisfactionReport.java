@@ -3,13 +3,13 @@ package com.controlj.addon.zonehistory.reports;
 import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.cache.ZoneHistory;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
-import com.controlj.addon.zonehistory.util.ColorTrendSource;
 import com.controlj.addon.zonehistory.util.EnabledColorTrendWithSetpointAcceptor;
 import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.access.aspect.AttachedEquipment;
 import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
+import com.controlj.green.addonsupport.access.aspect.TrendSource;
 import com.controlj.green.addonsupport.access.trend.TrendData;
 import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
 import com.controlj.green.addonsupport.access.trend.TrendRange;
@@ -40,10 +40,10 @@ public class SatisfactionReport implements Report
     {
         final TrendRange trendRange = TrendRangeFactory.byDateRange(startDate, endDate);
 
-        return system.runReadAction(new ReadActionResult<SatisfactionReportResults>()
+        return system.runReadAction(new ReadActionResult<ReportResults>()
         {
             @Override
-            public SatisfactionReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
+            public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
                 StopWatch timer = new StopWatch();
                 timer.start();
@@ -66,19 +66,13 @@ public class SatisfactionReport implements Report
                 processTimer.start();
                 processTimer.suspend();
 
-//                boolean firstZone = true;
-
-                Map<ColorTrendSource, Map<EquipmentColor, Long>> results = new HashMap<ColorTrendSource, Map<EquipmentColor, Long>>();
+                //Map<ColorTrendSource, Map<EquipmentColor, Long>> results = new HashMap<ColorTrendSource, Map<EquipmentColor, Long>>();
+                Map<TrendSource, ReportResultsData> reportResultsDataMap = new HashMap<TrendSource, ReportResultsData>();
                 for (ZoneHistory zoneHistory : zoneHistories)
                 {
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
-
-//                    if (firstZone)
-//                    {
-                    //Logging.LOGGER.println("For "+equipment.getDisplayName()+", cache has "+zoneHistory.getCacheSize()+" entries and object is "+zoneHistory);
-//                        firstZone = false;
-//                    }
+                    EquipmentColorTrendSource source = equipmentColorLocation.getAspect(EquipmentColorTrendSource.class);
 
                     DateRange range = new DateRange(startDate, endDate);
                     Map<EquipmentColor, Long> colorMap = zoneHistory.getMapForDates(range);
@@ -87,8 +81,6 @@ public class SatisfactionReport implements Report
                     {
                         try
                         {
-                            EquipmentColorTrendSource source = equipmentColorLocation.getAspect(EquipmentColorTrendSource.class);
-
                             AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                             if (!eqAspect.getDevice().isOutOfService())
                             {
@@ -111,17 +103,23 @@ public class SatisfactionReport implements Report
                         }
                     }
                     else
-                        checkDateRanges(zoneHistory.getUnoccupiedTimes());
-
-                    if (colorMap != null)
                     {
-                        results.put(new ColorTrendSource(location, equipment), colorMap);
+//                        results.put(new ColorTrendSource(location, equipment), colorMap);
+                        checkDateRanges(zoneHistory.getUnoccupiedTimes());
                     }
+
+                    // place stuff into report results map to be wrapped and returned later - may not work with current caching system
+                    ReportResultsData reportResultsData = new ReportResultsData(0);
+                    for (EquipmentColor eqColor : colorMap.keySet())
+                        reportResultsData.addData(eqColor.getValue(), colorMap.get(eqColor));
+
+                    reportResultsDataMap.put(source, reportResultsData);
                 }
 
                 //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
                 //Logging.LOGGER.println();
-                return new SatisfactionReportResults(results);
+
+                return new ReportResults(reportResultsDataMap);
             }
         });
     }
