@@ -11,7 +11,6 @@
 =============================================================================*/
 package com.controlj.addon.zonehistory.reports;
 
-import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.charts.ColorPie;
 import com.controlj.addon.zonehistory.charts.ColorSlice;
 import com.controlj.addon.zonehistory.util.ColorTrendSource;
@@ -25,19 +24,16 @@ import java.util.*;
 public class SatisfactionReportResults implements ReportResults
 {
     private final Map<ColorTrendSource, Map<EquipmentColor, Long>> results;
-    private final List<DateRange> unoccupiedTimes;
 
     public SatisfactionReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
     {
         this.results = results;
-        unoccupiedTimes = Collections.emptyList();
     }
 
-    public SatisfactionReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results, List<DateRange> unoccupiedRanges)
+    /*public SatisfactionReportResults(Map<ColorTrendSource, Map<EquipmentColor, Long>> results)
     {
         this.results = results;
-        this.unoccupiedTimes = unoccupiedRanges;
-    }
+    }*/
 
     public Set<ColorTrendSource> getSources()
     {

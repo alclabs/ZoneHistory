@@ -121,7 +121,7 @@ public class SatisfactionReport implements Report
 
                 //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
                 //Logging.LOGGER.println();
-                return new SatisfactionReportResults(results, unoccupiedTimes);
+                return new SatisfactionReportResults(results);
             }
         });
     }
