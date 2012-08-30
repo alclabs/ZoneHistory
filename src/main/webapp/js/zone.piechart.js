@@ -1,7 +1,7 @@
 var mainChartLocation;
 var animationScale = 1.1;
 
-function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showTotal)
+function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showTotal, testToRun)
 {
     if (!node)
     {
@@ -22,7 +22,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
     mainChartLocation.clear();
     mainChartLocation.text(canvasWidth / 2, canvasHeight / 3, "Loading...").attr("fill", textColor);
 
-    var obj = { "location":node, "prevdays":prevDays };
+    var obj = { "location":node, "prevdays":prevDays , "action": testToRun};
     $.getJSON("servlets/results", obj,
             function(data)
             {
@@ -42,7 +42,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
                 if (!isWebContext)
                 {
-                    var tableChartData = data.table
+                    var tableChartData = data.table;
                     if (tableChartData)
                     {
                         // sort by satisfaction - low to high
@@ -104,7 +104,7 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     // setting it this way seems to fix the issue.
     chartLocation.g.colors = pieColors;
 
-    var params = {}
+    var params = {};
     if (drawLegend)
     {
         params.legend = pieLabels;
@@ -143,7 +143,7 @@ function drawTable(tableData, sparklineDiameter)
         var item = tableData[index];
         var eqLink = item.eqDisplayName;
         var rowId = 'lil_chart_' + index;
-        var style = index % 2 == 1 ? "odd" : "even"
+        var style = index % 2 == 1 ? "odd" : "even";
         var transientLookup = item.eqTransLookup;
         var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.satisfaction);

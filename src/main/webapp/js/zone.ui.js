@@ -2,6 +2,10 @@ var tableData, reverse = true;
 
 $(function()
 {
+    // init the tabs
+    $('#tabs').tabs();
+
+
     // Attach the dynatree widget to an existing <div id="tree"> element
     // and pass the tree options as an argument to the dynatree() function:
     $("#tree").dynatree(
@@ -86,9 +90,11 @@ function runReport()
    $("#welcome").css('display','none');
    clearTable();
 
+    // get active tab to determine which test to run
+   var testToRun = $( "#tabs" ).tabs( "option", "selected" ) === 0 ? "satisfaction" : "environmental index";
    var location = getActiveNodeKey();
    if (location)
-      runColorReport(location, getTimeRange(), false, 640, 430, true, true);
+      runColorReport(location, getTimeRange(), false, 640, 430, true, true, testToRun);
    else
       clearPie();
 }

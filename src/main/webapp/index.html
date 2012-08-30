@@ -20,165 +20,88 @@
   ~ THE SOFTWARE.
  -->
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Strict//EN">
+<!--<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Strict//EN">-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
 <head>
-   <title>Zone History</title>
-   <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.9.custom.css"/>
-   <link rel='stylesheet' type='text/css' href='skin/ui.dynatree.css'/>
-   <link rel='stylesheet' type='text/css' href='skin/jquery.svg.css'/>
+    <meta http-equiv="x-ua-compatible" content="IE=9">
 
-   <style type="text/css">
-      html, body {
-         font-family: sans-serif;
-         color: black;
-         height: 100%;
-         width: 100%;
-         padding: 0;
-         margin: 0;
-         overflow:hidden;
-      }
+    <title>Zone History</title>
+    <link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.9.custom.css"/>
+    <link rel='stylesheet' type='text/css' href='skin/ui.dynatree.css'/>
+    <link rel='stylesheet' type='text/css' href='skin/jquery.svg.css'/>
+    <link rel='stylesheet' type='text/css' href="css/ui.theme.css"/>
 
-      #tree {
-         width:300px;
-         min-height:100%;
-         height:100%;
-         float:left;
-         overflow:scroll;
-      }
-
-      #treecell {
-         height:100%;
-         overflow:hidden;
-         padding:0px;
-      }
-
-      #rhs {
-          height:100%;
-          width:100%;
-          padding:0px;
-          overflow:hidden;
-      }
-
-      #rhscontent {
-          width:100%;
-          min-height:100%;
-          max-height:100%;
-          height:100%;
-          overflow:scroll;
-      }
-
-      body > table > tbody {
-          height:100%;
-          width:100%;
-      }
-
-      #results_table {
-         height: 480px;
-      }
-
-      #results_table, #zoneDetails, a.help {
-          margin: 10px;
-      }
-
-      ul.dynatree-container {
-          border: none;
-          overflow: visible;
-          margin-left: 0px;
-      }
-
-      th {
-         font-size: 1em;
-         padding: 3px 7px 2px 7px;
-      }
-
-      td {
-         vertical-align: top;
-      }
-
-      #detailsTable td {
-          vertical-align:middle;
-          padding:2px;
-      }
-
-      div.graph {
-         min-width: 40%;
-      }
-
-      tr.odd {
-         background-color: #eeeeee;
-      }
-
-      .right {
-         float: right;
-      }
-
-      a.dim:link, a.dim:visited {
-          color:#999;
-      }
-   </style>
-
-   <script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
-   <script type="text/javascript" src="js/jquery-ui-1.8.9.custom.min.js"></script>
-   <script type="text/javascript" src="js/jquery.dynatree.min.js"></script>
-   <script type="text/javascript" src="js/raphael-min.js"></script>
-   <script type="text/javascript" src="js/g.raphael-min.js"></script>
-   <script type="text/javascript" src="js/g.pie-min.js"></script>
-   <script type="text/javascript" src="js/jquery.sparkline.min.js"></script>
-   <script type="text/javascript" src="js/jquery.simpleCombo.js"></script>
-   <script type="text/javascript" src="js/zone.piechart.js"></script>
-   <script type="text/javascript" src="js/zone.ui.js"></script>
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="js/jquery.dynatree.min.js"></script>
+    <script type="text/javascript" src="js/raphael-min.js"></script>
+    <script type="text/javascript" src="js/g.raphael-min.js"></script>
+    <script type="text/javascript" src="js/g.pie-min.js"></script>
+    <script type="text/javascript" src="js/jquery.sparkline.min.js"></script>
+    <script type="text/javascript" src="js/jquery.simpleCombo.js"></script>
+    <script type="text/javascript" src="js/zone.piechart.js"></script>
+    <script type="text/javascript" src="js/zone.ui.js"></script>
 
 </head>
 
 <body>
-<table cellpadding="0" cellspacing="0" height="100%" width="100%">
-    <tr style="min-height:100%; height:100%; width:100%;">
-        <td id="treecell" height="100%"><div id="tree"></div></td>
-        <td id="rhs">
-            <div id="rhscontent">
-            <div class="right">
-                <a href="help/help.html">Help</a><br/>
-                <a href="resetcache" class="dim" target="_blank">Clear Cache</a>
+
+<div id="tree"></div>
+
+<div class="right">
+    <a href="help/help.html">Help</a><br/>
+    <a href="resetcache" class="dim" target="_blank">Clear Cache</a>
+</div>
+
+<div>
+    Analyze colors from
+    <select id="dateCombo" class="combo">
+        <option value="0">Today</option>
+        <option value="1">Yesterday</option>
+        <option value="7" selected>Previous 7 days</option>
+        <option value="31">Previous 31 days</option>
+    </select>
+</div>
+<br/>
+
+<div id="welcome">Select a starting location to begin analyzing colors.</div>
+<br/>
+
+
+<!--right-hand content -->
+<div id="rhs">
+    <div id="tabs" class="customTabs">
+        <ul>
+            <li><a href="#satisfaction_content">Satisfaction</a></li>
+            <li><a href="#environmental_index">Environmental Index</a></li>
+        </ul>
+
+        <div id="satisfaction_content">
+            <div id="graph" class="graph">
             </div>
-            <table id="results_table">
-               <tbody>
-                   <tr>
-                      <td id="timerangecell">
-                         <div>
-                            Analyze colors from
-                            <select id="dateCombo" class="combo">
-                               <option value="0">Today</option>
-                               <option value="1">Yesterday</option>
-                               <option value="7" selected>Previous 7 days</option>
-                               <option value="31">Previous 31 days</option>
-                            </select>
-                         </div>
-                         <br/>
-
-                         <div id="graph" class="graph"></div>
-                         <div id="welcome">Select a starting location to begin analyzing colors.</div>
-                      </td>
-                   </tr>
-               </tbody>
-            </table>
-
             <div id="zoneDetails" style="display: none;">
-               <table id="detailsTable" cellpadding="0" cellspacing="0">
-                  <thead>
-                      <tr>
-                         <th id="equipmentLocation">Equipment Location</th>
-                         <th id="satisfaction">Satisfaction</th>
-                         <th>Colors</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                  </tbody>
-               </table>
+                <table id="detailsTable" cellpadding="0" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th id="equipmentLocation">Equipment Location</th>
+                        <th id="satisfaction">Satisfaction</th>
+                        <th>Colors</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
-            </div>
-        </td>
-    </tr>
-</table>
+        </div>
+
+        <div id="environmental_index">
+            <p>
+                Halp...plz
+            </p>
+        </div>
+    </div>
+</div>
 </body>
 </html>

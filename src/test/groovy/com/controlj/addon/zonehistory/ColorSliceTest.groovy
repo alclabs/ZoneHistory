@@ -3,6 +3,7 @@ package com.controlj.addon.zonehistory
 import com.controlj.green.addonsupport.access.EquipmentColor
 import spock.lang.Specification
 import static com.controlj.green.addonsupport.access.EquipmentColor.*
+import com.controlj.addon.zonehistory.charts.ColorSlice
 
 class ColorSliceTest  extends Specification
 {

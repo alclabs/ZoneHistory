@@ -22,7 +22,7 @@
 
 package com.controlj.addon.zonehistory.servlets;
 
-import com.controlj.addon.zonehistory.SetpointWithEnabledColorTrendAcceptor;
+import com.controlj.addon.zonehistory.util.SetpointWithEnabledColorTrendAcceptor;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.addon.zonehistory.util.TreeIcon;
 import com.controlj.green.addonsupport.access.*;
