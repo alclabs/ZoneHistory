@@ -53,8 +53,8 @@ public class ResultsServlet extends HttpServlet
                     results.put("mainChart", new ReportFactory().createPieChartJSONBuilder(report).buildPieChartJSON(report, reportResults));
 
                     // if there is more than 1 eq, create table with their respective charts
-//                    if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
-//                        results.put("table", reportResults.createDetailsTable());
+                    if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
+                        results.put("table", new ReportFactory().createPieChartJSONBuilder(report).buildAreaDetailsTable(report, reportResults));
 
                     results.write(finalResponse.getWriter());
                 }
@@ -88,9 +88,8 @@ public class ResultsServlet extends HttpServlet
     {
         int numberOfDays = getNumberOfDays(daysString);
         if (numberOfDays == 0)
-        {
             return new Date();
-        }
+
         return getMidnight(0);
     }
 

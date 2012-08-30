@@ -109,7 +109,7 @@ public class SatisfactionReport implements Report
                     }
 
                     // place stuff into report results map to be wrapped and returned later - may not work with current caching system
-                    ReportResultsData reportResultsData = new ReportResultsData(0);
+                    ReportResultsData reportResultsData = new ReportResultsData(0l, location, equipmentColorLocation);
                     for (EquipmentColor eqColor : colorMap.keySet())
                         reportResultsData.addData(eqColor.getValue(), colorMap.get(eqColor));
 

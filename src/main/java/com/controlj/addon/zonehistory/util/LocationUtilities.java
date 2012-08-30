@@ -50,4 +50,35 @@ public class LocationUtilities
         return result.toString();
     }
 
+    public static String createTransientLookupPathString(Location loc)
+    {
+        StringBuffer result = new StringBuffer();
+        Location current = loc;
+        while (true)
+        {
+            if (result.length() != 0)
+            {   // there is other content, prepend delimeter
+                result.insert(0, "/");
+            }
+            result.insert(0, current.getTransientLookupString());
+            if (current.hasParent())
+            {
+                try
+                {
+                    current = current.getParent();
+                }
+                catch (UnresolvableException e)
+                {
+                    throw new RuntimeException("programming error - can't find parent when hasParent is true");
+                } // shouldn't happen
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return result.toString();
+    }
+
 }

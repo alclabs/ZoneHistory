@@ -2,9 +2,10 @@ package com.controlj.addon.zonehistory.charts;
 
 import com.controlj.addon.zonehistory.reports.Report;
 import com.controlj.addon.zonehistory.reports.ReportResults;
+import com.controlj.addon.zonehistory.reports.ReportResultsData;
 import com.controlj.green.addonsupport.access.EquipmentColor;
+import com.controlj.green.addonsupport.access.aspect.TrendSource;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -37,10 +38,10 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
             colorMap.put(EquipmentColor.lookup(i), data.get(i));
         }
 
-        // compute percentages per slice
+        // compute percentages per slice - make the pie itself
         JSONArray jsonPieArray = new JSONArray();
         for (EquipmentColor color : colorMap.keySet())
-            jsonPieArray.put(singleResultIntoJSONObject(color, colorMap.get(color)));
+            jsonPieArray.put(super.singleSliceObject(color.toString(), getActualColor(color), colorMap.get(color)));
 
         // calculate satisfaction
 
@@ -51,6 +52,47 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
 
         return object;
     }
+
+    private JSONObject buildIndividulaPie()
+    {
+
+    }
+
+    @Override
+    public JSONArray buildAreaTable(Report report, ReportResults reportResults) throws Exception
+    {
+       JSONArray tableData = new JSONArray();
+
+      for (TrendSource cts : reportResults.getSources())
+      {
+          ReportResultsData data = reportResults.getDataFromSource(cts);
+         JSONObject tableRow = new JSONObject();
+
+         tableRow.put("eqDisplayName", data.getDisplayPath());
+         tableRow.put("eqTransLookup", data.getTransLookupPath());
+         tableRow.put("eqTransLookupPath", data.getTransLookupPath());
+         tableRow.put("rowChart", toChartJSON(colorTrendResults.getPieForSource(cts))); // generate a pie per source data
+
+         tableData.put(tableRow);
+    }
+
+    return tableData;
+    }
+
+
+
+   private JSONObject toChartJSON(ColorPie hr)
+   {
+      JSONObject obj = new JSONObject();
+      obj.put("satisfaction", hr.getSatisfaction());
+
+      JSONArray array = new JSONArray();
+      for (ColorSlice cs : hr.getColorSlices())
+         array.put(singleResultIntoJSONObject(cs, hr.getSlicePercent(cs)));
+      obj.put("colors", array);
+
+      return obj;
+   }
 
     private double getSatisfaction(long totalKnownTime, long satisfiedTime)
     {
@@ -103,18 +145,5 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
                 return color.getColor();
         }
 
-    }
-
-    private JSONObject singleResultIntoJSONObject(EquipmentColor eqColor, double slicePercent) throws JSONException
-    {
-        JSONObject obj = new JSONObject();
-        obj.put("color", eqColor);
-        obj.put("percent", slicePercent);
-        Color color = this.getActualColor(eqColor);
-        obj.put("rgb-red", color.getRed());
-        obj.put("rgb-green", color.getGreen());
-        obj.put("rgb-blue", color.getBlue());
-
-        return obj;
     }
 }

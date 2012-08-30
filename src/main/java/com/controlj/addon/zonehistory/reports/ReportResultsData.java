@@ -1,5 +1,9 @@
 package com.controlj.addon.zonehistory.reports;
 
+import com.controlj.addon.zonehistory.util.LocationUtilities;
+import com.controlj.green.addonsupport.access.Location;
+import com.controlj.green.addonsupport.access.UnresolvableException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,17 +11,31 @@ public class ReportResultsData
 {
     private final Map<Integer, Long> data;
     private final long time;
+    private final String displayPath, transLookupString, transLookupPath;
 
-    public ReportResultsData(long time)
+
+    public ReportResultsData(long time, Location ancestor, Location eqLocation) throws UnresolvableException
     {
         this.data = new HashMap<Integer, Long>();
         this.time = time;
+        this.displayPath = LocationUtilities.relativeDisplayPath(ancestor, eqLocation);
+        this.transLookupString = eqLocation.getTransientLookupString();
+        this.transLookupPath = LocationUtilities.createTransientLookupPathString(eqLocation);
     }
 
-    public ReportResultsData(Map<Integer, Long> data, long time)
+    public String getDisplayPath()
     {
-        this.data = data;
-        this.time = time;
+        return displayPath;
+    }
+
+    public String getTransLookupString()
+    {
+        return transLookupString;
+    }
+
+    public String getTransLookupPath()
+    {
+        return transLookupPath;
     }
 
     public long getTime()

@@ -48,7 +48,7 @@ public class ColorTrendSource
         return transientLookupPathString;
     }
 
-    private String createTransientLookupPathString(Location loc)
+    public String createTransientLookupPathString(Location loc)
     {
         StringBuffer result = new StringBuffer();
         Location current = loc;
