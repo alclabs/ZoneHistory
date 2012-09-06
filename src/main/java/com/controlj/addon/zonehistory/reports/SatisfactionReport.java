@@ -72,7 +72,7 @@ public class SatisfactionReport implements Report
                 {
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
-                    EquipmentColorTrendSource source = equipmentColorLocation.getAspect(EquipmentColorTrendSource.class);
+                    EquipmentColorTrendSource source = equipment.getAspect(EquipmentColorTrendSource.class);
 
                     DateRange range = new DateRange(startDate, endDate);
                     Map<EquipmentColor, Long> colorMap = zoneHistory.getMapForDates(range);

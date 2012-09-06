@@ -64,18 +64,27 @@ public class EnvironmentalIndexReport implements Report
 
                 // need to get EqColorTrendSource for the equip at the location.
                 // if !null, process using the SatisfactionReportProcessor, get the unoccupiedRanges, and pass to the EIProcessor
-                SatisfactionReport report = new SatisfactionReport(startDate, endDate, location.getParent(), system);
+                SatisfactionReport report = new SatisfactionReport(startDate, endDate, location, system);
                 report.runReport();
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
 
-                ReportResults reportResults = new ReportResults();
+                ReportResults reportResults = new ReportResults(BUCKETS);
 
                 for (ZoneHistory zoneHistory : zoneHistories)
                 {
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
 
-                    AnalogTrendSource source = equipmentColorLocation.getAspect(AnalogTrendSource.class);
+//                    AnalogTrendSource source = equipmentColorLocation.getAspect(AnalogTrendSource.class);
+                    AnalogTrendSource source = equipmentColorLocation.find(AnalogTrendSource.class, new AspectAcceptor<AnalogTrendSource>()
+                    {
+                        @Override
+                        public boolean accept(@NotNull AnalogTrendSource source)
+                        {
+                            return source.getLocation().getReferenceName().equals("zn_enviro_indx_tn");
+                        }
+                    }).iterator().next();
+
                     try
                     {
                         AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
@@ -83,11 +92,12 @@ public class EnvironmentalIndexReport implements Report
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
 
-                            List<Long> buckets = processor.getPercentageBuckets();
-                            ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime());
+                            ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), equipment, equipmentColorLocation);
 
+                            List<Long> buckets = processor.getPercentageBuckets();
                             for (int i = 0; i < buckets.size(); i++)
-                                reportData.addData(i, buckets.get(i));
+                                if (buckets.get(i) > 0)
+                                    reportData.addData(i, buckets.get(i));
 
                             reportResults.addData(source, reportData);
                         }

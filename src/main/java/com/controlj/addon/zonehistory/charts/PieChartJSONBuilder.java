@@ -1,6 +1,5 @@
 package com.controlj.addon.zonehistory.charts;
 
-import com.controlj.addon.zonehistory.reports.Report;
 import com.controlj.addon.zonehistory.reports.ReportResults;
 import com.controlj.addon.zonehistory.reports.ReportResultsData;
 import com.controlj.green.addonsupport.access.aspect.TrendSource;
@@ -14,13 +13,38 @@ import java.util.Map;
 
 public abstract class PieChartJSONBuilder
 {
-    public abstract JSONObject buildPieChartJSON(Report report, ReportResults reportResults) throws Exception;
-    public abstract JSONArray buildAreaDetailsTable(Report report, ReportResults reportResults) throws Exception;
+    public abstract JSONObject makeSinglePieChart(Map<Integer, Long> data, int value, long time) throws JSONException;
+
+    public JSONObject buildMainPieChart(ReportResults reportResults) throws Exception
+    {
+        // for all the source, combine data in each bucket
+        Map<Integer, Long> rawData = combineResultsForAllSources(reportResults);
+        return makeSinglePieChart(rawData, reportResults.getBuckets(), reportResults.getTimeForAllResults());
+    }
+
+    public JSONArray buildAreaDetailsTable(ReportResults reportResults) throws Exception
+    {
+        long time = reportResults.getTimeForAllResults();
+        int buckets = reportResults.getBuckets();
+
+        JSONArray tableData = new JSONArray();
+        for (TrendSource source : reportResults.getSources())
+        {
+            ReportResultsData data = reportResults.getDataFromSource(source);
+            JSONObject tableRow = new JSONObject();
+            tableRow.put("eqDisplayName",     data.getDisplayPath());
+            tableRow.put("eqTransLookup",     data.getTransLookupPath());
+            tableRow.put("eqTransLookupPath", data.getTransLookupPath());
+            tableRow.put("rowChart",          makeSinglePieChart(data.getData(), buckets, time)); // generate a pie per source data
+
+            tableData.put(tableRow);
+        }
+
+        return tableData;
+    }
 
     protected Map<Integer, Long> combineResultsForAllSources(ReportResults reportResults) throws Exception
     {
-        // build this piechart for mainchart - worry about individual ones later
-
         Map<Integer, Long> results = new HashMap<Integer, Long>();
         for (TrendSource source : reportResults.getSources())
         {

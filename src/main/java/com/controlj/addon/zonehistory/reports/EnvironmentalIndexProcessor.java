@@ -93,7 +93,7 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
             unoccupiedTime += duration;
         else
         {
-            int index = (int) (sample.doubleValue() / this.buckets) - 1; // we only want unoccupied time in the very last spot
+            int index = (int) (sample.doubleValue() / (100 / this.buckets)) - 1; // we only want unoccupied time in the very last spot
 
             try
             {

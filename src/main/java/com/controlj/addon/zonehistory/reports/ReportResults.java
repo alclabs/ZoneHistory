@@ -10,20 +10,28 @@ import java.util.Map;
 public class ReportResults
 {
     private final Map<TrendSource, ReportResultsData> data;
+    private final int buckets;
 
-    public ReportResults()
+    public ReportResults(int b)
     {
         data = new HashMap<TrendSource, ReportResultsData>();
+        buckets = b;
     }
 
     public ReportResults(Map<TrendSource, ReportResultsData> stuffs)
     {
         this.data = stuffs;
+        buckets = stuffs.size();
     }
 
     public void addData(TrendSource source, ReportResultsData resultsData) throws Exception
     {
-       data.put(source, resultsData);
+        data.put(source, resultsData);
+    }
+
+    public int getBuckets()
+    {
+        return buckets;
     }
 
     public ReportResultsData getDataFromSource(TrendSource source) throws Exception
@@ -39,11 +47,12 @@ public class ReportResults
         return data.keySet();
     }
 
+    public long getTimeForAllResults() throws Exception
+    {
+        long occupiedTime = 0;
+        for (TrendSource source : getSources())
+            occupiedTime += getDataFromSource(source).getTime();
 
-    // make pie chart creator that creates the pie based on the type of report that was run to determine how the pie is built
-
-//    public JSONObject convertResultsToJSON() throws JSONException;
-//    public JSONArray createDetailsTable() throws JSONException;
-    // probably will need to include method to return raw percentages
-    // in order to allow the chart creator easy access to the correct data
+        return occupiedTime;
+    }
 }

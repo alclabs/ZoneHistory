@@ -3,7 +3,7 @@ var tableData, reverse = true;
 $(function()
 {
     // init the tabs
-    $('#tabs').tabs();
+//    $('#tabs').tabs();
 
 
     // Attach the dynatree widget to an existing <div id="tree"> element
@@ -49,6 +49,15 @@ $(function()
             }
     );
 
+    $("#reportCombo").simpleCombo().change(
+            function()
+            {
+                runReport();
+            }
+    );
+
+
+
     $("#equipmentLocation").click(function()
     {
         clearTable();
@@ -59,7 +68,15 @@ $(function()
     {
         clearTable();
         drawTable(sortBySatisfaction(tableData), 30);
-    })
+    });
+
+    $("#satisfaction_content").bind( "tabsshow", function(event, ui) {
+        runReport();
+    });
+
+    $("#environmental_index").bind( "tabsshow", function(event, ui) {
+        runReport();
+    });
 
 });
 
@@ -91,7 +108,8 @@ function runReport()
    clearTable();
 
     // get active tab to determine which test to run
-   var testToRun = $( "#tabs" ).tabs( "option", "selected" ) === 0 ? "satisfaction" : "environmental index";
+   var testToRun = $( "#reportCombo" ).val();
+//   var testToRun = /*"satisfaction";*/ "environmental index";
    var location = getActiveNodeKey();
    if (location)
       runColorReport(location, getTimeRange(), false, 640, 430, true, true, testToRun);
@@ -138,14 +156,14 @@ function sortBySatisfaction(data)
     {
         data = data.sort(function(a, b)
         {
-            return b["rowChart"]["satisfaction"] - a["rowChart"]["satisfaction"];
+            return b["rowChart"]["percentlabel"] - a["rowChart"]["percentlabel"];
         });
     }
     else
     {
         data = data.sort(function(a, b)
         {
-            return a["rowChart"]["satisfaction"] - b["rowChart"]["satisfaction"];
+            return a["rowChart"]["percentlabel"] - b["rowChart"]["percentlabel"];
         });
     }
 
@@ -163,7 +181,7 @@ function clearTable()
 
 function getActiveNodeKey()
 {
-    var node = $('#tree').dynatree('getActiveNode')
+    var node = $('#tree').dynatree('getActiveNode');
     if (node)
         return node.data.key;
     else

@@ -50,11 +50,11 @@ public class ResultsServlet extends HttpServlet
                     ReportResults reportResults = report.runReport();
 
                     JSONObject results = new JSONObject();
-                    results.put("mainChart", new ReportFactory().createPieChartJSONBuilder(report).buildPieChartJSON(report, reportResults));
+                    results.put("mainChart", new ReportFactory().createPieChartJSONBuilder(report).buildMainPieChart(reportResults));
 
                     // if there is more than 1 eq, create table with their respective charts
                     if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
-                        results.put("table", new ReportFactory().createPieChartJSONBuilder(report).buildAreaDetailsTable(report, reportResults));
+                        results.put("table", new ReportFactory().createPieChartJSONBuilder(report).buildAreaDetailsTable(reportResults));
 
                     results.write(finalResponse.getWriter());
                 }

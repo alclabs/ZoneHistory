@@ -14,13 +14,13 @@ public class ReportResultsData
     private final String displayPath, transLookupString, transLookupPath;
 
 
-    public ReportResultsData(long time, Location ancestor, Location eqLocation) throws UnresolvableException
+    public ReportResultsData(long time, Location ancestor, Location descendant) throws UnresolvableException
     {
         this.data = new HashMap<Integer, Long>();
         this.time = time;
-        this.displayPath = LocationUtilities.relativeDisplayPath(ancestor, eqLocation);
-        this.transLookupString = eqLocation.getTransientLookupString();
-        this.transLookupPath = LocationUtilities.createTransientLookupPathString(eqLocation);
+        this.displayPath = LocationUtilities.relativeDisplayPath(ancestor, descendant);
+        this.transLookupString = descendant.getTransientLookupString();
+        this.transLookupPath = LocationUtilities.createTransientLookupPathString(descendant);
     }
 
     public String getDisplayPath()

@@ -64,6 +64,13 @@
         <option value="31">Previous 31 days</option>
     </select>
 </div>
+<div>
+    Run Report:
+    <select id="reportCombo" class="combo">
+        <option value="satisfaction">Satisfaction</option>
+        <option value="environmental index">Environmental Index</option>
+    </select>
+</div>
 <br/>
 
 <div id="welcome">Select a starting location to begin analyzing colors.</div>
@@ -72,12 +79,6 @@
 
 <!--right-hand content -->
 <div id="rhs">
-    <div id="tabs" class="customTabs">
-        <ul>
-            <li><a href="#satisfaction_content">Satisfaction</a></li>
-            <li><a href="#environmental_index">Environmental Index</a></li>
-        </ul>
-
         <div id="satisfaction_content">
             <div id="graph" class="graph">
             </div>
@@ -95,13 +96,6 @@
                 </table>
             </div>
         </div>
-
-        <div id="environmental_index">
-            <p>
-                Halp...plz
-            </p>
-        </div>
     </div>
-</div>
 </body>
 </html>

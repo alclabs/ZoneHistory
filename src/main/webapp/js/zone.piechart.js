@@ -16,8 +16,11 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
     var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
     var textColor = isWebContext ? "#FFFFFF" : "#000000";
 
+//    var locationToDraw = testToRun === "satisfaction" ? "graph" : "ei_graph";
+    var locationToDraw = "graph";
+
     if (!mainChartLocation)
-        mainChartLocation = initChartLocation(isWebContext, canvasWidth, canvasHeight);
+        mainChartLocation = initChartLocation(isWebContext, canvasWidth, canvasHeight, locationToDraw);
 
     mainChartLocation.clear();
     mainChartLocation.text(canvasWidth / 2, canvasHeight / 3, "Loading...").attr("fill", textColor);
@@ -31,7 +34,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
                 if (showTotal)
                 {
-                    var satisfactionNumber = Math.round(mainChartData.satisfaction);
+                    var satisfactionNumber = Math.round(mainChartData.percentlabel);
                     var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
                     var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
@@ -48,18 +51,22 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                         // sort by satisfaction - low to high
                         tableData = tableChartData.sort(function(a, b)
                         {
-                            return a.rowChart.satisfaction - b.rowChart.satisfaction;
+                            return a.rowChart.percentlabel - b.rowChart.percentlabel;
                         });
                         clearTable();
                         drawTable(tableData, 30);
                     }
                 }
+            }).error(function (a, textStatus, error)
+            {
+                alert(a + "\n" + textStatus + "\n" + error + "\n");
             });
 }
 
 function clearPie()
 {
-    mainChartLocation.clear();
+
+//    mainChartLocation.clear();
 }
 
 function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radius)
@@ -98,37 +105,36 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
         piePercentages.push(sumOfTiny);
         pieColors.push("rgb(0, 0, 0)");
     }
-    chartLocation.clear();
-
-    // Raphael has a bug where if a single color is specified in the piechart params then it is ignored.  However,
-    // setting it this way seems to fix the issue.
-    chartLocation.g.colors = pieColors;
 
     var params = {};
+    params.colors = pieColors;
     if (drawLegend)
     {
         params.legend = pieLabels;
         params.legendpos = "east";
         params.legendColor = useWhiteTextForLegend ? '#fff' : '#000';
     }
-    var pie = chartLocation.g.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
+    var pie = chartLocation.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
 
     pie.hover(function ()
     {
         this.sector.stop();
-        this.sector.scale(animationScale, animationScale, this.cx, this.cy);
+//        this.sector.scale(animationScale, animationScale, this.cx, this.cy);
+        this.sector.transform("s" + animationScale.toString());
         if (this.label)
         {
             this.label[0].stop();
-            this.label[0].scale(1.5);
+//            this.label[0].transform("s1.5");
             this.label[1].attr({"font-weight": 800});
         }
     }, function ()
     {
-        this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
+//        this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
+        this.sector.transform("");
+
         if (this.label)
         {
-            this.label[0].animate({scale: 1}, 500, "bounce");
+            this.label[0].transform("s1");
             this.label[1].attr({"font-weight": 400});
         }
     });
@@ -146,7 +152,7 @@ function drawTable(tableData, sparklineDiameter)
         var style = index % 2 == 1 ? "odd" : "even";
         var transientLookup = item.eqTransLookup;
         var path = item.eqTransLookupPath;
-        var satisfactionNumber = Math.round(item.rowChart.satisfaction);
+        var satisfactionNumber = Math.round(item.rowChart.percentlabel);
         var tableRow =
                 "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\"><td>" +
                         eqLink + '</td><td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) +
@@ -174,10 +180,13 @@ function drawTable(tableData, sparklineDiameter)
     }
 }
 
-function initChartLocation(isWebContext, canvasWidth, canvasHeight)
+function initChartLocation(isWebContext, canvasWidth, canvasHeight, locationToDraw)
 {
     if (isWebContext)
         return Raphael(0, 0, canvasWidth, canvasHeight);
+    else if (locationToDraw)
+        return Raphael(document.getElementById(locationToDraw), canvasWidth, canvasHeight);
+
     return Raphael("graph", canvasWidth, canvasHeight);
 }
 
