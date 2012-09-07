@@ -18,8 +18,8 @@ html, body {
 
 #rhs {
     height: auto;
-    /*min-width: 2%;*/
-    width: 80%;
+    width: 60%;
+    max-width: 85%;
     padding: 5px;
     overflow: auto;
     float: left;
@@ -28,7 +28,7 @@ html, body {
 
 #results_table {
     /*height: 480px;*/
-    float: right;
+    /*float: right;*/
 }
 
 #results_table, #zoneDetails, a.help {
