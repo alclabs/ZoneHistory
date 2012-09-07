@@ -50,6 +50,6 @@ public class EnvironmentalIndexPieBuilder extends PieChartJSONBuilder
     // not done
     private double calculateEnvironmentalIndex()
     {
-        return 0.0;
+        return 0.0; // average of EI
     }
 }

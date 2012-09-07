@@ -55,22 +55,26 @@
     <a href="resetcache" class="dim" target="_blank">Clear Cache</a>
 </div>
 
-<div>
-    Analyze colors from
-    <select id="dateCombo" class="combo">
-        <option value="0">Today</option>
-        <option value="1">Yesterday</option>
-        <option value="7" selected>Previous 7 days</option>
-        <option value="31">Previous 31 days</option>
-    </select>
-</div>
-<div>
-    Run Report:
-    <select id="reportCombo" class="combo">
-        <option value="satisfaction">Satisfaction</option>
-        <option value="environmental index">Environmental Index</option>
-    </select>
-</div>
+    <table>
+        <tr>
+            <td>Analyze colors from</td>
+            <td><select id="dateCombo" class="combo">
+                <option value="0">Today</option>
+                <option value="1">Yesterday</option>
+                <option value="7" selected>Previous 7 days</option>
+                <option value="31">Previous 31 days</option>
+            </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Run Report:</td>
+            <td><select id="reportCombo" class="combo">
+                <option value="satisfaction">Satisfaction</option>
+                <option value="environmental index">Environmental Index</option>
+            </select>
+            </td>
+        </tr>
+</table>
 <br/>
 
 <div id="welcome">Select a starting location to begin analyzing colors.</div>
@@ -79,23 +83,23 @@
 
 <!--right-hand content -->
 <div id="rhs">
-        <div id="satisfaction_content">
-            <div id="graph" class="graph">
-            </div>
-            <div id="zoneDetails" style="display: none;">
-                <table id="detailsTable" cellpadding="0" cellspacing="0">
-                    <thead>
-                    <tr>
-                        <th id="equipmentLocation">Equipment Location</th>
-                        <th id="satisfaction">Satisfaction</th>
-                        <th>Colors</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
+    <div id="satisfaction_content">
+        <div id="graph" class="graph">
+        </div>
+        <div id="zoneDetails" style="display: none;">
+            <table id="detailsTable" cellpadding="0" cellspacing="0">
+                <thead>
+                <tr>
+                    <th id="equipmentLocation">Equipment Location</th>
+                    <th id="satisfaction">Satisfaction</th>
+                    <th>Colors</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 </body>
 </html>

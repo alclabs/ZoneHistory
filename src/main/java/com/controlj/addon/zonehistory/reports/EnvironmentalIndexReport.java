@@ -12,6 +12,7 @@ import com.controlj.green.addonsupport.access.trend.TrendAnalogSample;
 import com.controlj.green.addonsupport.access.trend.TrendData;
 import com.controlj.green.addonsupport.access.trend.TrendRange;
 import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
+import com.controlj.green.addonsupport.access.util.Acceptors;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -76,36 +77,33 @@ public class EnvironmentalIndexReport implements Report
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
 
 //                    AnalogTrendSource source = equipmentColorLocation.getAspect(AnalogTrendSource.class);
-                    AnalogTrendSource source = equipmentColorLocation.find(AnalogTrendSource.class, new AspectAcceptor<AnalogTrendSource>()
+
+                    Collection<AnalogTrendSource> analogSources = equipmentColorLocation.find(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
+
+                    for (AnalogTrendSource source : analogSources)
                     {
-                        @Override
-                        public boolean accept(@NotNull AnalogTrendSource source)
+                        try
                         {
-                            return source.getLocation().getReferenceName().equals("zn_enviro_indx_tn");
-                        }
-                    }).iterator().next();
+                            AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
+                            if (!eqAspect.getDevice().isOutOfService())
+                            {
+                                EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
 
-                    try
-                    {
-                        AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
-                        if (!eqAspect.getDevice().isOutOfService())
+                                ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), equipment, equipmentColorLocation);
+
+                                List<Long> buckets = processor.getPercentageBuckets();
+                                for (int i = 0; i < buckets.size(); i++)
+                                    if (buckets.get(i) > 0)
+                                        reportData.addData(i, buckets.get(i));
+
+                                reportResults.addData(source, reportData);
+                            }
+                        }
+                        catch (Exception e)
                         {
-                            EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-
-                            ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), equipment, equipmentColorLocation);
-
-                            List<Long> buckets = processor.getPercentageBuckets();
-                            for (int i = 0; i < buckets.size(); i++)
-                                if (buckets.get(i) > 0)
-                                    reportData.addData(i, buckets.get(i));
-
-                            reportResults.addData(source, reportData);
+                            Logging.LOGGER.println("Error processing trend data");
+                            e.printStackTrace(Logging.LOGGER);
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Logging.LOGGER.println("Error processing trend data");
-                        e.printStackTrace(Logging.LOGGER);
                     }
                 }
 

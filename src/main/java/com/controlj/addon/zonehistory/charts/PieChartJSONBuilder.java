@@ -33,7 +33,7 @@ public abstract class PieChartJSONBuilder
             ReportResultsData data = reportResults.getDataFromSource(source);
             JSONObject tableRow = new JSONObject();
             tableRow.put("eqDisplayName",     data.getDisplayPath());
-            tableRow.put("eqTransLookup",     data.getTransLookupPath());
+            tableRow.put("eqTransLookup",     data.getTransLookupString());
             tableRow.put("eqTransLookupPath", data.getTransLookupPath());
             tableRow.put("rowChart",          makeSinglePieChart(data.getData(), buckets, time)); // generate a pie per source data
 
