@@ -75,9 +75,9 @@ public class SatisfactionReport implements Report
                     EquipmentColorTrendSource source = equipment.getAspect(EquipmentColorTrendSource.class);
 
                     DateRange range = new DateRange(startDate, endDate);
-                    Map<EquipmentColor, Long> colorMap = zoneHistory.getMapForDates(range);
+                    ReportResultsData cachedResults = zoneHistory.getResultsForDates(range);
 
-                    if (colorMap == null)
+                    if (cachedResults == null)
                     {
                         try
                         {
@@ -91,7 +91,9 @@ public class SatisfactionReport implements Report
                                 SatisfactionProcessor processor = processTrendData(source, trendRange);
                                 processTimer.suspend();
 
-                                colorMap = zoneHistory.addMap(range, processor.getColorMap());
+                                ReportResultsData dataResults = new ReportResultsData(0l, location, equipmentColorLocation, processor.getColorMap());
+
+                                cachedResults = zoneHistory.addResults(range, dataResults);
                                 checkDateRanges(processor.getUnoccupiedTimeList());
                                 zoneHistory.addUnoccupiedTimes(unoccupiedTimes);
                             }
@@ -109,11 +111,12 @@ public class SatisfactionReport implements Report
                     }
 
                     // place stuff into report results map to be wrapped and returned later - may not work with current caching system
-                    ReportResultsData reportResultsData = new ReportResultsData(0l, location, equipmentColorLocation);
-                    for (EquipmentColor eqColor : colorMap.keySet())
-                        reportResultsData.addData(eqColor.getValue(), colorMap.get(eqColor));
+//                    ReportResultsData reportResultsData = new ReportResultsData(0l, location, equipmentColorLocation);
 
-                    reportResultsDataMap.put(source, reportResultsData);
+//                    for (EquipmentColor eqColor : cachedResults.keySet())
+//                        reportResultsData.addData(eqColor.getValue(), cachedResults.get(eqColor));
+
+                    reportResultsDataMap.put(source, cachedResults);
                 }
 
                 //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);

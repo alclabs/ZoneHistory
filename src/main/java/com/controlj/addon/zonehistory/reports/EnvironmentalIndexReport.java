@@ -22,7 +22,7 @@ public class EnvironmentalIndexReport implements Report
     private final Date startDate, endDate;
     private final Location location;
     private final SystemConnection system;
-    private final static int BUCKETS = 10;
+    private final static int BUCKETS = 5;
 
     public EnvironmentalIndexReport(Date start, Date end, Location startingLocation, SystemConnection system)
     {
@@ -42,9 +42,21 @@ public class EnvironmentalIndexReport implements Report
             public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
                 // check the cache for this location (during the time range)
+                // need to get EqColorTrendSource for the equip at the location.
+                // if !null, process using the SatisfactionReportProcessor, get the unoccupiedRanges, and pass to the EIProcessor
+                SatisfactionReport report = new SatisfactionReport(startDate, endDate, location, system);
+                report.runReport();
+                List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
+
+
+                // dependent on satisfaction - this will ensure that the satisfaction report always fills the cache with the correct locations
+//                Issue:
+//                If running the EI report first, the cache would be loaded with only sources with "zn_enviro_indx_tn" which of course only a few in the system are leading the
+//                cache to satisfaction report to only use the subset of sources. The cache only knows about a subset of the sources so it needs a way of injecting other sources and other data
+
                 Collection<ZoneHistory> zoneHistories = ZoneHistoryCache.INSTANCE.getDescendantZoneHistories(location);
 
-                if (zoneHistories == null)
+                /*if (zoneHistories == null)
                 {
                     Collection<AnalogTrendSource> sources = location.find(AnalogTrendSource.class, new AspectAcceptor<AnalogTrendSource>()
                     {
@@ -61,13 +73,7 @@ public class EnvironmentalIndexReport implements Report
                         newHistories.add(new ZoneHistory(source.getLocation()));
 
                     zoneHistories = ZoneHistoryCache.INSTANCE.addDescendantZoneHistories(location, newHistories);
-                }
-
-                // need to get EqColorTrendSource for the equip at the location.
-                // if !null, process using the SatisfactionReportProcessor, get the unoccupiedRanges, and pass to the EIProcessor
-                SatisfactionReport report = new SatisfactionReport(startDate, endDate, location, system);
-                report.runReport();
-                List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
+                }   */
 
                 ReportResults reportResults = new ReportResults(BUCKETS);
 
@@ -89,7 +95,7 @@ public class EnvironmentalIndexReport implements Report
                             {
                                 EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
 
-                                ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), equipment, equipmentColorLocation);
+                                ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
 
                                 List<Long> buckets = processor.getPercentageBuckets();
                                 for (int i = 0; i < buckets.size(); i++)

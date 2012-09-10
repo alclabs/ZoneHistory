@@ -35,11 +35,11 @@ public class LocationUtilities
     public static String relativeDisplayPath(@NotNull Location ancestor, @NotNull Location descendant) throws UnresolvableException
     {
         StringBuilder result = new StringBuilder();
-        Location current = descendant.getParent();
         result.append(descendant.getDisplayName());
 
         if (!ancestor.equals(descendant))
         {  // if a single node is selected, these may be the same.  Then just skip loop
+            Location current = descendant.getParent();
             while (!current.equals(ancestor))
             {
                 result.insert(0, " / ");
@@ -47,6 +47,7 @@ public class LocationUtilities
                 current = current.getParent();
             }
         }
+
         return result.toString();
     }
 

@@ -1,5 +1,5 @@
 var mainChartLocation;
-var animationScale = 1.1;
+var animationScale = 1.2;
 
 function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showTotal, testToRun)
 {
@@ -11,12 +11,10 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
     // check if canvas size is capable of displaying features
     showLegend = showLegend && checkCanvasDimensionsForLegend(canvasWidth, canvasHeight);
-    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
+    showTotal  = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
 
     var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
     var textColor = isWebContext ? "#FFFFFF" : "#000000";
-
-//    var locationToDraw = testToRun === "satisfaction" ? "graph" : "ei_graph";
     var locationToDraw = "graph";
 
     if (!mainChartLocation)
@@ -32,14 +30,15 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                 var mainChartData = data.mainChart;
                 drawChart(mainChartData.colors, showLegend, isWebContext, mainChartLocation, radius);
 
-                if (showTotal)
+                if (showTotal && testToRun !== "environmental index")
                 {
                     var satisfactionNumber = Math.round(mainChartData.percentlabel);
-                    var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
-                    var mainSatisfaction = "Satisfaction: " + satisfactionText;
-                    var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2 * radius + 10, animationScale);
-                    var text = mainChartLocation.text(textX, textY, mainSatisfaction);
+                    var satisfactionText =   satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
+                    var mainSatisfaction =   "Satisfaction: " + satisfactionText;
+                    var textX =              getCoords(radius, animationScale);
+                    var textY =              getCoords(2 * radius + 10, animationScale);
+                    var text =               mainChartLocation.text(textX, textY, mainSatisfaction);
+
                     text.attr({ "fill": textColor, "font-weight": "normal" });
                 }
 

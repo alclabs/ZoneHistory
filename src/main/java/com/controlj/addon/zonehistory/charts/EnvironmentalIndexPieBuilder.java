@@ -33,11 +33,29 @@ public class EnvironmentalIndexPieBuilder extends PieChartJSONBuilder
 
     private Color getPercentageColor(double ratio)
     {
-        int red = (int) (255 - (255 * ratio));
-        int green = (int) (255 * ratio);
+        // use 4 or 5 colors to represent the EI
+        // (From 0% to 100% EI - Red, Orange, Gray, Yellow, Green)
 
-        return new Color(red, green, 0);
+        if (ratio >= 0.75)
+            return Color.GREEN;
+        else if (ratio < 0.75 && ratio >= 0.5)
+            return Color.YELLOW;
+        else if (ratio < 0.5 && ratio >= 0.25)
+            return Color.ORANGE;
+        else if (ratio < 0.25)
+            return Color.RED;
+        else
+            return Color.GRAY;
     }
+
+//    Used to calculate ratio based on value - issue: produces red -> brownish -> green instead of easily distinguishable colors
+//    private Color getPercentageColor(double ratio)
+//    {
+//        int red = (int) (255 - (255 * ratio));
+//        int green = (int) (255 * ratio);
+//
+//        return new Color(red, green, 0);
+//    }
 
     private String getLabel(int index, int buckets)
     {
@@ -50,6 +68,6 @@ public class EnvironmentalIndexPieBuilder extends PieChartJSONBuilder
     // not done
     private double calculateEnvironmentalIndex()
     {
-        return 0.0; // average of EI
+        return -1.0; // average of EI
     }
 }

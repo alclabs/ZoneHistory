@@ -23,6 +23,15 @@ public class ReportResultsData
         this.transLookupPath = LocationUtilities.createTransientLookupPathString(descendant);
     }
 
+    public ReportResultsData(long time, Location ancestor, Location descendant, Map<Integer, Long> rawData) throws UnresolvableException
+    {
+        this.data = rawData;
+        this.time = time;
+        this.displayPath = LocationUtilities.relativeDisplayPath(ancestor, descendant);
+        this.transLookupString = descendant.getTransientLookupString();
+        this.transLookupPath = LocationUtilities.createTransientLookupPathString(descendant);
+    }
+
     public String getDisplayPath()
     {
         return displayPath;

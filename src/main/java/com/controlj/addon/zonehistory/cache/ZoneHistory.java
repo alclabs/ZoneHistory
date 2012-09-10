@@ -1,6 +1,6 @@
 package com.controlj.addon.zonehistory.cache;
 
-import com.controlj.green.addonsupport.access.EquipmentColor;
+import com.controlj.addon.zonehistory.reports.ReportResultsData;
 import com.controlj.green.addonsupport.access.Location;
 
 import java.util.*;
@@ -12,7 +12,8 @@ public class ZoneHistory
 {
     private final static long ONE_DAY_MILLIS = 1000L * 60 * 60 * 24;
     private final String equipmentColorLookupString;
-    private HashMap<DateRange, Map<EquipmentColor, Long>> cache = new HashMap<DateRange, Map<EquipmentColor, Long>>();
+//    private HashMap<DateRange, Map<EquipmentColor, Long>> cache = new HashMap<DateRange, Map<EquipmentColor, Long>>();
+    private HashMap<DateRange, ReportResultsData> cache = new HashMap<DateRange, ReportResultsData>();
     private List<DateRange> unoccupiedTimes;
 
     public ZoneHistory(Location equipmentColorLocation)
@@ -25,7 +26,7 @@ public class ZoneHistory
         return equipmentColorLookupString;
     }
 
-    public synchronized Map<EquipmentColor, Long> getMapForDates(DateRange range)
+    public synchronized ReportResultsData getResultsForDates(DateRange range)
     {
         if (range.getStart().equals(getMidnightToday()))
             return null;    // don't cache values for today, they are still changing.
@@ -33,14 +34,14 @@ public class ZoneHistory
         return cache.get(range);
     }
 
-    public synchronized Map<EquipmentColor, Long> addMap(DateRange range, Map<EquipmentColor, Long> map)
+    public synchronized ReportResultsData addResults(DateRange range, ReportResultsData results)
     {
-        Map<EquipmentColor, Long> result = cache.get(range);
+        ReportResultsData result = cache.get(range);
         if (result == null)
         {
             expireCachedData();
-            cache.put(range, map);
-            result = map;
+            cache.put(range, results);
+            result = results;
         }
 
         return result;

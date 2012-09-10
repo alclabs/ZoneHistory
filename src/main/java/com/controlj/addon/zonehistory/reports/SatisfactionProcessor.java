@@ -17,9 +17,9 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     private long lastTransitionTime;
     public static boolean trace = false;
 
-    private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
+    private Map<Integer, Long> colorMap = new HashMap<Integer, Long>();
 
-    public Map<EquipmentColor, Long> getColorMap()
+    public Map<Integer, Long> getColorMap()
     {
         return colorMap;
     }
@@ -63,7 +63,7 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         Long time = colorMap.get(color);
         if (time == null)
             time = 0L;
-        colorMap.put(color, time + timeInterval);
+        colorMap.put(color.getValue(), time + timeInterval);
     }
 
     public void processHole(Date start, Date end)
@@ -108,9 +108,9 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     {
         double measuredTime = 0d;
         double unknownTime = 0d;
-        for (EquipmentColor color : colorMap.keySet())
+        for (Integer color : colorMap.keySet())
         {
-            if (color != EquipmentColor.UNKNOWN)
+            if (color != EquipmentColor.UNKNOWN.getValue())
             {
                 measuredTime += colorMap.get(color);
             }
