@@ -47,18 +47,18 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     var tableChartData = data.table;
                     if (tableChartData)
                     {
-                        // sort by satisfaction - low to high
+                        // sort by percentage - low to high
                         tableData = tableChartData.sort(function(a, b)
                         {
                             return a.rowChart.percentlabel - b.rowChart.percentlabel;
                         });
                         clearTable();
-                        drawTable(tableData, 30);
+                        drawTable(tableData, 30, testToRun === "satisfaction");
                     }
                 }
             }).error(function (a, textStatus, error)
             {
-                alert(a + "\n" + textStatus + "\n" + error + "\n");
+                alert(error);
             });
 }
 
@@ -138,7 +138,7 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     });
 }
 
-function drawTable(tableData, sparklineDiameter)
+function drawTable(tableData, sparklineDiameter, isSatisfaction)
 {
     $("#zoneDetails").show();
 
@@ -152,9 +152,10 @@ function drawTable(tableData, sparklineDiameter)
         var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.percentlabel);
         var tableRow =
-                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\"><td>" +
-                        eqLink + '</td><td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) +
-                        '</td><td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
+                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">"+
+                        "<td>" + eqLink + '</td>"+' +
+                        '"<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
+                        '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
 
         $("#detailsTable tbody").append(tableRow);

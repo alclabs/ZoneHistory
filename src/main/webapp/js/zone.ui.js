@@ -61,13 +61,13 @@ $(function()
     $("#equipmentLocation").click(function()
     {
         clearTable();
-        drawTable(sortByName(tableData), 30);
+        drawTable(sortByName(tableData), 30, $( "#reportCombo" ).val() === "satisfaction");
     });
 
     $("#satisfaction").click(function()
     {
         clearTable();
-        drawTable(sortBySatisfaction(tableData), 30);
+        drawTable(sortBySatisfaction(tableData), 30, $( "#reportCombo" ).val() === "satisfaction");
     });
 
     $("#satisfaction_content").bind( "tabsshow", function(event, ui) {

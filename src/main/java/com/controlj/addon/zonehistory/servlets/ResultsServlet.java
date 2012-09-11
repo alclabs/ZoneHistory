@@ -1,5 +1,6 @@
 package com.controlj.addon.zonehistory.servlets;
 
+import com.controlj.addon.zonehistory.reports.NoEnviroIndexSourcesException;
 import com.controlj.addon.zonehistory.reports.Report;
 import com.controlj.addon.zonehistory.reports.ReportFactory;
 import com.controlj.addon.zonehistory.reports.ReportResults;
@@ -49,6 +50,9 @@ public class ResultsServlet extends HttpServlet
                     Report report = new ReportFactory().createReport(action, startDate, endDate, location, systemConnection);
                     ReportResults reportResults = report.runReport();
 
+                    if (reportResults.getSources().isEmpty())
+                        throw new NoEnviroIndexSourcesException("No EI trends found for this location");
+
                     JSONObject results = new JSONObject();
                     results.put("mainChart", new ReportFactory().createPieChartJSONBuilder(report).buildMainPieChart(reportResults));
 
@@ -63,7 +67,12 @@ public class ResultsServlet extends HttpServlet
         catch (Exception e)
         {
             e.printStackTrace(Logging.LOGGER);
-            response.getWriter().println(e.getMessage());
+
+            String str = e.getCause().getMessage();
+            if (e.getCause() instanceof NoEnviroIndexSourcesException)
+                str = "Error!: " + str.substring(str.lastIndexOf(':')+1) + "\nPick another location that has an environmental index microblock.";
+
+            response.sendError(500, str);
         }
 
         finalResponse.flushBuffer();

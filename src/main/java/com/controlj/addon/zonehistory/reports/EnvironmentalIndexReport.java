@@ -48,8 +48,7 @@ public class EnvironmentalIndexReport implements Report
                 report.runReport();
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
 
-
-                // dependent on satisfaction - this will ensure that the satisfaction report always fills the cache with the correct locations
+//                dependent on satisfaction - this will ensure that the satisfaction report always fills the cache with the correct locations
 //                Issue:
 //                If running the EI report first, the cache would be loaded with only sources with "zn_enviro_indx_tn" which of course only a few in the system are leading the
 //                cache to satisfaction report to only use the subset of sources. The cache only knows about a subset of the sources so it needs a way of injecting other sources and other data
@@ -81,9 +80,6 @@ public class EnvironmentalIndexReport implements Report
                 {
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
-
-//                    AnalogTrendSource source = equipmentColorLocation.getAspect(AnalogTrendSource.class);
-
                     Collection<AnalogTrendSource> analogSources = equipmentColorLocation.find(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
 
                     for (AnalogTrendSource source : analogSources)

@@ -43,24 +43,24 @@ public abstract class PieChartJSONBuilder
         return tableData;
     }
 
+//    Used to combine all the values of the sources present in reportResults so that the main pie chart can
     protected Map<Integer, Long> combineResultsForAllSources(ReportResults reportResults) throws Exception
     {
-        Map<Integer, Long> results = new HashMap<Integer, Long>();
+        Map<Integer, Long> combinedResults = new HashMap<Integer, Long>();
         for (TrendSource source : reportResults.getSources())
         {
-            ReportResultsData resultsData = reportResults.getDataFromSource(source);
-            Map<Integer, Long> data = resultsData.getData();
+            Map<Integer, Long> sourceData = reportResults.getDataFromSource(source).getData();
 
-            for (Integer i : data.keySet())
+            for (Integer i : sourceData.keySet())
             {
-                long newTime = data.get(i);
-                long currentTimeInResults = results.get(i) == null ? 0 : results.get(i);
+                long newTime = sourceData.get(i);
+                long currentTimeInResults = combinedResults.get(i) == null ? 0 : combinedResults.get(i);
 
-                results.put(i, newTime + currentTimeInResults);
+                combinedResults.put(i, newTime + currentTimeInResults);
             }
         }
 
-        return results;
+        return combinedResults;
     }
 
     protected JSONObject singleSliceObject(String labelForSlice, Color color, double percentage) throws JSONException
