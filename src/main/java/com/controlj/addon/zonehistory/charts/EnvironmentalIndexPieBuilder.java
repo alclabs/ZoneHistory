@@ -1,5 +1,6 @@
 package com.controlj.addon.zonehistory.charts;
 
+import com.controlj.addon.zonehistory.reports.ReportResultsData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,16 +12,25 @@ public class EnvironmentalIndexPieBuilder extends PieChartJSONBuilder
 {
 
     @Override
-    public JSONObject makeSinglePieChart(Map<Integer, Long> rawData, int buckets, long occupiedTime) throws JSONException
+    public JSONObject makeSinglePieChart(ReportResultsData reportResultsData) throws JSONException
     {
         // to build, we need to show the display ranges (0% to 9%, 10% to 19%, etc)
         // we also need to send the colors that are associated with the buckets - we want the gradual change from red to green (0% to 100%)
         JSONArray array = new JSONArray();
-        for (Integer i : rawData.keySet())
+        Map rawData = reportResultsData.getData();
+        long occupiedTime = reportResultsData.getTime();
+
+        for (Object i : rawData.keySet())
         {
-            Color color = getPercentageColor((double)i / buckets);
-            double percentage = (double) rawData.get(i) / occupiedTime * 100.0;
-            array.put(super.singleSliceObject(getLabel(i, buckets), color, percentage));
+            Double value = (Double) rawData.get(i);
+            Double ratio = value / occupiedTime;
+//            Color color = getPercentageColor((double)i / buckets);
+            Color color = Color.CYAN;
+            double percentage = ratio * 100.0;
+            array.put(super.singleSliceObject(
+                    getLabel(value.intValue(), rawData.keySet().size()),
+                    color,
+                    percentage));
         }
 
         JSONObject object = new JSONObject();

@@ -8,59 +8,40 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
-public abstract class PieChartJSONBuilder
+public abstract class PieChartJSONBuilder<T extends TrendSource>
 {
-    public abstract JSONObject makeSinglePieChart(Map<Integer, Long> data, int value, long time) throws JSONException;
+    public abstract JSONObject makeSinglePieChart(ReportResultsData results) throws JSONException;
 
     public JSONObject buildMainPieChart(ReportResults reportResults) throws Exception
     {
         // for all the source, combine data in each bucket
-        Map<Integer, Long> rawData = combineResultsForAllSources(reportResults);
-        return makeSinglePieChart(rawData, reportResults.getBuckets(), reportResults.getTimeForAllResults());
+        ReportResultsData combineData = reportResults.getAggregatedData();
+
+        // sort here
+
+        return makeSinglePieChart(combineData);
     }
 
     public JSONArray buildAreaDetailsTable(ReportResults reportResults) throws Exception
     {
-        long time = reportResults.getTimeForAllResults();
-        int buckets = reportResults.getBuckets();
-
         JSONArray tableData = new JSONArray();
-        for (TrendSource source : reportResults.getSources())
+        Collection<T> sources = reportResults.getSources();
+
+        for (T source : sources)
         {
             ReportResultsData data = reportResults.getDataFromSource(source);
             JSONObject tableRow = new JSONObject();
             tableRow.put("eqDisplayName",     data.getDisplayPath());
             tableRow.put("eqTransLookup",     data.getTransLookupString());
             tableRow.put("eqTransLookupPath", data.getTransLookupPath());
-            tableRow.put("rowChart",          makeSinglePieChart(data.getData(), buckets, time)); // generate a pie per source data
+            tableRow.put("rowChart",          makeSinglePieChart(data)); // generate a pie per source data
 
             tableData.put(tableRow);
         }
 
         return tableData;
-    }
-
-//    Used to combine all the values of the sources present in reportResults so that the main pie chart can
-    protected Map<Integer, Long> combineResultsForAllSources(ReportResults reportResults) throws Exception
-    {
-        Map<Integer, Long> combinedResults = new HashMap<Integer, Long>();
-        for (TrendSource source : reportResults.getSources())
-        {
-            Map<Integer, Long> sourceData = reportResults.getDataFromSource(source).getData();
-
-            for (Integer i : sourceData.keySet())
-            {
-                long newTime = sourceData.get(i);
-                long currentTimeInResults = combinedResults.get(i) == null ? 0 : combinedResults.get(i);
-
-                combinedResults.put(i, newTime + currentTimeInResults);
-            }
-        }
-
-        return combinedResults;
     }
 
     protected JSONObject singleSliceObject(String labelForSlice, Color color, double percentage) throws JSONException

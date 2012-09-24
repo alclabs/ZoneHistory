@@ -1,7 +1,7 @@
 package com.controlj.addon.zonehistory.reports;
 
 import com.controlj.addon.zonehistory.cache.DateRange;
-import com.controlj.addon.zonehistory.cache.ZoneHistory;
+import com.controlj.addon.zonehistory.cache.GeoTreeSourceRetriever;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
 import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
@@ -12,10 +12,12 @@ import com.controlj.green.addonsupport.access.trend.TrendAnalogSample;
 import com.controlj.green.addonsupport.access.trend.TrendData;
 import com.controlj.green.addonsupport.access.trend.TrendRange;
 import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
-import com.controlj.green.addonsupport.access.util.Acceptors;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public class EnvironmentalIndexReport implements Report
 {
@@ -23,6 +25,8 @@ public class EnvironmentalIndexReport implements Report
     private final Location location;
     private final SystemConnection system;
     private final static int BUCKETS = 5;
+
+    private final Collection<Bucket> buckets = new ArrayList<Bucket>();
 
     public EnvironmentalIndexReport(Date start, Date end, Location startingLocation, SystemConnection system)
     {
@@ -41,71 +45,43 @@ public class EnvironmentalIndexReport implements Report
             @Override
             public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
-                // check the cache for this location (during the time range)
-                // need to get EqColorTrendSource for the equip at the location.
-                // if !null, process using the SatisfactionReportProcessor, get the unoccupiedRanges, and pass to the EIProcessor
                 SatisfactionReport report = new SatisfactionReport(startDate, endDate, location, system);
                 report.runReport();
+                // this is to get the unoccupied times for use later to only use times that where within occupied times
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
+                ReportResults<AnalogTrendSource> reportResults = new ReportResults<AnalogTrendSource>(location, ReportType.EnvironmentalIndexReport);
+                new GeoTreeSourceRetriever(reportResults, new DateRange(startDate, endDate), ZoneHistoryCache.EI);
 
-//                dependent on satisfaction - this will ensure that the satisfaction report always fills the cache with the correct locations
-//                Issue:
-//                If running the EI report first, the cache would be loaded with only sources with "zn_enviro_indx_tn" which of course only a few in the system are leading the
-//                cache to satisfaction report to only use the subset of sources. The cache only knows about a subset of the sources so it needs a way of injecting other sources and other data
-
-                Collection<ZoneHistory> zoneHistories = ZoneHistoryCache.INSTANCE.getDescendantZoneHistories(location);
-
-                /*if (zoneHistories == null)
+                for (AnalogTrendSource source : reportResults.getSources())
                 {
-                    Collection<AnalogTrendSource> sources = location.find(AnalogTrendSource.class, new AspectAcceptor<AnalogTrendSource>()
-                    {
-                        @Override
-                        public boolean accept(@NotNull AnalogTrendSource source)
-                        {
-                            return source.getLocation().getReferenceName().equals("zn_enviro_indx_tn");
-                        }
-                    });
+                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
 
-                    ArrayList<ZoneHistory> newHistories = new ArrayList<ZoneHistory>();
-
-                    for (AnalogTrendSource source : sources)
-                        newHistories.add(new ZoneHistory(source.getLocation()));
-
-                    zoneHistories = ZoneHistoryCache.INSTANCE.addDescendantZoneHistories(location, newHistories);
-                }   */
-
-                ReportResults reportResults = new ReportResults(BUCKETS);
-
-                for (ZoneHistory zoneHistory : zoneHistories)
-                {
-                    Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
+                    Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(cachedResults.getTransLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
-                    Collection<AnalogTrendSource> analogSources = equipmentColorLocation.find(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
+//                    Collection<AnalogTrendSource> analogSources = equipmentColorLocation.find(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
 
-                    for (AnalogTrendSource source : analogSources)
+                    try
                     {
-                        try
+                        AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
+                        if (!eqAspect.getDevice().isOutOfService())
                         {
-                            AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
-                            if (!eqAspect.getDevice().isOutOfService())
+                            EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
+                            ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
+
+                            List<Long> buckets = processor.getPercentageBuckets();
+                            for (int i = 0; i < buckets.size(); i++)
                             {
-                                EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-
-                                ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
-
-                                List<Long> buckets = processor.getPercentageBuckets();
-                                for (int i = 0; i < buckets.size(); i++)
-                                    if (buckets.get(i) > 0)
-                                        reportData.addData(i, buckets.get(i));
-
-                                reportResults.addData(source, reportData);
+                                if (buckets.get(i) > 0)
+                                    reportData.addData(i, buckets.get(i));
                             }
+
+                            reportResults.addData(source, reportData);
                         }
-                        catch (Exception e)
-                        {
-                            Logging.LOGGER.println("Error processing trend data");
-                            e.printStackTrace(Logging.LOGGER);
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logging.LOGGER.println("Error processing trend data");
+                        e.printStackTrace(Logging.LOGGER);
                     }
                 }
 

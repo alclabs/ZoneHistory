@@ -1,41 +1,39 @@
 package com.controlj.addon.zonehistory.charts;
 
+import com.controlj.addon.zonehistory.reports.ReportResultsData;
 import com.controlj.green.addonsupport.access.EquipmentColor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SatisfactionPieBuilder extends PieChartJSONBuilder
 {
     // makes pie charts based on single parts of data
     @Override
-    public JSONObject makeSinglePieChart(Map<Integer, Long> data, int value, long time) throws JSONException
+    public JSONObject makeSinglePieChart(ReportResultsData reportResultsData) throws JSONException
     {
-        Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>(data.size());
-        long totalKnownTime = 0, satisfiedTime = 0;
+        Map<EquipmentColor, Long> colorMap = reportResultsData.getData();
+        long totalKnownTime = 0, satisfiedTime = 0, totalTime = 0;
 
-        for (Integer i : data.keySet())
+        for (EquipmentColor color : colorMap.keySet())
         {
-            EquipmentColor color = EquipmentColor.lookup(i);
-            long colorTime = data.get(i);
+            long colorTime = colorMap.get(color);
+             totalTime += colorTime;
 
             if (color != EquipmentColor.UNKNOWN)
                 totalKnownTime += colorTime;
 
             if (color == EquipmentColor.UNOCCUPIED || color == EquipmentColor.OPERATIONAL || color == EquipmentColor.SPECKLED_GREEN || color == EquipmentColor.OCCUPIED)
                 satisfiedTime += colorTime;
-
-            colorMap.put(color, colorTime);
         }
 
         // compute percentages per slice - make the pie itself
         JSONArray jsonPieArray = new JSONArray();
         for (EquipmentColor color : colorMap.keySet())
-            jsonPieArray.put(super.singleSliceObject(color.toString(), getActualColor(color), colorMap.get(color)));
+            jsonPieArray.put(super.singleSliceObject(color.toString(), getActualColor(color), getPercentage(colorMap.get(color), totalTime)));
 
         JSONObject object = new JSONObject();
         object.put("colors", jsonPieArray);
@@ -96,5 +94,10 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
                 return color.getColor();
         }
 
+    }
+
+    private double getPercentage(long colorTime, long totalTime)
+    {
+        return (double) colorTime / totalTime * 100.0;
     }
 }

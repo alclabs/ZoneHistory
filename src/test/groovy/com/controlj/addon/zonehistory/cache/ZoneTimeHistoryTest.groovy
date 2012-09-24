@@ -5,14 +5,14 @@ import spock.lang.Specification
 /**
  * 
  */
-class ZoneHistoryTest extends Specification {
+class ZoneTimeHistoryTest extends Specification {
     def "get midnight today"() {
         setup:
         Calendar today = new GregorianCalendar();
 
         when:
         Calendar test = new GregorianCalendar();
-        test.setTime(ZoneHistory.getMidnightToday())
+        test.setTime(ZoneTimeHistory.getMidnightToday())
 
         then:
         test.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)

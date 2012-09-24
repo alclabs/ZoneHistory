@@ -1,6 +1,5 @@
 package com.controlj.addon.zonehistory.util;
 
-import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.green.addonsupport.access.AspectAcceptor;
 import com.controlj.green.addonsupport.access.Location;
 import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;

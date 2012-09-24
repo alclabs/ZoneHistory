@@ -17,7 +17,7 @@ public class ResetCacheServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Logging.LOGGER.println("Resetting the cache");
-        ZoneHistoryCache.INSTANCE.reset();
+        ZoneHistoryCache.SATISFACTION.reset();
         PrintWriter writer = resp.getWriter();
         writer.println("<html><body><h1>Cached data has been cleared.</h1></body></html>");
     }

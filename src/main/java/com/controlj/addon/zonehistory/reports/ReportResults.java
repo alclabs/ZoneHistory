@@ -1,40 +1,37 @@
 package com.controlj.addon.zonehistory.reports;
 
 
+import com.controlj.green.addonsupport.access.Location;
 import com.controlj.green.addonsupport.access.aspect.TrendSource;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReportResults
+public class ReportResults<T extends TrendSource>
 {
-    private final Map<TrendSource, ReportResultsData> data;
-    private final int buckets;
+    private final Map<T, ReportResultsData> data;
+    private final Location ancestor;
+    private final ReportType type;
 
-    public ReportResults(int b)
+    public ReportResults(Location ancestor, ReportType type)
     {
-        data = new HashMap<TrendSource, ReportResultsData>();
-        buckets = b;
+        data = new HashMap<T, ReportResultsData>();
+        this.ancestor = ancestor;
+        this.type = type;
     }
 
-    public ReportResults(Map<TrendSource, ReportResultsData> stuffs)
-    {
-        this.data = stuffs;
-        buckets = stuffs.size();
-    }
-
-    public void addData(TrendSource source, ReportResultsData resultsData) throws Exception
+    public void addData(T source, ReportResultsData resultsData)
     {
         data.put(source, resultsData);
     }
 
-    public int getBuckets()
+    public Location getAncestor()
     {
-        return buckets;
+        return ancestor;
     }
 
-    public ReportResultsData getDataFromSource(TrendSource source) throws Exception
+    public ReportResultsData getDataFromSource(T source) throws Exception
     {
         if (!data.containsKey(source))
             throw new Exception("Key not found");
@@ -42,7 +39,30 @@ public class ReportResults
         return data.get(source);
     }
 
-    public Collection<TrendSource> getSources()
+    public ReportResultsData getAggregatedData() throws Exception
+    {
+          // combined results from pie chart builder abstract class
+        ReportResultsData aggregatedData = new ReportResultsData(getTimeForAllResults(), ancestor, ancestor);
+        for (T source : getSources())
+        {
+            ReportResultsData resultsData = getDataFromSource(source);
+
+            // for each T in the data, iterate and combine
+            Map<?, Long> sourceData = resultsData.getData();
+
+            for (Object i : sourceData.keySet())
+            {
+                Long newTime = sourceData.get(i);
+                Long currentTimeInResults = aggregatedData.getData().get(i) == null ? 0 : (Long)aggregatedData.getData().get(i);
+
+                aggregatedData.addData(i, newTime + currentTimeInResults);
+            }
+        }
+
+        return aggregatedData;
+    }
+
+    public Collection<? extends T> getSources()
     {
         return data.keySet();
     }
@@ -50,7 +70,7 @@ public class ReportResults
     public long getTimeForAllResults() throws Exception
     {
         long occupiedTime = 0;
-        for (TrendSource source : getSources())
+        for (T source : getSources())
             occupiedTime += getDataFromSource(source).getTime();
 
         return occupiedTime;

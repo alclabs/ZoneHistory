@@ -1,23 +1,23 @@
 package com.controlj.addon.zonehistory.reports;
 
 import com.controlj.addon.zonehistory.cache.DateRange;
-import com.controlj.addon.zonehistory.cache.ZoneHistory;
+import com.controlj.addon.zonehistory.cache.GeoTreeSourceRetriever;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
-import com.controlj.addon.zonehistory.util.EnabledColorTrendWithSetpointAcceptor;
+import com.controlj.addon.zonehistory.cache.ZoneTimeHistory;
 import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.access.aspect.AttachedEquipment;
 import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
-import com.controlj.green.addonsupport.access.aspect.TrendSource;
 import com.controlj.green.addonsupport.access.trend.TrendData;
 import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
 import com.controlj.green.addonsupport.access.trend.TrendRange;
 import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
-import org.apache.commons.lang.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class SatisfactionReport implements Report
 {
@@ -45,84 +45,60 @@ public class SatisfactionReport implements Report
             @Override
             public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
-                StopWatch timer = new StopWatch();
-                timer.start();
-                Collection<ZoneHistory> zoneHistories = ZoneHistoryCache.INSTANCE.getDescendantZoneHistories(location);
-                if (zoneHistories == null)
+//                StopWatch timer = new StopWatch();
+//                timer.start();
+                DateRange range = new DateRange(startDate, endDate);
+                ReportResults<EquipmentColorTrendSource> reportResults = new ReportResults<EquipmentColorTrendSource>(location, ReportType.SatisfactionReport);
+
+//              Pass in report results obj so we can check both the cache and the tree itself and only run the report on the sources which have no cached results
+                new GeoTreeSourceRetriever(reportResults, range, ZoneHistoryCache.SATISFACTION).collectForColorSources();
+
+                for (EquipmentColorTrendSource source : reportResults.getSources())
                 {
-                    Collection<EquipmentColorTrendSource> sources = location.find(EquipmentColorTrendSource.class, new EnabledColorTrendWithSetpointAcceptor());
-                    ArrayList<ZoneHistory> newHistories = new ArrayList<ZoneHistory>();
+//                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
+                    ReportResultsData cachedResults = ZoneHistoryCache.SATISFACTION.getCachedData(source.getLocation(), range);
+                    if (cachedResults != null)
+                        continue;
 
-                    for (EquipmentColorTrendSource source : sources)
-                        newHistories.add(new ZoneHistory(source.getLocation()));
-
-                    zoneHistories = ZoneHistoryCache.INSTANCE.addDescendantZoneHistories(location, newHistories);
-                }
-
-                timer.stop();
-                //Logging.LOGGER.println("Search for trend sources beneath '"+start.getDisplayPath()+"' took "+timer);
-
-                StopWatch processTimer = new StopWatch();
-                processTimer.start();
-                processTimer.suspend();
-
-                //Map<ColorTrendSource, Map<EquipmentColor, Long>> results = new HashMap<ColorTrendSource, Map<EquipmentColor, Long>>();
-                Map<TrendSource, ReportResultsData> reportResultsDataMap = new HashMap<TrendSource, ReportResultsData>();
-                for (ZoneHistory zoneHistory : zoneHistories)
-                {
-                    Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(zoneHistory.getEquipmentColorLookupString());
-                    Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
-                    EquipmentColorTrendSource source = equipment.getAspect(EquipmentColorTrendSource.class);
-
-                    DateRange range = new DateRange(startDate, endDate);
-                    ReportResultsData cachedResults = zoneHistory.getResultsForDates(range);
-
-                    if (cachedResults == null)
+                    try
                     {
-                        try
+                        Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(source.getLocation().getTransientLookupString());
+                        Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
+                        AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
+
+                        if (!eqAspect.getDevice().isOutOfService())
                         {
-                            AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
-                            if (!eqAspect.getDevice().isOutOfService())
-                            {
-                                if (SatisfactionProcessor.trace)
-                                    Logging.LOGGER.println("------ Processing " + equipment.getDisplayName());
+                            if (SatisfactionProcessor.trace)
+                                Logging.LOGGER.println("------ Processing " + equipment.getDisplayName());
 
-                                processTimer.resume();
-                                SatisfactionProcessor processor = processTrendData(source, trendRange);
-                                processTimer.suspend();
+//                                processTimer.resume();
+                            SatisfactionProcessor processor = processTrendData(source, trendRange);
+//                                processTimer.suspend();
 
-                                ReportResultsData dataResults = new ReportResultsData(0l, location, equipmentColorLocation, processor.getColorMap());
+                            cachedResults = new ReportResultsData(processor.getTotalTime(), location, equipmentColorLocation, processor.getColorMap());
 
-                                cachedResults = zoneHistory.addResults(range, dataResults);
-                                checkDateRanges(processor.getUnoccupiedTimeList());
-                                zoneHistory.addUnoccupiedTimes(unoccupiedTimes);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Logging.LOGGER.println("Error processing trend data");
-                            e.printStackTrace(Logging.LOGGER);
+                            // check unoccupiedTimes
+                            checkDateRanges(processor.getUnoccupiedTimeList());
+
+                            ZoneTimeHistory zoneTimeHistory = new ZoneTimeHistory(source.getLocation(), cachedResults, unoccupiedTimes);
+//                            cachedResults = zoneTimeHistory.addResults(range, dataResults);
+//                            zoneTimeHistory.addUnoccupiedTimes(unoccupiedTimes); // add zonehistory to cache
+                            ZoneHistoryCache.SATISFACTION.addZoneTimeHistory(source.getLocation(), range, zoneTimeHistory);
                         }
                     }
-                    else
+                    catch (Exception e)
                     {
-//                        results.put(new ColorTrendSource(location, equipment), colorMap);
-                        checkDateRanges(zoneHistory.getUnoccupiedTimes());
+                        Logging.LOGGER.println("Error processing trend data");
+                        e.printStackTrace(Logging.LOGGER);
                     }
 
-                    // place stuff into report results map to be wrapped and returned later - may not work with current caching system
-//                    ReportResultsData reportResultsData = new ReportResultsData(0l, location, equipmentColorLocation);
-
-//                    for (EquipmentColor eqColor : cachedResults.keySet())
-//                        reportResultsData.addData(eqColor.getValue(), cachedResults.get(eqColor));
-
-                    reportResultsDataMap.put(source, cachedResults);
+                    reportResults.addData(source, cachedResults);
                 }
 
                 //Logging.LOGGER.println("Processing trend sources beneath '"+start.getDisplayPath()+"' took "+processTimer);
                 //Logging.LOGGER.println();
 
-                return new ReportResults(reportResultsDataMap);
+                return reportResults;
             }
         });
     }
