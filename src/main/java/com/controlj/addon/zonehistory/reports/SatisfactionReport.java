@@ -3,7 +3,6 @@ package com.controlj.addon.zonehistory.reports;
 import com.controlj.addon.zonehistory.cache.DateRange;
 import com.controlj.addon.zonehistory.cache.GeoTreeSourceRetriever;
 import com.controlj.addon.zonehistory.cache.ZoneHistoryCache;
-import com.controlj.addon.zonehistory.cache.ZoneTimeHistory;
 import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
@@ -79,11 +78,7 @@ public class SatisfactionReport implements Report
 
                             // check unoccupiedTimes
                             checkDateRanges(processor.getUnoccupiedTimeList());
-
-                            ZoneTimeHistory zoneTimeHistory = new ZoneTimeHistory(source.getLocation(), cachedResults, unoccupiedTimes);
-//                            cachedResults = zoneTimeHistory.addResults(range, dataResults);
-//                            zoneTimeHistory.addUnoccupiedTimes(unoccupiedTimes); // add zonehistory to cache
-                            ZoneHistoryCache.SATISFACTION.addZoneTimeHistory(source.getLocation(), range, zoneTimeHistory);
+                            ZoneHistoryCache.SATISFACTION.addZoneTimeHistory(source.getLocation(), range, cachedResults, unoccupiedTimes);
                         }
                     }
                     catch (Exception e)

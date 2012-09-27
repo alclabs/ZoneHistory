@@ -22,15 +22,14 @@ public class EnvironmentalIndexPieBuilder extends PieChartJSONBuilder
 
         for (Object i : rawData.keySet())
         {
-            Double value = (Double) rawData.get(i);
-            Double ratio = value / occupiedTime;
+            Long value = (Long) rawData.get(i);
+            Double ratio = (double )value / occupiedTime;
 //            Color color = getPercentageColor((double)i / buckets);
+
+            // colors don't work yet
             Color color = Color.CYAN;
             double percentage = ratio * 100.0;
-            array.put(super.singleSliceObject(
-                    getLabel(value.intValue(), rawData.keySet().size()),
-                    color,
-                    percentage));
+            array.put(super.singleSliceObject(getLabel((Integer) i, 10), color, percentage));
         }
 
         JSONObject object = new JSONObject();

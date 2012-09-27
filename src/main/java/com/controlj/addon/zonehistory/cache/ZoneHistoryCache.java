@@ -51,18 +51,22 @@ public enum ZoneHistoryCache
 //            return null; // todo - what if no cached data exists?
         }
     }
-
-    public void addZoneTimeHistory(Location loc, DateRange dateRange, ZoneTimeHistory newTimeHistory)
+     public void addZoneTimeHistory(Location loc, DateRange dateRange, ReportResultsData cachedResults, List<DateRange> unoccupiedTimes)
     {
         String lus = loc.getTransientLookupString();
+        ZoneTimeHistory newTimeHistory = new ZoneTimeHistory(loc, cachedResults, unoccupiedTimes);
+
         synchronized (this)
         {
+            trimCache(lus);
             Map<DateRange, ZoneTimeHistory> currentZoneHistory = this.zoneHistoryCache.get(lus);
-
             // make sure the days for the DateRange are set to the midnights of their respective start and end dates
             DateRange midnightedDateRange = this.setDateRangeToMidnight(dateRange);
             currentZoneHistory.put(midnightedDateRange, newTimeHistory);
             zoneHistoryCache.put(lus, currentZoneHistory);
+
+
+
 //            Collection<ZoneTimeHistory> existingTimeHistories = zoneHistoryCache.get(lus);
 //            if (existingTimeHistories == null)
 //            {
@@ -100,14 +104,49 @@ public enum ZoneHistoryCache
     public synchronized void reset()
     {
         zoneHistoryCache.clear();
-//        zoneHistoryMap.clear();
+    }
+
+    private synchronized void trimCache(String lookup)
+    {
+//      get today at midnight
+        Date today = getMidnightToday();
+
+//      get date for yesterday, 1 week, 1 month ago
+        Date yesterday = getMidnight(1);
+        Date weekAgo   = getMidnight(7);
+        Date monthAgo  = getMidnight(31);
+
+//      create date range and set to midnights
+        DateRange yesterdayRange = new DateRange(yesterday, today);
+        DateRange weekRange      = new DateRange(weekAgo,   today);
+        DateRange monthRange     = new DateRange(monthAgo,  today);
+
+//      look at cache at the date ranges for the location and if any entries are present but not valid, remove them
+        Map<DateRange, ZoneTimeHistory> zoneHistories = getZoneTimeHistoryForLocation(lookup);
+        if (zoneHistories == null)
+            return;
+
+        for (DateRange dateInCache : zoneHistories.keySet())
+        {
+            if (dateInCache.equals(yesterdayRange) || dateInCache.equals(weekRange) || dateInCache.equals(monthRange))
+                continue;
+            zoneHistories.remove(dateInCache);
+            zoneHistoryCache.get(lookup).remove(dateInCache);
+        }
+
+        zoneHistoryCache.put(lookup, zoneHistories);
+    }
+
+    private Map<DateRange, ZoneTimeHistory> getZoneTimeHistoryForLocation(String lus)
+    {
+        return zoneHistoryCache.get(lus);
     }
 
     private DateRange setDateRangeToMidnight(DateRange dateRange)
     {
         // determine the start date
         long difference = dateRange.getEnd().getTime() - dateRange.getStart().getTime();
-        int days = (int)(difference / ONE_DAY_MILLIS);
+        int days = (int) (difference / ONE_DAY_MILLIS);
 
         Date end = getMidnightToday();
         Date start = getMidnight(days);

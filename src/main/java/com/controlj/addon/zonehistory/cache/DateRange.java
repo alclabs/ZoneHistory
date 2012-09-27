@@ -34,11 +34,11 @@ public class DateRange
         if (o == null || getClass() != o.getClass()) return false;
 
         DateRange dateRange = (DateRange) o;
+        return start.equals(dateRange.start) && end.equals(dateRange.end);
 
-        if (!end.equals(dateRange.end)) return false;
-        if (!start.equals(dateRange.start)) return false;
-
-        return true;
+//        if (!end.equals(dateRange.end)) return false;
+//        if (!start.equals(dateRange.start)) return false;
+//        return true;
     }
 
     @Override

@@ -41,7 +41,7 @@ public class GeoTreeSourceRetriever
         }
     }
 
-    public void collectForTrendSources()
+    public void collectForAnalogSources()
     {
         collect(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
     }

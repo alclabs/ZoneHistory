@@ -49,16 +49,21 @@ public class EnvironmentalIndexReport implements Report
                 report.runReport();
                 // this is to get the unoccupied times for use later to only use times that where within occupied times
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
+
+
                 ReportResults<AnalogTrendSource> reportResults = new ReportResults<AnalogTrendSource>(location, ReportType.EnvironmentalIndexReport);
-                new GeoTreeSourceRetriever(reportResults, new DateRange(startDate, endDate), ZoneHistoryCache.EI);
+                DateRange dateRange = new DateRange(startDate, endDate);
+                new GeoTreeSourceRetriever(reportResults, dateRange, ZoneHistoryCache.EI).collectForAnalogSources();
 
                 for (AnalogTrendSource source : reportResults.getSources())
                 {
-                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
+//                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
+                    ReportResultsData cachedData = ZoneHistoryCache.EI.getCachedData(source.getLocation(), dateRange);
+                    if (cachedData != null)
+                        continue;
 
-                    Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(cachedResults.getTransLookupString());
+                    Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(source.getLocation().getTransientLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
-//                    Collection<AnalogTrendSource> analogSources = equipmentColorLocation.find(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
 
                     try
                     {
@@ -66,16 +71,17 @@ public class EnvironmentalIndexReport implements Report
                         if (!eqAspect.getDevice().isOutOfService())
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-                            ReportResultsData reportData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
+                            cachedData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
+
+//                            ZoneTimeHistory zoneTimeHistory = new ZoneTimeHistory(source.getLocation(), cachedData, unoccupiedRanges);
+                            ZoneHistoryCache.EI.addZoneTimeHistory(source.getLocation(), dateRange, cachedData, unoccupiedRanges);
 
                             List<Long> buckets = processor.getPercentageBuckets();
                             for (int i = 0; i < buckets.size(); i++)
                             {
                                 if (buckets.get(i) > 0)
-                                    reportData.addData(i, buckets.get(i));
+                                    cachedData.addData(i, buckets.get(i));
                             }
-
-                            reportResults.addData(source, reportData);
                         }
                     }
                     catch (Exception e)
@@ -83,6 +89,8 @@ public class EnvironmentalIndexReport implements Report
                         Logging.LOGGER.println("Error processing trend data");
                         e.printStackTrace(Logging.LOGGER);
                     }
+
+                    reportResults.addData(source, cachedData);
                 }
 
                 return reportResults;

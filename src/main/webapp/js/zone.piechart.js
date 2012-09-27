@@ -11,7 +11,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
     // check if canvas size is capable of displaying features
     showLegend = showLegend && checkCanvasDimensionsForLegend(canvasWidth, canvasHeight);
-    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
+    showTotal  = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
 
     var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
     var textColor = isWebContext ? "#FFFFFF" : "#000000";
@@ -33,11 +33,11 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                 if (showTotal && testToRun !== "environmental index")
                 {
                     var satisfactionNumber = Math.round(mainChartData.percentlabel);
-                    var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
-                    var mainSatisfaction = "Satisfaction: " + satisfactionText;
-                    var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2 * radius + 10, animationScale);
-                    var text = mainChartLocation.text(textX, textY, mainSatisfaction);
+                    var satisfactionText =   satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
+                    var mainSatisfaction =   "Satisfaction: " + satisfactionText;
+                    var textX =              getCoords(radius, animationScale);
+                    var textY =              getCoords(2 * radius + 10, animationScale);
+                    var text =               mainChartLocation.text(textX, textY, mainSatisfaction);
 
                     text.attr({ "fill": textColor, "font-weight": "normal" });
                 }
@@ -80,12 +80,23 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
         return b.percent - a.percent;
     });
 
+//     bug fixed in updated G.Raphael library - disabled but still here in case we need it
+    // Graphael limits the entries for the legend to 7 entries total;
+    // everything else is combined into an ambiguous "others" as the 7th entry
+    // that does not allow to choose the color we want. So we combine them
     for (var index in data)
     {
         var temp = data[index];
-        pieLabels.push("%%.%%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
-        piePercentages.push(temp.percent);
-        pieColors.push("rgb(" + temp["rgb-red"] + ", " + temp["rgb-green"] + ", " + temp["rgb-blue"] + ")");
+//        if (index < 6)
+//        {
+            pieLabels.push("%%.%%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
+            piePercentages.push(temp.percent);
+            pieColors.push("rgb(" + temp["rgb-red"] + ", " + temp["rgb-green"] + ", " + temp["rgb-blue"] + ")");
+//        }
+//        else
+//        {
+//            sumOfTiny += temp.percent;
+//        }
     }
 
     if (sumOfTiny != 0.0)
@@ -142,7 +153,7 @@ function drawTable(tableData, sparklineDiameter, isSatisfaction)
         var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.percentlabel);
         var tableRow =
-                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" +
+                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">"+
                         "<td>" + eqLink + '</td>"+' +
                         '"<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
                         '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';

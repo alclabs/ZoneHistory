@@ -10,9 +10,9 @@ import java.util.Date;
 
 public class ReportFactory
 {
-    public Report createReport(String testToRun, Date startDate, Date endDate, Location location, SystemConnection connection)
+    public Report createReport(String reportToRun, Date startDate, Date endDate, Location location, SystemConnection connection)
     {
-        if (testToRun.contains("environmental index"))
+        if (reportToRun.contains("environmental index"))
             return new EnvironmentalIndexReport(startDate, endDate, location, connection);
         else
             return new SatisfactionReport(startDate, endDate, location, connection);
