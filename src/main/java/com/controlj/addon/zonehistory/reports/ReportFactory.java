@@ -12,9 +12,9 @@ public class ReportFactory
 {
     public Report createReport(String reportToRun, Date startDate, Date endDate, Location location, SystemConnection connection)
     {
-        if (reportToRun.contains("environmental index"))
-            return new EnvironmentalIndexReport(startDate, endDate, location, connection);
-        else
+//        if (reportToRun.contains("environmental index"))
+//            return new EnvironmentalIndexReport(startDate, endDate, location, connection);
+//        else
             return new SatisfactionReport(startDate, endDate, location, connection);
     }
 
