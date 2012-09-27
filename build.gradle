@@ -7,8 +7,11 @@ apply from: configurations.gradleScript.resolve().iterator().next()
 
 info {
   name = 'Zone History'
-  description = 'Displays a pie chart showing historical equipment color for zones (i.e. equipment with a set point). Can also display the pie chart on an ViewBuilder graphic using the webapp content control.'
-  version = '0.8.7'
+  description =
+      'Displays a pie chart showing historical equipment color for zones (i.e. equipment with a set point). '+
+      'Can also display the pie chart on an ViewBuilder graphic using the webapp content control.' +
+      'Also displays Environmental Indecies'
+  version = '1.0.0'
   vendor = 'ALC Labs'
 }
 
