@@ -49,7 +49,7 @@
     <div id="graph" class="graph"></div>
     <script type="text/javascript" >
         runColorReport('<%=loc%>', '<%=range%>', true, <%=canvasWidth%>, <%=canvasHeight%>,
-                       <%=showLegend.contains("true")%>, <%=showTotal.contains("true")%>);
+                       <%=showLegend.contains("true")%>, <%=showTotal.contains("true")%>, 'satisfaction');
     </script>
 </body>
 </html>

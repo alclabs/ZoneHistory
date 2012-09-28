@@ -67,7 +67,7 @@ public class ReportResults<T extends TrendSource>
         return data.keySet();
     }
 
-    public long getTimeForAllResults() throws Exception
+    private long getTimeForAllResults() throws Exception
     {
         long occupiedTime = 0;
         for (T source : getSources())

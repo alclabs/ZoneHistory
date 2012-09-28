@@ -21,7 +21,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
         mainChartLocation = initChartLocation(isWebContext, canvasWidth, canvasHeight, locationToDraw);
 
     mainChartLocation.clear();
-    mainChartLocation.text(canvasWidth / 2, canvasHeight / 3, "Loading...").attr("fill", textColor);
+    mainChartLocation.text(canvasWidth / 2, canvasHeight / 3, "Loading...").attr({"fill": textColor});
 
     var obj = { "location":node, "prevdays":prevDays , "action": testToRun};
     $.getJSON("servlets/results", obj,
@@ -112,7 +112,7 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     {
         params.legend = pieLabels;
         params.legendpos = "east";
-        params.legendColor = useWhiteTextForLegend ? '#fff' : '#000';
+        params.legendcolor = useWhiteTextForLegend ? '#fff' : '#000';
     }
     var pie = chartLocation.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
 
