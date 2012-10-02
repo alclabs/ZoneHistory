@@ -1,51 +1,50 @@
 package com.controlj.addon.zonehistory
 
-import static com.controlj.green.addonsupport.access.EquipmentColor.*
+import com.controlj.addon.zonehistory.charts.SatisfactionPieBuilder
+import com.controlj.addon.zonehistory.reports.ReportResults
+import com.controlj.addon.zonehistory.reports.ReportResultsData
+import com.controlj.addon.zonehistory.reports.ReportType
+import com.controlj.green.addonsupport.access.Location
+import com.controlj.green.addonsupport.access.aspect.TrendSource
 import spock.lang.Specification
-import com.controlj.green.addonsupport.access.EquipmentColor
+import static com.controlj.green.addonsupport.access.EquipmentColor.*
 
-import com.controlj.addon.zonehistory.util.ColorTrendSource
-
-class ReportResultsTest extends Specification
+class ReportResultsTest<T extends TrendSource> extends Specification
 {
-    def slice(EquipmentColor color, long time)
-    {
-//        def slice = new ColorSlice(color)
-        slice.timeInColor = time
-        slice
-    }
-    def source() { new ColorTrendSource("", "")}
+    def pieBuilder() { new SatisfactionPieBuilder() }
+    def reportResults() { new ReportResults(Mock(Location), ReportType.SatisfactionReport) }
 
-    def "colorReport computeResults - check ColorPie contents"()
+    def "compute aggregated data"()
     {
         given:
-            def map1 = [(OCCUPIED) : 1000L, (OPERATIONAL) : 2000L]
-            def map2 = [(MODERATE_COOLING) : 2000L, (UNOCCUPIED) : 5000L]
-            def map3 = [(OPERATIONAL) : 1000L, (MODERATE_HEATING) : 3000L]
-            def sourcesMap = [(source()) : map1, (source()) : map2, (source()) : map3]
-//            SatisfactionReportResults results = new SatisfactionReportResults(sourcesMap)
+            def ReportResultsData resultsData1 = new ReportResultsData(3000L, Mock(Location), Mock(Location))
+            resultsData1.addData(OCCUPIED, 1000L)
+            resultsData1.addData(OPERATIONAL, 2000L)
 
-        when: "computeResults executes"
-            def pie = results.buildPieChart()
-//            List slices = pie.colorSlices.sort { ColorSlice a, b ->  a.equipmentColor.name() <=> b.equipmentColor.name() }
+            def ReportResultsData resultsData2 = new ReportResultsData(7000L, Mock(Location), Mock(Location))
+            resultsData2.addData(MODERATE_COOLING, 2000L)
+            resultsData2.addData(UNOCCUPIED, 5000L)
+
+
+            def ReportResultsData resultsData3 = new ReportResultsData(4000L, Mock(Location), Mock(Location))
+            resultsData3.addData(OPERATIONAL, 5000L)
+            resultsData3.addData(MODERATE_HEATING, 3000L)
+
+            def reportResultsObj = reportResults();
+            reportResultsObj.addData(Mock(TrendSource), resultsData1)
+            reportResultsObj.addData(Mock(TrendSource), resultsData2)
+            reportResultsObj.addData(Mock(TrendSource), resultsData3)
+
+
+        when: "test aggregating data"
+            def pieBuilder = pieBuilder();
+            def aggregatedData = reportResultsObj.getAggregatedData()
+            def mainPie = pieBuilder.buildMainPieChart(reportResultsObj)
         then: "compare results"
-            slices == [slice(MODERATE_COOLING, 2000), slice(MODERATE_HEATING, 3000), slice(OCCUPIED, 1000),
-                       slice(OPERATIONAL, 3000), slice(UNOCCUPIED, 5000)]
-            pie.totalKnownTime == 14000L
-    }
-
-    def "Test if computeResults gives empty list"()
-    {
-        given:
-            def map1 = [(OCCUPIED) : 1000L, (OPERATIONAL) : 2000L]
-            def map2 = [(MODERATE_COOLING) : 2000L, (UNOCCUPIED) : 5000L]
-            def map3 = [(OPERATIONAL) : 1000L, (MODERATE_HEATING) : 3000L]
-            def sourcesMap = [(source()) : map1, (source()) : map2, (source()) : map3]
-//            SatisfactionReportResults results = new SatisfactionReportResults(sourcesMap)
-
-        when: "execution of computeResults"
-            def pie = results.buildPieChart()
-        then: "test if resulting list of colors is empty"
-            !pie.colorSlices.isEmpty()
+            aggregatedData.getValue(MODERATE_COOLING) == 2000L &&
+            aggregatedData.getValue(MODERATE_HEATING) == 3000L &&
+            aggregatedData.getValue(OCCUPIED)         == 1000L &&
+            aggregatedData.getValue(OPERATIONAL)      == 7000L &&
+            aggregatedData.getValue(UNOCCUPIED)       == 5000L
     }
 }

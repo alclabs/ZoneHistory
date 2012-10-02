@@ -18,9 +18,6 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
     {
         // for all the source, combine data in each bucket
         ReportResultsData combineData = reportResults.getAggregatedData();
-
-        // sort here
-
         return makeSinglePieChart(combineData);
     }
 

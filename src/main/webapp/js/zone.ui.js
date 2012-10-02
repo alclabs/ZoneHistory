@@ -113,8 +113,6 @@ function runReport()
    var location = getActiveNodeKey();
    if (location)
       runColorReport(location, getTimeRange(), false, 640, 430, true, true, testToRun);
-   else
-      clearPie();
 }
 
 function sortByName(data)

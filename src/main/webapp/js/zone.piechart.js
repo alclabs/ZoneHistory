@@ -11,7 +11,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
     // check if canvas size is capable of displaying features
     showLegend = showLegend && checkCanvasDimensionsForLegend(canvasWidth, canvasHeight);
-    showTotal  = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
+    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
 
     var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
     var textColor = isWebContext ? "#FFFFFF" : "#000000";
@@ -33,11 +33,11 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                 if (showTotal && testToRun !== "environmental index")
                 {
                     var satisfactionNumber = Math.round(mainChartData.percentlabel);
-                    var satisfactionText =   satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
-                    var mainSatisfaction =   "Satisfaction: " + satisfactionText;
-                    var textX =              getCoords(radius, animationScale);
-                    var textY =              getCoords(2 * radius + 10, animationScale);
-                    var text =               mainChartLocation.text(textX, textY, mainSatisfaction);
+                    var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
+                    var mainSatisfaction = "Satisfaction: " + satisfactionText;
+                    var textX = getCoords(radius, animationScale);
+                    var textY = getCoords(2 * radius, animationScale);
+                    var text = mainChartLocation.text(textX, textY, mainSatisfaction);
 
                     text.attr({ "fill": textColor, "font-weight": "normal" });
                 }
@@ -62,49 +62,20 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
             });
 }
 
-function clearPie()
-{
-
-//    mainChartLocation.clear();
-}
-
 function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radius)
 {
-    var piePercentages = [];
-    var pieLabels = [];
-    var pieColors = [];
-    var sumOfTiny = 0.0;
-
     data = data.sort(function(a, b)
     {
         return b.percent - a.percent;
     });
 
-//     bug fixed in updated G.Raphael library - disabled but still here in case we need it
-    // Graphael limits the entries for the legend to 7 entries total;
-    // everything else is combined into an ambiguous "others" as the 7th entry
-    // that does not allow to choose the color we want. So we combine them
-    for (var index in data)
-    {
-        var temp = data[index];
-//        if (index < 6)
-//        {
-            pieLabels.push("%%.%%: " + readablizeString(temp.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
-            piePercentages.push(temp.percent);
-            pieColors.push("rgb(" + temp["rgb-red"] + ", " + temp["rgb-green"] + ", " + temp["rgb-blue"] + ")");
-//        }
-//        else
-//        {
-//            sumOfTiny += temp.percent;
-//        }
-    }
+    var piePercentages = [];
+    var pieLabels = [];
+    var pieColors = [];
 
-    if (sumOfTiny != 0.0)
-    {
-        pieLabels.push("%%.%%: Others");
-        piePercentages.push(sumOfTiny);
-        pieColors.push("rgb(0, 0, 0)");
-    }
+    // Graphael combines 2 or more slices less than 1.0% into an ambiguous 'Others' category
+    // Instead, we take control and combine them into a single "Values remaining" slice which will be rendered correctly
+    combineDataBelowCutoff(data, 1.0, piePercentages, pieLabels, pieColors);
 
     var params = {};
     params.colors = pieColors;
@@ -139,6 +110,57 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
     });
 }
 
+function combineDataBelowCutoff(data, cutoff, piePercentages, pieLabels, pieColors)
+{
+    var tinySlices = [];
+    var bigSlices = [];
+
+    // split values that are less than the cutoff from those that are greater than the cutoff
+    for (var index in data)
+    {
+        var temp = data[index];
+        var percent = temp.percent;
+
+        if (percent < cutoff)
+            tinySlices.push(temp);
+        else
+            bigSlices.push(temp);
+    }
+
+//    we need to sum all the items in tinySlices to ensure that every slice in bigSlices is larger than this number
+//    if this is not done, raphael will sort the percentages in the legend without changing the order of the colors and labels
+    var sumOfTiny = sumOfArray(tinySlices);
+
+    if (tinySlices.length == 1)
+        bigSlices.push(tinySlices[0]);
+    else if (sumOfTiny > 0 && tinySlices.length > 1)
+        bigSlices.push({"rgb-red":0, "rgb-green": 0, "rgb-blue": 0, "percent": sumOfTiny, "color": "Values less than 1%"});
+
+//    sort the bigSlices so that the values are all sorted with the correct colors and labels associated with the percentages large to small
+    bigSlices.sort(function(a, b)
+    {
+        return b.percent - a.percent;
+    });
+
+//    separate the bigSlices into the 3 arrays needed for rendering the pie correctly
+    for (var index2 in bigSlices)
+    {
+        var onlyItem = bigSlices[index2];
+        piePercentages.push(onlyItem.percent);
+        pieColors.push("rgb(" + onlyItem["rgb-red"] + ", " + onlyItem["rgb-green"] + ", " + onlyItem["rgb-blue"] + ")");
+        pieLabels.push("%%.%%: " + readablizeString(onlyItem.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
+    }
+}
+
+function sumOfArray(data)
+{
+    var sum = 0;
+    for (var index in data)
+        sum += data[index].percent;
+
+    return sum;
+}
+
 function drawTable(tableData, sparklineDiameter, isSatisfaction)
 {
     $("#zoneDetails").show();
@@ -153,7 +175,7 @@ function drawTable(tableData, sparklineDiameter, isSatisfaction)
         var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.percentlabel);
         var tableRow =
-                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">"+
+                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" +
                         "<td>" + eqLink + '</td>"+' +
                         '"<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
                         '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
