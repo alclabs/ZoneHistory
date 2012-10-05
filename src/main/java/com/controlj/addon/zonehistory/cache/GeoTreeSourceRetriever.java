@@ -36,7 +36,7 @@ public class GeoTreeSourceRetriever
 //      iterate through collection and check the caching system for any results data with the given DateRange, Report class, and Location
         for (T source : sources)
         {
-            ReportResultsData cachedData = cache.getCachedData(source.getLocation(), dateRange);
+            ReportResultsData cachedData = cache.getCachedData(source.getLocation().getPersistentLookupString(true), dateRange);
             reportResults.addData(source, cachedData);
         }
     }

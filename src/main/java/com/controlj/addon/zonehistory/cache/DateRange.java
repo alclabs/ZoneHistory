@@ -1,6 +1,8 @@
 package com.controlj.addon.zonehistory.cache;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Stores a range of Dates that are each rounded down to 15 minute ticks.
@@ -15,6 +17,19 @@ public class DateRange
     {
         this.start = roundDown(start);
         this.end = roundDown(end);
+    }
+
+    public DateRange(int daysAgoFromMidnightToday)
+    {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        end = calendar.getTime();
+        calendar.roll(Calendar.DAY_OF_YEAR, 0-daysAgoFromMidnightToday);
+        start = calendar.getTime();
     }
 
     public Date getStart()
@@ -36,8 +51,8 @@ public class DateRange
         DateRange dateRange = (DateRange) o;
         return start.equals(dateRange.start) && end.equals(dateRange.end);
 
-//        if (!end.equals(dateRange.end)) return false;
-//        if (!start.equals(dateRange.start)) return false;
+//        if (!end.equals(dateRange1.end)) return false;
+//        if (!start.equals(dateRange1.start)) return false;
 //        return true;
     }
 

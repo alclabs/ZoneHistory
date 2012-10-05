@@ -58,7 +58,7 @@ public class EnvironmentalIndexReport implements Report
                 for (AnalogTrendSource source : reportResults.getSources())
                 {
 //                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
-                    ReportResultsData cachedData = ZoneHistoryCache.EI.getCachedData(source.getLocation(), dateRange);
+                    ReportResultsData cachedData = ZoneHistoryCache.EI.getCachedData(source.getLocation().getPersistentLookupString(true), dateRange);
                     if (cachedData != null)
                         continue;
 
@@ -74,7 +74,7 @@ public class EnvironmentalIndexReport implements Report
                             cachedData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
 
 //                            ZoneTimeHistory zoneTimeHistory = new ZoneTimeHistory(source.getLocation(), cachedData, unoccupiedRanges);
-                            ZoneHistoryCache.EI.addZoneTimeHistory(source.getLocation(), dateRange, cachedData, unoccupiedRanges);
+                            ZoneHistoryCache.EI.cacheResultsData(source.getLocation().getPersistentLookupString(true), dateRange, cachedData);
 
                             List<Long> buckets = processor.getPercentageBuckets();
                             for (int i = 0; i < buckets.size(); i++)
