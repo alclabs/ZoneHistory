@@ -178,8 +178,8 @@ function drawTable(tableData, sparklineDiameter, isSatisfaction)
         var satisfactionNumber = Math.round(item.rowChart.percentlabel);
         var tableRow =
                 "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" +
-                        "<td>" + eqLink + '</td>"+' +
-                        '"<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
+                        "<td>" + eqLink + '</td>' +
+                        '<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
                         '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
 
