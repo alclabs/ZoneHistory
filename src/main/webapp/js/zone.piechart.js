@@ -27,6 +27,8 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
     $.getJSON("servlets/results", obj,
             function(data)
             {
+                mainChartLocation.clear();
+
                 var mainChartData = data.mainChart;
                 drawChart(mainChartData.colors, showLegend, isWebContext, mainChartLocation, radius);
 
@@ -36,7 +38,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
                     var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2 * radius, animationScale) - 10;
+                    var textY = getCoords(2 * radius, animationScale - 0.03);
                     var text = mainChartLocation.text(textX, textY, mainSatisfaction);
 
                     text.attr({ "fill": textColor, "font-weight": "normal" });
@@ -214,18 +216,18 @@ function initChartLocation(isWebContext, canvasWidth, canvasHeight, locationToDr
 
 function checkCanvasDimensionsForLegend(canvasWidth, canvasHeight)
 {
-    return canvasWidth > 160 && canvasHeight > 40;
+    return canvasWidth >= 300 && canvasHeight >= 180;
 }
 
 function checkCanvasDimensionsForTotal(canvasWidth, canvasHeight)
 {
-    return canvasWidth > 150 && canvasHeight > 70;
+    return canvasWidth >= 80 && canvasHeight >= 110;
 }
 
 function determineChartRadius(canvasWidth, canvasHeight, drawLegend, drawTotal)
 {
     if (drawLegend)
-        canvasWidth -= 160;
+        canvasWidth -= 100;
     if (drawTotal)
         canvasHeight -= 30;
 
