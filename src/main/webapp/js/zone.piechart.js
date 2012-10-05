@@ -36,7 +36,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
                     var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2 * radius, animationScale);
+                    var textY = getCoords(2 * radius, animationScale) - 10;
                     var text = mainChartLocation.text(textX, textY, mainSatisfaction);
 
                     text.attr({ "fill": textColor, "font-weight": "normal" });
