@@ -14,8 +14,8 @@ class ZoneHistoryCacheTest extends Specification {
 
     DateRange dateRange1 = new DateRange(new Date(0), new Date(1516351531));
     DateRange dateRange2 = new DateRange(new Date(567467), new Date());
-    ReportResultsData resultsData1 = new ReportResultsData(0, loc1, loc2);
-    ReportResultsData resultsData2 = new ReportResultsData(0, loc2, loc3);
+    ReportResultsData resultsData1 = new ReportResultsData(0, "", "", "");
+    ReportResultsData resultsData2 = new ReportResultsData(0, "2", "2", "2");
 
 
     def setup() {

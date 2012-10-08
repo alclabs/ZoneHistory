@@ -17,16 +17,16 @@ class ReportResultsTest<T extends TrendSource> extends Specification
     def "compute aggregated data"()
     {
         given:
-            def ReportResultsData resultsData1 = new ReportResultsData(3000L, Mock(Location), Mock(Location))
+            def ReportResultsData resultsData1 = new ReportResultsData(3000L, "1", "1", "1")
             resultsData1.addData(OCCUPIED, 1000L)
             resultsData1.addData(OPERATIONAL, 2000L)
 
-            def ReportResultsData resultsData2 = new ReportResultsData(7000L, Mock(Location), Mock(Location))
+            def ReportResultsData resultsData2 = new ReportResultsData(7000L, "2", "2", "2")
             resultsData2.addData(MODERATE_COOLING, 2000L)
             resultsData2.addData(UNOCCUPIED, 5000L)
 
 
-            def ReportResultsData resultsData3 = new ReportResultsData(4000L, Mock(Location), Mock(Location))
+            def ReportResultsData resultsData3 = new ReportResultsData(4000L, "3", "3", "3")
             resultsData3.addData(OPERATIONAL, 5000L)
             resultsData3.addData(MODERATE_HEATING, 3000L)
 

@@ -3,7 +3,6 @@ package com.controlj.addon.zonehistory
 import com.controlj.addon.zonehistory.charts.SatisfactionPieBuilder
 import com.controlj.addon.zonehistory.reports.ReportResultsData
 import com.controlj.green.addonsupport.access.EquipmentColor
-import com.controlj.green.addonsupport.access.Location
 import org.json.JSONObject
 import spock.lang.Specification
 
@@ -11,7 +10,7 @@ class SatisfactionTests extends Specification
 {
     def makeReportResultsData(long time)
     {
-        new ReportResultsData(time, Mock(Location), Mock(Location))
+        new ReportResultsData(time, "", "", "")
     }
 
     def "Given many colors, get the correct total time" ()
