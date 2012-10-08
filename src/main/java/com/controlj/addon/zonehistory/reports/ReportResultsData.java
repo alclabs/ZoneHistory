@@ -1,7 +1,5 @@
 package com.controlj.addon.zonehistory.reports;
 
-import com.controlj.addon.zonehistory.util.LocationUtilities;
-import com.controlj.green.addonsupport.access.Location;
 import com.controlj.green.addonsupport.access.UnresolvableException;
 
 import java.util.Collections;
@@ -13,36 +11,36 @@ public class ReportResultsData<T>
 
     private final Map<T, Long> data;
     private final long time; // occupied time? - check to make sure it is
-    private final Location ancestor;
-    private final Location descendant;
+    private final String transientLookup, transientLookupPath, displayPath;
 
-    public ReportResultsData(long time, Location ancestor, Location descendant)
+    public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath)
     {
         this.data = new HashMap<T, Long>();
         this.time = time;
-        this.ancestor = ancestor;
-        this.descendant = descendant;
+        this.transientLookup = transLookup;
+        this.transientLookupPath = transLookupPath;
+        this.displayPath = displayPath;
     }
 
-    public ReportResultsData(long time, Location ancestor, Location descendant, Map<T, Long> rawData)
+    public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath, Map<T, Long> rawData)
     {
-        this(time, ancestor, descendant);
+        this(time, transLookup, transLookupPath, displayPath);
         data.putAll(rawData);
     }
 
     public String getDisplayPath() throws UnresolvableException
     {
-        return LocationUtilities.relativeDisplayPath(ancestor, descendant);
+        return displayPath;
     }
 
     public String getTransLookupString()
     {
-        return descendant.getTransientLookupString();
+        return transientLookup;
     }
 
     public String getTransLookupPath()
     {
-        return LocationUtilities.createTransientLookupPathString(descendant);
+        return transientLookupPath;
     }
 
     public long getTime()

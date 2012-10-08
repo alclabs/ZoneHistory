@@ -41,8 +41,14 @@ public class ReportResults<T extends TrendSource>
 
     public ReportResultsData getAggregatedData() throws Exception
     {
-          // combined results from pie chart builder abstract class
-        ReportResultsData aggregatedData = new ReportResultsData(getTimeForAllResults(), ancestor, ancestor);
+        // combined results from pie chart builder abstract class
+//        String displayPath = LocationUtilities.relativeDisplayPath(ancestor, ancestor);
+//        String transLookupPath = LocationUtilities.createTransientLookupPathString(ancestor);
+//        String transLookup = ancestor.getTransientLookupString();
+
+        // Blank strigs because this is only used for the main chart which doesn't need any locations in order to function
+        ReportResultsData aggregatedData = new ReportResultsData(getTimeForAllResults(), "", "", "");
+
         for (T source : getSources())
         {
             ReportResultsData resultsData = getDataFromSource(source);
@@ -53,7 +59,7 @@ public class ReportResults<T extends TrendSource>
             for (Object i : sourceData.keySet())
             {
                 Long newTime = sourceData.get(i);
-                Long currentTimeInResults = aggregatedData.getData().get(i) == null ? 0 : (Long)aggregatedData.getData().get(i);
+                Long currentTimeInResults = aggregatedData.getData().get(i) == null ? 0 : (Long) aggregatedData.getData().get(i);
 
                 aggregatedData.addData(i, newTime + currentTimeInResults);
             }

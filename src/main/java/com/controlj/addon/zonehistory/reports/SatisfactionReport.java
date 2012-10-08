@@ -74,7 +74,11 @@ public class SatisfactionReport implements Report
                             SatisfactionProcessor processor = processTrendData(source, trendRange);
 //                                processTimer.suspend();
 
-                            cachedResults = new ReportResultsData(processor.getTotalTime(), location, equipmentColorLocation, processor.getColorMap());
+                            String displayPath = LocationUtilities.relativeDisplayPath(location, equipmentColorLocation);
+                            String transLookupPath = LocationUtilities.createTransientLookupPathString(location);
+                            String transLookup = equipmentColorLocation.getTransientLookupString();
+
+                            cachedResults = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, processor.getColorMap());
 
                             // check unoccupiedTimes
                             checkDateRanges(processor.getUnoccupiedTimeList());

@@ -71,7 +71,7 @@ public class EnvironmentalIndexReport implements Report
                         if (!eqAspect.getDevice().isOutOfService())
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-                            cachedData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
+//                            cachedData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
 
 //                            ZoneTimeHistory zoneTimeHistory = new ZoneTimeHistory(source.getLocation(), cachedData, unoccupiedRanges);
                             ZoneHistoryCache.EI.cacheResultsData(source.getLocation().getPersistentLookupString(true), dateRange, cachedData);
