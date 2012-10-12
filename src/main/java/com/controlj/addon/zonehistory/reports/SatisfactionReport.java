@@ -75,14 +75,14 @@ public class SatisfactionReport implements Report
 //                                processTimer.suspend();
 
                             String displayPath = LocationUtilities.relativeDisplayPath(location, equipmentColorLocation);
-                            String transLookupPath = LocationUtilities.createTransientLookupPathString(location);
-                            String transLookup = equipmentColorLocation.getTransientLookupString();
+                            String transLookupPath = LocationUtilities.createTransientLookupPathString(equipmentColorLocation);
+                            String transLookup = equipment.getPersistentLookupString(true);
 
                             cachedResults = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, processor.getColorMap());
 
                             // check unoccupiedTimes
                             checkDateRanges(processor.getUnoccupiedTimeList());
-                            ZoneHistoryCache.SATISFACTION.cacheResultsData(source.getLocation().getPersistentLookupString(true), range, cachedResults);
+                            ZoneHistoryCache.SATISFACTION.cacheResultsData(transLookup, range, cachedResults);
                         }
                     }
                     catch (Exception e)

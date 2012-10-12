@@ -72,13 +72,6 @@ public class ReportResultsData<T>
 
     public Map<T, Long> getData()
     {
-        // debug code to test eqColor coral
-        /*if (data.containsKey(-1))
-        {
-            long temp = data.get(-1);
-            data.put(13, temp);
-            data.remove(-1);
-        }*/
         return Collections.unmodifiableMap(data);
     }
 }
