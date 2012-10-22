@@ -43,7 +43,6 @@ public enum ZoneHistoryCache
     public void cacheResultsData(String lus, DateRange dateRange, ReportResultsData cachedResults)
     {
 //        String lus = loc.getTransientLookupString();
-
         synchronized (this)
         {
             trimCache(lus);

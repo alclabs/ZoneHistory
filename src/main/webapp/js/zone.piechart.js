@@ -38,10 +38,9 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
                     var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2 * radius, animationScale - 0.03);
-                    var text = mainChartLocation.text(textX, textY, mainSatisfaction);
-
-                    text.attr({ "fill": textColor, "font-weight": "normal" });
+                    var textY = getCoords(2 * radius, animationScale);
+                    var text = mainChartLocation.text(textX, textY, mainSatisfaction)
+                            .attr({ "fill": textColor, "font-weight": "normal", font: "12px sans-serif"});
                 }
 
                 if (!isWebContext)
@@ -216,12 +215,14 @@ function initChartLocation(isWebContext, canvasWidth, canvasHeight, locationToDr
 
 function checkCanvasDimensionsForLegend(canvasWidth, canvasHeight)
 {
-    return canvasWidth >= 300 && canvasHeight >= 180;
+//    return canvasWidth >= 300 && canvasHeight >= 180;
+    return true;
 }
 
 function checkCanvasDimensionsForTotal(canvasWidth, canvasHeight)
 {
-    return canvasWidth >= 80 && canvasHeight >= 110;
+//    return canvasWidth >= 80 && canvasHeight >= 110;
+    return true;
 }
 
 function determineChartRadius(canvasWidth, canvasHeight, drawLegend, drawTotal)

@@ -54,7 +54,6 @@ public class SatisfactionReport implements Report
 
                 for (EquipmentColorTrendSource source : reportResults.getSources())
                 {
-//                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
                     ReportResultsData cachedResults = ZoneHistoryCache.SATISFACTION.getCachedData(source.getLocation().getPersistentLookupString(true), range);
                     if (cachedResults != null)
                         continue;
@@ -82,7 +81,11 @@ public class SatisfactionReport implements Report
 
                             // check unoccupiedTimes
                             checkDateRanges(processor.getUnoccupiedTimeList());
-                            ZoneHistoryCache.SATISFACTION.cacheResultsData(transLookup, range, cachedResults);
+
+                            // avoid caching today's results
+                            long day = 24 * 60 * 60 * 1000;
+                            if (range.getEnd().getTime() - range.getStart().getTime() > day)
+                                ZoneHistoryCache.SATISFACTION.cacheResultsData(transLookup, range, cachedResults);
                         }
                     }
                     catch (Exception e)
