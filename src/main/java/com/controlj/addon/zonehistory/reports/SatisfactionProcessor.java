@@ -12,12 +12,11 @@ import java.util.*;
 public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
     private List<DateRange> unoccupiedTimeList;
+    private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
 
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
     private long lastTransitionTime;
     public static boolean trace = false;
-
-    private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
 
     public Map<EquipmentColor, Long> getColorMap()
     {
