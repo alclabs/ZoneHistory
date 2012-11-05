@@ -2,10 +2,6 @@ var tableData, reverse = true;
 
 $(function()
 {
-    // init the tabs
-//    $('#tabs').tabs();
-
-
     // Attach the dynatree widget to an existing <div id="tree"> element
     // and pass the tree options as an argument to the dynatree() function:
     $("#tree").dynatree(
@@ -141,6 +137,27 @@ function sortByName(data)
             if (eq1 < eq2)
                 return 1;
             return 0;
+        });
+    }
+
+    reverse = !reverse;
+    return data;
+}
+
+function sortByAttribute(data, propertyName)
+{
+    if (reverse)
+    {
+        data = data.sort(function(a, b)
+        {
+            return b["rowChart"][propertyName] - a["rowChart"][propertyName];
+        });
+    }
+    else
+    {
+        data = data.sort(function(a, b)
+        {
+            return a["rowChart"][propertyName] - b["rowChart"][propertyName];
         });
     }
 

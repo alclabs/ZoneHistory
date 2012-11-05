@@ -6,30 +6,18 @@ import com.controlj.green.addonsupport.access.trend.TrendProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
 {
-    private long totalTime, lastTransitionTime, unoccupiedTime;
-    private List<Long> percentageBuckets;
+    private long totalTime, lastTransitionTime, unoccupiedTime, occupiedTime;
+    private double previousPoint, area, averageArea;
     private final List<DateRange> unoccupiedTimes;
-    private final int buckets;
 
-    public EnvironmentalIndexProcessor(int numberOfBuckets, List<DateRange> unoccupiedTimes)
+    public EnvironmentalIndexProcessor(List<DateRange> unoccupiedTimes)
     {
-        this.percentageBuckets = new ArrayList<Long>(numberOfBuckets);
-        for (int i = 0; i < numberOfBuckets; i++)
-            percentageBuckets.add(i, 0l);
-
         this.unoccupiedTimes = unoccupiedTimes;
-        this.buckets = numberOfBuckets;
-    }
-
-    public List<Long> getPercentageBuckets()
-    {
-        return this.percentageBuckets;
     }
 
     public long getTotalTime()
@@ -42,9 +30,9 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
         return totalTime - unoccupiedTime;
     }
 
-    public long getUnoccupiedTime()
+    public double getAverageArea()
     {
-        return unoccupiedTime;
+        return averageArea;
     }
 
     @Override
@@ -52,69 +40,61 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
     {
         totalTime = 0;
         unoccupiedTime = 0;
+        occupiedTime = 0;
         lastTransitionTime = date.getTime();
 
-//        if (sample != null)
-//            lastValue = sample.doubleValue();
+        if (sample != null)
+            previousPoint = sample.doubleValue();
+        else
+            previousPoint = 0;
     }
 
     @Override
     public void processData(@NotNull TrendAnalogSample sample)
     {
-        placeIntoBucket(sample);
+        long deltaTime = sample.getTimeInMillis() - lastTransitionTime;
+        if (!isUnoccupied(sample.getTime()))
+        {
+//            Use midpoint between the two points as the height and multiply by the change in time to get the area. This is similar to the area for a trapezoid.
+            area += (previousPoint + sample.doubleValue() / 2) * deltaTime;
+            occupiedTime += deltaTime;
+        }
+
+        totalTime += deltaTime;
+        lastTransitionTime = sample.getTimeInMillis();
+        previousPoint = sample.doubleValue();
     }
 
     @Override
     public void processEnd(@NotNull Date date, @Nullable TrendAnalogSample sample)
     {
-//        this.percentageBuckets.set(percentageBuckets.size() - 1, unoccupiedTime);
+        long deltaTime = date.getTime() - lastTransitionTime;
+        // finalize the areas by adding up the last sample? is the bookend included? I believe no since it will be during or after the allotted time frame we're looking back through.
+        if (sample != null && sample.doubleValue() > 0 && !isUnoccupied(sample.getTime()))
+            occupiedTime += deltaTime;
 
-//        if (sample != null)
-//            placeIntoBucket(sample);
+        totalTime += deltaTime;
 
-
+        // calculate average areas: total area / occupiedTime
+        averageArea = area / occupiedTime;
     }
 
     @Override
     public void processHole(@NotNull Date start, @NotNull Date end)
     {
         lastTransitionTime = end.getTime();
+        totalTime += end.getTime() - start.getTime();
+        previousPoint = 0; // last point is at 0 so omit from totals
 
-//        dunno what to do if hole...count as unoccupied?
-    }
-
-    private void placeIntoBucket(TrendAnalogSample sample)
-    {
-        long duration = sample.getTimeInMillis() - lastTransitionTime;
-        totalTime += duration;
-        lastTransitionTime = sample.getTimeInMillis();
-
-        if (isUnoccupied(sample.getTime()))
-            unoccupiedTime += duration;
-        else
-        {
-            int index = (int) (sample.doubleValue() / (100 / this.buckets)) - 1; // we only want unoccupied time in the very last spot
-            if (sample.doubleValue() == 0)
-                index = 0;
-
-            try
-            {
-                long currentValue = percentageBuckets.get(index);
-                percentageBuckets.set(index, currentValue + duration);
-            }
-            catch (IndexOutOfBoundsException e)
-            {
-                percentageBuckets.add(index, duration);
-            }
-        }
+//        count as unoccupied? - yes. do not track values here
     }
 
     private boolean isUnoccupied(Date sampleTime)
     {
-        // if the sample is found within the unoccupied times, return true
+        // determine if a sample's date is found within the unoccupied times from the satisfaction report
         for (DateRange range : this.unoccupiedTimes)
         {
-            if (sampleTime.after(range.getStart()) && sampleTime.before(range.getEnd()))
+            if (range.isDateWithin(sampleTime))
                 return true;
         }
 

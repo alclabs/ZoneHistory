@@ -18,7 +18,7 @@ public class EnvironmentalIndexPieBuilder extends PieChartJSONBuilder
         // we also need to send the colors that are associated with the buckets - we want the gradual change from red to green (0% to 100%)
         JSONArray array = new JSONArray();
         Map rawData = reportResultsData.getData();
-        long occupiedTime = reportResultsData.getTime();
+        long occupiedTime = reportResultsData.getTotalTime();
 
         for (Object i : rawData.keySet())
         {

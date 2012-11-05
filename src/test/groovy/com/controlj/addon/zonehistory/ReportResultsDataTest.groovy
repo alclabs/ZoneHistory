@@ -27,7 +27,7 @@ class SatisfactionTests extends Specification
             data.addData(EquipmentColor.UNKNOWN, 40000L)
 
         when: "pie calculates satisfaction"
-            long totalTime = data.getTime();
+            long totalTime = data.getTotalTime();
         then:
             totalTime == 300000L
     }

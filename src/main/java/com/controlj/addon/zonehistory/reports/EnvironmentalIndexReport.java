@@ -14,19 +14,13 @@ import com.controlj.green.addonsupport.access.trend.TrendRange;
 import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class EnvironmentalIndexReport implements Report
 {
     private final Date startDate, endDate;
     private final Location location;
     private final SystemConnection system;
-    private final static int BUCKETS = 5;
-
-    private final Collection<Bucket> buckets = new ArrayList<Bucket>();
 
     public EnvironmentalIndexReport(Date start, Date end, Location startingLocation, SystemConnection system)
     {
@@ -47,20 +41,18 @@ public class EnvironmentalIndexReport implements Report
             {
                 SatisfactionReport report = new SatisfactionReport(startDate, endDate, location, system);
                 report.runReport();
+
                 // this is to get the unoccupied times for use later to only use times that where within occupied times
                 List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
-
+                Map<EquipmentColor, Long> colorMap = report.getColorMap();
 
                 ReportResults<AnalogTrendSource> reportResults = new ReportResults<AnalogTrendSource>(location, ReportType.EnvironmentalIndexReport);
                 DateRange dateRange = new DateRange(startDate, endDate);
-                new GeoTreeSourceRetriever(reportResults, dateRange, ZoneHistoryCache.EI).collectForAnalogSources();
+                new GeoTreeSourceRetriever(reportResults, dateRange, ZoneHistoryCache.CACHE).collectForAnalogSources();
 
                 for (AnalogTrendSource source : reportResults.getSources())
                 {
-//                    ReportResultsData cachedResults = reportResults.getDataFromSource(source);
-                    ReportResultsData cachedData = ZoneHistoryCache.EI.getCachedData(source.getLocation().getPersistentLookupString(true), dateRange);
-                    if (cachedData != null)
-                        continue;
+                    ReportResultsData cachedData = ZoneHistoryCache.CACHE.getCachedData(source.getLocation().getPersistentLookupString(true), dateRange);
 
                     Location equipmentColorLocation = systemAccess.getTree(SystemTree.Geographic).resolve(source.getLocation().getTransientLookupString());
                     Location equipment = LocationUtilities.findMyEquipment(equipmentColorLocation);
@@ -71,17 +63,18 @@ public class EnvironmentalIndexReport implements Report
                         if (!eqAspect.getDevice().isOutOfService())
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
-//                            cachedData = new ReportResultsData(processor.getOccupiedTime(), location, equipmentColorLocation);
 
-//                            ZoneTimeHistory zoneTimeHistory = new ZoneTimeHistory(source.getLocation(), cachedData, unoccupiedRanges);
-                            ZoneHistoryCache.EI.cacheResultsData(source.getLocation().getPersistentLookupString(true), dateRange, cachedData);
+                            String displayPath = LocationUtilities.relativeDisplayPath(location, equipmentColorLocation);
+                            String transLookupPath = LocationUtilities.createTransientLookupPathString(equipmentColorLocation);
+                            String transLookup = equipment.getPersistentLookupString(true);
 
-                            List<Long> buckets = processor.getPercentageBuckets();
-                            for (int i = 0; i < buckets.size(); i++)
-                            {
-                                if (buckets.get(i) > 0)
-                                    cachedData.addData(i, buckets.get(i));
-                            }
+                            if (cachedData == null)
+                                cachedData = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, colorMap,
+                                                                  report.getOperationalTime(), report.getActiveCoolingTime(), report.getActiveHeatingTime());
+                            cachedData.setAvgAreaForEI(processor.getAverageArea());
+                            cachedData.setOccupiedTime(processor.getOccupiedTime());
+
+                            ZoneHistoryCache.CACHE.cacheResultsData(source.getLocation().getPersistentLookupString(true), dateRange, cachedData);
                         }
                     }
                     catch (Exception e)
@@ -101,6 +94,6 @@ public class EnvironmentalIndexReport implements Report
     private EnvironmentalIndexProcessor processTrendData(AnalogTrendSource source, TrendRange range, List<DateRange> unoccupiedTimes) throws TrendException
     {
         TrendData<TrendAnalogSample> tdata = source.getTrendData(range);
-        return tdata.process(new EnvironmentalIndexProcessor(BUCKETS, unoccupiedTimes));
+        return tdata.process(new EnvironmentalIndexProcessor(unoccupiedTimes));
     }
 }

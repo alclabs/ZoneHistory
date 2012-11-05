@@ -19,7 +19,7 @@ class ZoneHistoryCacheTest extends Specification {
 
 
     def setup() {
-        ZoneHistoryCache.SATISFACTION.reset();
+        ZoneHistoryCache.CACHE.reset();
     }
 
     def "getOfficialZoneHistory returns canonical history"() {
@@ -27,23 +27,23 @@ class ZoneHistoryCacheTest extends Specification {
         String lus =  "loc1"
         String lus2 = "loc2"
 
-        ZoneHistoryCache.SATISFACTION.cacheResultsData(lus, dateRange1, resultsData1)
-        ZoneHistoryCache.SATISFACTION.cacheResultsData(lus2, dateRange2, resultsData2)
+        ZoneHistoryCache.CACHE.cacheResultsData(lus, dateRange1, resultsData1)
+        ZoneHistoryCache.CACHE.cacheResultsData(lus2, dateRange2, resultsData2)
 
 
         when: "get two different ZoneTimeHistory with same loc"
-            ReportResultsData result1 = ZoneHistoryCache.SATISFACTION.getCachedData(lus, dateRange1)
-            ReportResultsData result1_2 = ZoneHistoryCache.SATISFACTION.getCachedData(lus, dateRange1)
+            ReportResultsData result1 = ZoneHistoryCache.CACHE.getCachedData(lus, dateRange1)
+            ReportResultsData result1_2 = ZoneHistoryCache.CACHE.getCachedData(lus, dateRange1)
 
         then: "always get the same one (first)"
             result1.is(result1_2)
 
         when: "try a different zone history, then the original"
-            result1_2 = ZoneHistoryCache.SATISFACTION.getCachedData(lus2, dateRange2)
+            result1_2 = ZoneHistoryCache.CACHE.getCachedData(lus2, dateRange2)
             !result1.is(result1_2);
 
         then:
-            result1.is(ZoneHistoryCache.SATISFACTION.getCachedData(lus, dateRange1))
+            result1.is(ZoneHistoryCache.CACHE.getCachedData(lus, dateRange1))
 
     }
 
@@ -51,19 +51,19 @@ class ZoneHistoryCacheTest extends Specification {
         setup:
             DateRange testRange = new DateRange(7);
             String lus = "loc1"
-            def initial = ZoneHistoryCache.SATISFACTION.getCachedData(lus, testRange)
+            def initial = ZoneHistoryCache.CACHE.getCachedData(lus, testRange)
 
         when: "add histories then read them back"
-            ZoneHistoryCache.SATISFACTION.cacheResultsData(lus, testRange, resultsData1);
-            def result = ZoneHistoryCache.SATISFACTION.getCachedData(lus, testRange)
+            ZoneHistoryCache.CACHE.cacheResultsData(lus, testRange, resultsData1);
+            def result = ZoneHistoryCache.CACHE.getCachedData(lus, testRange)
 
         then: "initial read is null, then read set value back"
             initial == null
             result == resultsData1
 
         when: "Add another set to same location and read it back"
-            ZoneHistoryCache.SATISFACTION.cacheResultsData(lus, testRange, resultsData1)
-            result = ZoneHistoryCache.SATISFACTION.getCachedData(lus, testRange)
+            ZoneHistoryCache.CACHE.cacheResultsData(lus, testRange, resultsData1)
+            result = ZoneHistoryCache.CACHE.getCachedData(lus, testRange)
 
         then: "result is original"
             result == resultsData1

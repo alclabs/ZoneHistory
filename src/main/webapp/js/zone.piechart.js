@@ -39,8 +39,8 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     var mainSatisfaction = "Satisfaction: " + satisfactionText;
                     var textX = getCoords(radius, animationScale);
                     var textY = getCoords(2 * radius, animationScale);
-                    var text = mainChartLocation.text(textX, textY, mainSatisfaction)
-                            .attr({ "fill": textColor, "font-weight": "normal", font: "12px sans-serif"});
+
+                    mainChartLocation.text(textX, textY, mainSatisfaction).attr({ "fill": textColor, "font-weight": "normal", font: "12px sans-serif"});
                 }
 
                 if (!isWebContext)
@@ -87,6 +87,7 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
         params.legendcolor = useWhiteTextForLegend ? '#fff' : '#000';
     }
     var pie = chartLocation.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
+    var popup;
 
     pie.hover(function ()
     {
@@ -99,6 +100,8 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
             this.label[0].attr({ r: 7.5 });
             this.label[1].attr({ "font-weight": 800 });
         }
+        popup = chartLocation.popup(this.sector.middle.x,this.sector.middle.y, this.label[1].attr("text"), 'up');
+
     }, function ()
     {
         this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
@@ -108,6 +111,8 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
             this.label[0].animate({ r: 5 }, 500, "bounce");
             this.label[1].attr({ "font-weight": 400 });
         }
+
+        popup.hide();
     });
 }
 
@@ -135,7 +140,7 @@ function combineDataBelowCutoff(data, cutoff, piePercentages, pieLabels, pieColo
     if (tinySlices.length == 1)
         bigSlices.push(tinySlices[0]);
     else if (sumOfTiny > 0 && tinySlices.length > 1)
-        bigSlices.push({"rgb-red":0, "rgb-green": 0, "rgb-blue": 0, "percent": sumOfTiny, "color": "Values less than 1%"});
+        bigSlices.push({"rgb-red":0, "rgb-green": 0, "rgb-blue": 0, "percent": sumOfTiny, "color": "Others (<1%)"});
 
 //    sort the bigSlices so that the values are all sorted with the correct colors and labels associated with the percentages large to small
     bigSlices.sort(function(a, b)
@@ -175,10 +180,21 @@ function drawTable(tableData, sparklineDiameter, isSatisfaction)
         var transientLookup = item.eqTransLookup;
         var path = item.eqTransLookupPath;
         var satisfactionNumber = Math.round(item.rowChart.percentlabel);
+
+        var heatingpercent = Math.round(item.heatingpercent);
+        var coolingpercent = Math.round(item.coolingpercent);
+        var operationalpercent = Math.round(item.operationalpercent);
+        var averageEI = Math.round(item.averageEI);
+
+
         var tableRow =
                 "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" +
                         "<td>" + eqLink + '</td>' +
                         '<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
+                        '<td style="text-align: center;">' + (heatingpercent + "%") + '</td>' +
+                        '<td style="text-align: center;">' + (coolingpercent + "%") + '</td>' +
+                        '<td style="text-align: center;">' + (operationalpercent + "%") + '</td>' +
+                        '<td style="text-align: center;">' + (averageEI == -1 ? "N/A" : (averageEI + "%")) + '</td>' +
                         '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
 

@@ -50,10 +50,6 @@ public class DateRange
 
         DateRange dateRange = (DateRange) o;
         return start.equals(dateRange.start) && end.equals(dateRange.end);
-
-//        if (!end.equals(dateRange1.end)) return false;
-//        if (!start.equals(dateRange1.start)) return false;
-//        return true;
     }
 
     @Override
@@ -69,5 +65,10 @@ public class DateRange
         long time = date.getTime();
         long chunks = time / resolution;
         return new Date(resolution * chunks);
+    }
+
+    public boolean isDateWithin(Date date)
+    {
+        return (start.before(date) && end.after(date)) || start.equals(date) || end.equals(date);
     }
 }

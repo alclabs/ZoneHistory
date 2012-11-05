@@ -21,7 +21,7 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
         for (EquipmentColor color : colorMap.keySet())
         {
             long colorTime = colorMap.get(color);
-             totalTime += colorTime;
+            totalTime += colorTime;
 
             if (color != EquipmentColor.UNKNOWN)
                 totalKnownTime += colorTime;
@@ -33,7 +33,13 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
         // compute percentages per slice - make the pie itself
         JSONArray jsonPieArray = new JSONArray();
         for (EquipmentColor color : colorMap.keySet())
-            jsonPieArray.put(super.singleSliceObject(color.toString(), getActualColor(color), getPercentage(colorMap.get(color), totalTime)));
+        {
+            String colorString = color.name();
+            if (color == EquipmentColor.OPERATIONAL)
+                colorString = "Ideal";
+
+            jsonPieArray.put(super.singleSliceObject(colorString, getActualColor(color), getPercentage(colorMap.get(color), totalTime)));
+        }
 
         JSONObject object = new JSONObject();
         object.put("colors", jsonPieArray);
@@ -58,7 +64,8 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
                 return new Color(255, 0, 255);
 
             case UNOCCUPIED:
-                return new Color(80, 80, 80);
+                return color.getColor();
+//                return new Color(80, 80, 80);
 
             case HEATING_ALARM:
                 return new Color(255, 0, 0);

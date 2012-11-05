@@ -13,8 +13,7 @@ import java.util.Map;
  */
 public enum ZoneHistoryCache
 {
-    SATISFACTION,
-    EI;
+    CACHE;
 
     private final static long ONE_DAY_MILLIS = 1000L * 60 * 60 * 24;
     private Map<String, Map<DateRange, ReportResultsData>> zoneHistoryCache = new HashMap<String, Map<DateRange, ReportResultsData>>();
@@ -22,8 +21,6 @@ public enum ZoneHistoryCache
     @Nullable
     public ReportResultsData getCachedData(String lus, DateRange dateRange)
     {
-//        String lus = loc.getTransientLookupString();
-
         synchronized (this)
         {
             Map<DateRange, ReportResultsData> zoneHistories = zoneHistoryCache.get(lus);
@@ -42,7 +39,6 @@ public enum ZoneHistoryCache
 
     public void cacheResultsData(String lus, DateRange dateRange, ReportResultsData cachedResults)
     {
-//        String lus = loc.getTransientLookupString();
         synchronized (this)
         {
             trimCache(lus);

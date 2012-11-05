@@ -72,7 +72,7 @@ public class ReportResults<T extends TrendSource>
     {
         long occupiedTime = 0;
         for (T source : getSources())
-            occupiedTime += getDataFromSource(source).getTime();
+            occupiedTime += getDataFromSource(source).getTotalTime();
 
         return occupiedTime;
     }

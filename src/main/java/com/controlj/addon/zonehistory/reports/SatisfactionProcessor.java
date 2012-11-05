@@ -1,6 +1,7 @@
 package com.controlj.addon.zonehistory.reports;
 
 import com.controlj.addon.zonehistory.cache.DateRange;
+import com.controlj.addon.zonehistory.util.ColorUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.EquipmentColor;
 import com.controlj.green.addonsupport.access.trend.TrendEquipmentColorSample;
@@ -15,7 +16,7 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
 
     private EquipmentColor lastColor = EquipmentColor.UNKNOWN;
-    private long lastTransitionTime;
+    private long lastTransitionTime, operationalTime, coolingTime, heatingTime;
     public static boolean trace = false;
 
     public Map<EquipmentColor, Long> getColorMap()
@@ -29,16 +30,39 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     }
 
 
+    public long getOperationalTime()
+    {
+        return operationalTime;
+    }
+
+    public long getCoolingTime()
+    {
+        return coolingTime;
+    }
+
+    public long getHeatingTime()
+    {
+        return heatingTime;
+    }
+
     public void processStart(Date startTime, TrendEquipmentColorSample startBookend)
     {
         unoccupiedTimeList = new ArrayList<DateRange>();
         lastTransitionTime = startTime.getTime();
+        operationalTime = 0;
+        coolingTime = 0;
+        heatingTime = 0;
 
         if (startBookend != null)
             lastColor = startBookend.value();
 
         if (trace)
+        {
             Logging.LOGGER.println("Process Start @" + startTime);
+            if (startBookend == null)
+                Logging.LOGGER.println("Start bookend @" + startTime + " is null - default color Unknown used");
+        }
+
     }
 
     public void processData(TrendEquipmentColorSample sample)
@@ -63,6 +87,16 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         if (time == null)
             time = 0L;
         colorMap.put(color, time + timeInterval);
+
+        // add up other times for use later
+        if (ColorUtilities.isOperational(color))
+            operationalTime += timeInterval;
+        if (ColorUtilities.isActiveHeating(color))
+            heatingTime += timeInterval;
+        else if (ColorUtilities.isActiveCooling(color))
+            coolingTime += timeInterval;
+
+        if (trace) Logging.LOGGER.println("Color added to Map: " + color.toString() + " time = " + (time + timeInterval));
     }
 
     public void processHole(Date start, Date end)
@@ -107,17 +141,15 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     {
         double measuredTime = 0d;
         double unknownTime = 0d;
+
         for (EquipmentColor color : colorMap.keySet())
         {
             if (color != EquipmentColor.UNKNOWN)
-            {
                 measuredTime += colorMap.get(color);
-            }
             else
-            {
                 unknownTime += colorMap.get(color);
-            }
         }
+
         return (measuredTime) / (measuredTime + unknownTime) * 100.0;
     }
 
@@ -125,9 +157,8 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     {
         long totalTime = 0;
         for (Long time : colorMap.values())
-        {
             totalTime += time;
-        }
+
         return totalTime;
     }
 }

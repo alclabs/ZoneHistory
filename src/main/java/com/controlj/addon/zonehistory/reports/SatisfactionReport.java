@@ -14,9 +14,7 @@ import com.controlj.green.addonsupport.access.trend.TrendRange;
 import com.controlj.green.addonsupport.access.trend.TrendRangeFactory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class SatisfactionReport implements Report
 {
@@ -24,6 +22,8 @@ public class SatisfactionReport implements Report
     private final Location location;
     private final SystemConnection system;
     private final List<DateRange> unoccupiedTimes;
+    private final Map<EquipmentColor, Long> colorMap;
+    private long activeHeatingTime, activeCoolingTime, operationalTime;
 
     public SatisfactionReport(Date start, Date end, Location startingLocation, SystemConnection system)
     {
@@ -32,6 +32,8 @@ public class SatisfactionReport implements Report
         this.location = startingLocation;
         this.system = system;
         this.unoccupiedTimes = new ArrayList<DateRange>();
+        this.colorMap = new HashMap<EquipmentColor, Long>();
+        activeCoolingTime = 0; activeHeatingTime = 0; operationalTime = 0;
     }
 
     @Override
@@ -50,11 +52,11 @@ public class SatisfactionReport implements Report
                 ReportResults<EquipmentColorTrendSource> reportResults = new ReportResults<EquipmentColorTrendSource>(location, ReportType.SatisfactionReport);
 
 //              Pass in report results obj so we can check both the cache and the tree itself and only run the report on the sources which have no cached results
-                new GeoTreeSourceRetriever(reportResults, range, ZoneHistoryCache.SATISFACTION).collectForColorSources();
+                new GeoTreeSourceRetriever(reportResults, range, ZoneHistoryCache.CACHE).collectForColorSources();
 
                 for (EquipmentColorTrendSource source : reportResults.getSources())
                 {
-                    ReportResultsData cachedResults = ZoneHistoryCache.SATISFACTION.getCachedData(source.getLocation().getPersistentLookupString(true), range);
+                    ReportResultsData cachedResults = ZoneHistoryCache.CACHE.getCachedData(source.getLocation().getPersistentLookupString(true), range);
                     if (cachedResults != null)
                         continue;
 
@@ -69,15 +71,18 @@ public class SatisfactionReport implements Report
                             if (SatisfactionProcessor.trace)
                                 Logging.LOGGER.println("------ Processing " + equipment.getDisplayName());
 
-//                                processTimer.resume();
                             SatisfactionProcessor processor = processTrendData(source, trendRange);
-//                                processTimer.suspend();
+                            long operationalTime = processor.getOperationalTime();
+                            long coolingTime = processor.getCoolingTime();
+                            long heatingTime = processor.getHeatingTime();
+                            colorMap.putAll(processor.getColorMap());
 
                             String displayPath = LocationUtilities.relativeDisplayPath(location, equipmentColorLocation);
                             String transLookupPath = LocationUtilities.createTransientLookupPathString(equipmentColorLocation);
                             String transLookup = equipment.getPersistentLookupString(true);
 
-                            cachedResults = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, processor.getColorMap());
+                            cachedResults = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, processor.getColorMap(),
+                                                                  operationalTime, coolingTime, heatingTime);
 
                             // check unoccupiedTimes
                             checkDateRanges(processor.getUnoccupiedTimeList());
@@ -85,7 +90,7 @@ public class SatisfactionReport implements Report
                             // avoid caching today's results
                             long day = 24 * 60 * 60 * 1000;
                             if (range.getEnd().getTime() - range.getStart().getTime() > day)
-                                ZoneHistoryCache.SATISFACTION.cacheResultsData(transLookup, range, cachedResults);
+                                ZoneHistoryCache.CACHE.cacheResultsData(transLookup, range, cachedResults);
                         }
                     }
                     catch (Exception e)
@@ -114,6 +119,26 @@ public class SatisfactionReport implements Report
     public List<DateRange> getUnoccupiedTimes()
     {
         return unoccupiedTimes;
+    }
+
+    public long getActiveHeatingTime()
+    {
+        return activeHeatingTime;
+    }
+
+    public Map<EquipmentColor, Long> getColorMap()
+    {
+        return Collections.unmodifiableMap(colorMap);
+    }
+
+    public long getActiveCoolingTime()
+    {
+        return activeCoolingTime;
+    }
+
+    public long getOperationalTime()
+    {
+        return operationalTime;
     }
 
     private void checkDateRanges(List<DateRange> ranges)

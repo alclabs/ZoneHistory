@@ -30,10 +30,14 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
         {
             ReportResultsData data = reportResults.getDataFromSource(source);
             JSONObject tableRow = new JSONObject();
-            tableRow.put("eqDisplayName",     data.getDisplayPath());
-            tableRow.put("eqTransLookup",     data.getTransLookupString());
-            tableRow.put("eqTransLookupPath", data.getTransLookupPath());
-            tableRow.put("rowChart",          makeSinglePieChart(data)); // generate a pie per source data
+            tableRow.put("eqDisplayName",      data.getDisplayPath());
+            tableRow.put("eqTransLookup",      data.getTransLookupString());
+            tableRow.put("eqTransLookupPath",  data.getTransLookupPath());
+            tableRow.put("operationalpercent", 100 * data.getOperationalTime()   / data.getTotalTime());
+            tableRow.put("coolingpercent",     100 * data.getActiveCoolingTime() / data.getTotalTime());
+            tableRow.put("heatingpercent",     100 * data.getActiveHeatingTime() / data.getTotalTime());
+            tableRow.put("rowChart",           makeSinglePieChart(data)); // generate a pie per source data
+            tableRow.put("averageEI",          data.getAvgAreaForEI());
 
             tableData.put(tableRow);
         }
