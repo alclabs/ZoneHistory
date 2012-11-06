@@ -48,23 +48,8 @@ $(function()
     $("#equipmentLocation").click(function()
     {
         clearTable();
-        drawTable(sortByName(tableData), 30, true);
+        drawTable(sortByName(tableData), 30);
     });
-
-    $("#satisfaction").click(function()
-    {
-        clearTable();
-        drawTable(sortBySatisfaction(tableData), 30, true);
-    });
-
-    $("#satisfaction_content").bind( "tabsshow", function(event, ui) {
-        runReport();
-    });
-
-    $("#environmental_index").bind( "tabsshow", function(event, ui) {
-        runReport();
-    });
-
 });
 
 // Will be used later to allow links from charts on a graphic to the whole application
@@ -99,7 +84,7 @@ function runReport()
 //   var testToRun = /*"satisfaction";*/ "environmental index";
    var location = getActiveNodeKey();
    if (location)
-      runColorReport(location, getTimeRange(), false, 640, 430, true, true, testToRun);
+      runColorReport(location, getTimeRange(), false, 500, 375, true, true, testToRun);
 }
 
 function sortByName(data)

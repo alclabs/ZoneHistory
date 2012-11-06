@@ -18,17 +18,9 @@ html, body {
 
 #rhs {
     height: auto;
-    width: 60%;
-    max-width: 85%;
     padding: 5px;
     overflow: auto;
-    float: left;
     /*border: 1px;*/
-}
-
-#results_table {
-    /*height: 480px;*/
-    /*float: right;*/
 }
 
 #results_table, #zoneDetails, a.help {
@@ -43,7 +35,9 @@ ul.dynatree-container {
 
 th {
     font-size: 1em;
-    padding: 3px 7px 2px 7px;
+    padding-right: 2px;
+    padding-left: 2px;
+    border-bottom: 2px solid;
 }
 
 td {
@@ -56,15 +50,8 @@ td {
 }
 
 div.graph {
-    min-width: 640px;
-    /*width: 75%;*/
-    /*height: 500px;*/
     float: left;
-    border: 1px;
-}
-
-div.customTabs {
-    min-height: 500px;
+    padding-right: 10px;
 }
 
 tr.odd {

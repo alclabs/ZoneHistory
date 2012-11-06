@@ -11,7 +11,9 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
     // check if canvas size is capable of displaying features
     showLegend = showLegend && checkCanvasDimensionsForLegend(canvasWidth, canvasHeight);
-    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
+
+// change to show table for areas
+//    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
 
     var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
     var textColor = isWebContext ? "#FFFFFF" : "#000000";
@@ -37,7 +39,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                     var tableChartData = data.table;
                     if (tableChartData)
                     {
-                        // sort by percentage - low to high
+                        // sort by percentage - low to high                       2
                         tableData = tableChartData.sort(function(a, b)
                         {
                             return a.operationalpercent - b.operationalpercent;
@@ -209,11 +211,11 @@ function drawTable(tableData, sparklineDiameter)
 function initChartLocation(isWebContext, canvasWidth, canvasHeight, locationToDraw)
 {
     if (isWebContext)
-        return Raphael(0, 0, canvasWidth, canvasHeight);
+        return new Raphael(0, 0, canvasWidth, canvasHeight);
     else if (locationToDraw)
-        return Raphael(document.getElementById(locationToDraw), canvasWidth, canvasHeight);
+        return new Raphael(document.getElementById(locationToDraw), canvasWidth, canvasHeight);
 
-    return Raphael("graph", canvasWidth, canvasHeight);
+    return new Raphael("graph", canvasWidth, canvasHeight);
 }
 
 function checkCanvasDimensionsForLegend(canvasWidth, canvasHeight)
@@ -222,23 +224,13 @@ function checkCanvasDimensionsForLegend(canvasWidth, canvasHeight)
     return true;
 }
 
-function checkCanvasDimensionsForTotal(canvasWidth, canvasHeight)
-{
-//    return canvasWidth >= 80 && canvasHeight >= 110;
-    return true;
-}
-
-function determineChartRadius(canvasWidth, canvasHeight, drawLegend, drawTotal)
+function determineChartRadius(canvasWidth, canvasHeight, drawLegend, drawTable)
 {
     if (drawLegend)
-        canvasWidth -= 100;
-    if (drawTotal)
-        canvasHeight -= 30;
+        canvasWidth *= 0.6667;
 
     var smallerCanvasDimension = Math.min(canvasHeight, canvasWidth);
-    var radius = 0.50 * smallerCanvasDimension;
-
-    return radius / animationScale;
+    return 0.50 * (smallerCanvasDimension / animationScale);
 }
 
 function getCoords(radius, scale)

@@ -44,7 +44,8 @@ public class EnvironmentalIndexReport implements Report
                 DateRange dateRange = new DateRange(startDate, endDate);
                 GeoTreeSourceRetriever retriever = new GeoTreeSourceRetriever(reportResults, dateRange, ZoneHistoryCache.CACHE);
                 if (!retriever.hasEISources())
-                    throw new NoEnviroIndexSourcesException("No EI Trends named 'zn_enviro_indx_tn' at the current location.");
+//                    throw new NoEnviroIndexSourcesException("No EI Trends named 'zn_enviro_indx_tn' at the current location.");
+                      return reportResults;
 
                 retriever.collectForAnalogSources();
                 long day = 24 * 60 * 60 * 1000;
