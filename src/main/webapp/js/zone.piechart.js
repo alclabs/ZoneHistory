@@ -23,7 +23,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
     mainChartLocation.clear();
     mainChartLocation.text(canvasWidth / 2, canvasHeight / 3, "Loading...").attr({"fill": textColor});
 
-    var obj = { "location":node, "prevdays":prevDays , "action": testToRun};
+    var obj = { "location":node, "prevdays":prevDays, "action": testToRun};
     $.getJSON("servlets/results", obj,
             function(data)
             {
@@ -31,17 +31,6 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 
                 var mainChartData = data.mainChart;
                 drawChart(mainChartData.colors, showLegend, isWebContext, mainChartLocation, radius);
-
-                if (showTotal && testToRun !== "environmental index")
-                {
-                    var satisfactionNumber = Math.round(mainChartData.percentlabel);
-                    var satisfactionText = satisfactionNumber == -1 ? "N/A" : satisfactionNumber + "%";
-                    var mainSatisfaction = "Satisfaction: " + satisfactionText;
-                    var textX = getCoords(radius, animationScale);
-                    var textY = getCoords(2 * radius, animationScale);
-
-                    mainChartLocation.text(textX, textY, mainSatisfaction).attr({ "fill": textColor, "font-weight": "normal", font: "12px sans-serif"});
-                }
 
                 if (!isWebContext)
                 {
@@ -51,10 +40,10 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                         // sort by percentage - low to high
                         tableData = tableChartData.sort(function(a, b)
                         {
-                            return a.rowChart.percentlabel - b.rowChart.percentlabel;
+                            return a.operationalpercent - b.operationalpercent;
                         });
                         clearTable();
-                        drawTable(tableData, 30, testToRun === "satisfaction");
+                        drawTable(tableData, 30);
                     }
                 }
             }).error(function (a, textStatus, error)
@@ -167,7 +156,7 @@ function sumOfArray(data)
     return sum;
 }
 
-function drawTable(tableData, sparklineDiameter, isSatisfaction)
+function drawTable(tableData, sparklineDiameter)
 {
     $("#zoneDetails").show();
 
@@ -179,7 +168,6 @@ function drawTable(tableData, sparklineDiameter, isSatisfaction)
         var style = index % 2 == 1 ? "odd" : "even";
         var transientLookup = item.eqTransLookup;
         var path = item.eqTransLookupPath;
-        var satisfactionNumber = Math.round(item.rowChart.percentlabel);
 
         var heatingpercent = Math.round(item.heatingpercent);
         var coolingpercent = Math.round(item.coolingpercent);
@@ -190,7 +178,6 @@ function drawTable(tableData, sparklineDiameter, isSatisfaction)
         var tableRow =
                 "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" +
                         "<td>" + eqLink + '</td>' +
-                        '<td style="text-align: center;">' + (satisfactionNumber == -1 ? "N/A" : (satisfactionNumber + "%")) + '</td>' +
                         '<td style="text-align: center;">' + (heatingpercent + "%") + '</td>' +
                         '<td style="text-align: center;">' + (coolingpercent + "%") + '</td>' +
                         '<td style="text-align: center;">' + (operationalpercent + "%") + '</td>' +

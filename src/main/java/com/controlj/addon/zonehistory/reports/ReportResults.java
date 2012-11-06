@@ -12,13 +12,11 @@ public class ReportResults<T extends TrendSource>
 {
     private final Map<T, ReportResultsData> data;
     private final Location ancestor;
-    private final ReportType type;
 
-    public ReportResults(Location ancestor, ReportType type)
+    public ReportResults(Location ancestor)
     {
         data = new HashMap<T, ReportResultsData>();
         this.ancestor = ancestor;
-        this.type = type;
     }
 
     public void addData(T source, ReportResultsData resultsData)

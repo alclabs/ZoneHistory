@@ -39,16 +39,15 @@ public class EnvironmentalIndexReport implements Report
             @Override
             public ReportResults execute(@NotNull SystemAccess systemAccess) throws Exception
             {
-                SatisfactionReport report = new SatisfactionReport(startDate, endDate, location, system);
-                report.runReport();
-
                 // this is to get the unoccupied times for use later to only use times that where within occupied times
-                List<DateRange> unoccupiedRanges = report.getUnoccupiedTimes();
-                Map<EquipmentColor, Long> colorMap = report.getColorMap();
-
-                ReportResults<AnalogTrendSource> reportResults = new ReportResults<AnalogTrendSource>(location, ReportType.EnvironmentalIndexReport);
+                ReportResults<AnalogTrendSource> reportResults = new ReportResults<AnalogTrendSource>(location);
                 DateRange dateRange = new DateRange(startDate, endDate);
-                new GeoTreeSourceRetriever(reportResults, dateRange, ZoneHistoryCache.CACHE).collectForAnalogSources();
+                GeoTreeSourceRetriever retriever = new GeoTreeSourceRetriever(reportResults, dateRange, ZoneHistoryCache.CACHE);
+                if (!retriever.hasEISources())
+                    throw new NoEnviroIndexSourcesException("No EI Trends named 'zn_enviro_indx_tn' at the current location.");
+
+                retriever.collectForAnalogSources();
+                long day = 24 * 60 * 60 * 1000;
 
                 for (AnalogTrendSource source : reportResults.getSources())
                 {
@@ -62,19 +61,21 @@ public class EnvironmentalIndexReport implements Report
                         AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                         if (!eqAspect.getDevice().isOutOfService())
                         {
-                            EnvironmentalIndexProcessor processor = processTrendData(source, trendRange, unoccupiedRanges);
+                            EnvironmentalIndexProcessor processor = processTrendData(source, trendRange);
 
                             String displayPath = LocationUtilities.relativeDisplayPath(location, equipmentColorLocation);
                             String transLookupPath = LocationUtilities.createTransientLookupPathString(equipmentColorLocation);
                             String transLookup = equipment.getPersistentLookupString(true);
 
                             if (cachedData == null)
-                                cachedData = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, colorMap,
-                                                                  report.getOperationalTime(), report.getActiveCoolingTime(), report.getActiveHeatingTime());
+                                cachedData = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, Collections.<EquipmentColor, Long>emptyMap(),
+                                                                  0, 0, 0);
                             cachedData.setAvgAreaForEI(processor.getAverageArea());
                             cachedData.setOccupiedTime(processor.getOccupiedTime());
 
-                            ZoneHistoryCache.CACHE.cacheResultsData(source.getLocation().getPersistentLookupString(true), dateRange, cachedData);
+                            // avoid caching today's results
+                            if (dateRange.getEnd().getTime() - dateRange.getStart().getTime() > day)
+                                ZoneHistoryCache.CACHE.cacheResultsData(source.getLocation().getPersistentLookupString(true), dateRange, cachedData);
                         }
                     }
                     catch (Exception e)
@@ -91,9 +92,9 @@ public class EnvironmentalIndexReport implements Report
         });
     }
 
-    private EnvironmentalIndexProcessor processTrendData(AnalogTrendSource source, TrendRange range, List<DateRange> unoccupiedTimes) throws TrendException
+    private EnvironmentalIndexProcessor processTrendData(AnalogTrendSource source, TrendRange range) throws TrendException
     {
         TrendData<TrendAnalogSample> tdata = source.getTrendData(range);
-        return tdata.process(new EnvironmentalIndexProcessor(unoccupiedTimes));
+        return tdata.process(new EnvironmentalIndexProcessor());
     }
 }

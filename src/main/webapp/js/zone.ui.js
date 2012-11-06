@@ -45,25 +45,16 @@ $(function()
             }
     );
 
-    $("#reportCombo").simpleCombo().change(
-            function()
-            {
-                runReport();
-            }
-    );
-
-
-
     $("#equipmentLocation").click(function()
     {
         clearTable();
-        drawTable(sortByName(tableData), 30, $( "#reportCombo" ).val() === "satisfaction");
+        drawTable(sortByName(tableData), 30, true);
     });
 
     $("#satisfaction").click(function()
     {
         clearTable();
-        drawTable(sortBySatisfaction(tableData), 30, $( "#reportCombo" ).val() === "satisfaction");
+        drawTable(sortBySatisfaction(tableData), 30, true);
     });
 
     $("#satisfaction_content").bind( "tabsshow", function(event, ui) {
@@ -144,6 +135,7 @@ function sortByName(data)
     return data;
 }
 
+// feature to replace sorting
 function sortByAttribute(data, propertyName)
 {
     if (reverse)
@@ -165,6 +157,11 @@ function sortByAttribute(data, propertyName)
     return data;
 }
 
+//
+//
+// deprecated
+//
+//
 function sortBySatisfaction(data)
 {
     if (reverse)

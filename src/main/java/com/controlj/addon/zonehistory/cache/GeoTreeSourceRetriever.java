@@ -41,6 +41,11 @@ public class GeoTreeSourceRetriever
         }
     }
 
+    public boolean hasEISources()
+    {
+        return reportResults.getAncestor().has(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
+    }
+
     public void collectForAnalogSources()
     {
         collect(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));

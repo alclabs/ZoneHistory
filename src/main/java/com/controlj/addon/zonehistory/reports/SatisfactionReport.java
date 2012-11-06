@@ -49,10 +49,11 @@ public class SatisfactionReport implements Report
 //                StopWatch timer = new StopWatch();
 //                timer.start();
                 DateRange range = new DateRange(startDate, endDate);
-                ReportResults<EquipmentColorTrendSource> reportResults = new ReportResults<EquipmentColorTrendSource>(location, ReportType.SatisfactionReport);
+                ReportResults<EquipmentColorTrendSource> reportResults = new ReportResults<EquipmentColorTrendSource>(location);
 
 //              Pass in report results obj so we can check both the cache and the tree itself and only run the report on the sources which have no cached results
-                new GeoTreeSourceRetriever(reportResults, range, ZoneHistoryCache.CACHE).collectForColorSources();
+                GeoTreeSourceRetriever retriever = new GeoTreeSourceRetriever(reportResults, range, ZoneHistoryCache.CACHE);
+                retriever.collectForColorSources();
 
                 for (EquipmentColorTrendSource source : reportResults.getSources())
                 {
@@ -79,9 +80,9 @@ public class SatisfactionReport implements Report
 
                             String displayPath = LocationUtilities.relativeDisplayPath(location, equipmentColorLocation);
                             String transLookupPath = LocationUtilities.createTransientLookupPathString(equipmentColorLocation);
-                            String transLookup = equipment.getPersistentLookupString(true);
+                            String persistentLookupString = equipment.getPersistentLookupString(true);
 
-                            cachedResults = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, processor.getColorMap(),
+                            cachedResults = new ReportResultsData(processor.getTotalTime(), persistentLookupString, transLookupPath, displayPath, processor.getColorMap(),
                                                                   operationalTime, coolingTime, heatingTime);
 
                             // check unoccupiedTimes
@@ -90,7 +91,7 @@ public class SatisfactionReport implements Report
                             // avoid caching today's results
                             long day = 24 * 60 * 60 * 1000;
                             if (range.getEnd().getTime() - range.getStart().getTime() > day)
-                                ZoneHistoryCache.CACHE.cacheResultsData(transLookup, range, cachedResults);
+                                ZoneHistoryCache.CACHE.cacheResultsData(persistentLookupString, range, cachedResults);
                         }
                     }
                     catch (Exception e)

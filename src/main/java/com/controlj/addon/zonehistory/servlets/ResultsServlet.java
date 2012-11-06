@@ -1,11 +1,10 @@
 package com.controlj.addon.zonehistory.servlets;
 
-import com.controlj.addon.zonehistory.reports.NoEnviroIndexSourcesException;
-import com.controlj.addon.zonehistory.reports.Report;
-import com.controlj.addon.zonehistory.reports.ReportFactory;
-import com.controlj.addon.zonehistory.reports.ReportResults;
+import com.controlj.addon.zonehistory.charts.SatisfactionPieBuilder;
+import com.controlj.addon.zonehistory.reports.*;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
+import com.controlj.green.addonsupport.access.aspect.TrendSource;
 import com.controlj.green.addonsupport.web.WebContext;
 import com.controlj.green.addonsupport.web.WebContextFactory;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +26,6 @@ public class ResultsServlet extends HttpServlet
         final String loc = request.getParameter("location");
         final WebContext webContext = extractWebContext(request); // this will be null if NOT from an ViewBuilder include
         String daysString = request.getParameter("prevdays");
-        final String action = request.getParameter("action");
         final Date startDate = determineStartDate(daysString);
         final Date endDate = determineEndDate(daysString);
         final HttpServletResponse finalResponse = response;
@@ -47,18 +45,42 @@ public class ResultsServlet extends HttpServlet
                     else
                         location = geoTree.resolve(loc);
 
-                    Report report = new ReportFactory().createReport(action, startDate, endDate, location, systemConnection);
-                    ReportResults reportResults = report.runReport();
+                    SatisfactionReport satisfactionReport = new SatisfactionReport(startDate, endDate, location, systemConnection);
+                    ReportResults satisfactionResults = satisfactionReport.runReport();
 
-                    if (reportResults.getSources().isEmpty())
-                        throw new NoEnviroIndexSourcesException("No EI trends found for this location");
+                    EnvironmentalIndexReport environmentalIndexReport = new EnvironmentalIndexReport(startDate, endDate, location, systemConnection);
+                    ReportResults environmentalIndexReportResults = environmentalIndexReport.runReport();
+
+                    // the results need to be combined to incorporate the EI results with the color results
+
+                    ReportResults combinedResult = new ReportResults(location);
+                    if (environmentalIndexReportResults.getSources().size() == 0) // there were no ei trends - use the other trends
+                        combinedResult = satisfactionResults;
+                    else
+                    {
+                        for (Object source : satisfactionResults.getSources())
+                        {
+                            ReportResultsData data = satisfactionResults.getDataFromSource((TrendSource) source);
+                            String lus = data.getTransLookupString();
+
+                            for (Object source2 : environmentalIndexReportResults.getSources())
+                            {
+                                ReportResultsData data2 = environmentalIndexReportResults.getDataFromSource((TrendSource) source2);
+                                if (lus.equals(data2.getTransLookupString()))
+                                    data.setAvgAreaForEI(data2.getAvgAreaForEI());
+                            }
+
+                            combinedResult.addData((TrendSource)source, data);
+                        }
+
+                    }
 
                     JSONObject results = new JSONObject();
-                    results.put("mainChart", new ReportFactory().createPieChartJSONBuilder(report).buildMainPieChart(reportResults));
+                    results.put("mainChart", new SatisfactionPieBuilder().buildMainPieChart(combinedResult));
 
                     // if there is more than 1 eq, create table with their respective charts
                     if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
-                        results.put("table", new ReportFactory().createPieChartJSONBuilder(report).buildAreaDetailsTable(reportResults));
+                        results.put("table", new SatisfactionPieBuilder().buildAreaDetailsTable(combinedResult));
 
                     results.write(finalResponse.getWriter());
                 }
@@ -70,7 +92,7 @@ public class ResultsServlet extends HttpServlet
 
             String str = e.getCause().getMessage();
             if (e.getCause() instanceof NoEnviroIndexSourcesException)
-                str = "Error!: " + str.substring(str.lastIndexOf(':')+1) + "\nPick another location that has an environmental index microblock.";
+                str = "Error!: " + str.substring(str.lastIndexOf(':') + 1) + "\nPick another location that has an environmental index microblock.";
 
             response.sendError(500, str);
         }

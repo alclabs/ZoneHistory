@@ -16,18 +16,18 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
     public JSONObject makeSinglePieChart(ReportResultsData reportResultsData) throws JSONException
     {
         Map<EquipmentColor, Long> colorMap = reportResultsData.getData();
-        long totalKnownTime = 0, satisfiedTime = 0, totalTime = 0;
+        long totalTime = 0;
 
         for (EquipmentColor color : colorMap.keySet())
         {
             long colorTime = colorMap.get(color);
             totalTime += colorTime;
 
-            if (color != EquipmentColor.UNKNOWN)
-                totalKnownTime += colorTime;
-
-            if (color == EquipmentColor.UNOCCUPIED || color == EquipmentColor.OPERATIONAL || color == EquipmentColor.SPECKLED_GREEN || color == EquipmentColor.OCCUPIED)
-                satisfiedTime += colorTime;
+//            if (color != EquipmentColor.UNKNOWN)
+//                totalKnownTime += colorTime;
+//
+//            if (color == EquipmentColor.UNOCCUPIED || color == EquipmentColor.OPERATIONAL || color == EquipmentColor.SPECKLED_GREEN || color == EquipmentColor.OCCUPIED)
+//                satisfiedTime += colorTime;
         }
 
         // compute percentages per slice - make the pie itself
@@ -36,25 +36,25 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
         {
             String colorString = color.name();
             if (color == EquipmentColor.OPERATIONAL)
-                colorString = "Ideal";
+                colorString = "Ideal";  // this is actually a state of conditions being ideal (comfortable) whereas the concept of being operational is actually a state of having no errors.
 
             jsonPieArray.put(super.singleSliceObject(colorString, getActualColor(color), getPercentage(colorMap.get(color), totalTime)));
         }
 
         JSONObject object = new JSONObject();
         object.put("colors", jsonPieArray);
-        object.put("percentlabel", getSatisfaction(totalKnownTime, satisfiedTime));
+//        object.put("percentlabel", getSatisfaction(totalKnownTime, satisfiedTime));
 
         return object;
     }
 
-    private double getSatisfaction(long totalKnownTime, long satisfiedTime)
-    {
-        if (totalKnownTime == 0)
-            return -1;  // marker value for all unknown
-
-        return satisfiedTime * 100.0 / totalKnownTime;
-    }
+//    private double getSatisfaction(long totalKnownTime, long satisfiedTime)
+//    {
+//        if (totalKnownTime == 0)
+//            return -1;  // marker value for all unknown
+//
+//        return satisfiedTime * 100.0 / totalKnownTime;
+//    }
 
     private Color getActualColor(EquipmentColor color)
     {
