@@ -38,17 +38,34 @@ $(function()
                 cache: false
             }
     );
-    $("#dateCombo").simpleCombo().change(
-            function()
-            {
-                runReport();
-            }
-    );
 
-    $("#equipmentLocation").click(function()
-    {
+    $("#dateCombo").simpleCombo().change(function() {
+        runReport();
+    });
+
+    $("#equipmentLocation").click(function() {
         clearTable();
         drawTable(sortByName(tableData), 30);
+    });
+
+    $("#heatingpercent").click(function() {
+        clearTable();
+        drawTable(sortByAttribute(tableData, "heatingpercent" ), 30);
+    });
+
+    $("#coolingpercent").click(function() {
+        clearTable();
+        drawTable(sortByAttribute(tableData, "coolingpercent" ), 30);
+    });
+
+    $("#operationalpercent").click(function() {
+        clearTable();
+        drawTable(sortByAttribute(tableData, "operationalpercent"), 30);
+    });
+
+    $("#averageEI").click(function() {
+        clearTable();
+        drawTable(sortByAttribute(tableData, "averageei"), 30);
     });
 });
 
@@ -80,11 +97,10 @@ function runReport()
    clearTable();
 
     // get active tab to determine which test to run
-   var testToRun = $( "#reportCombo" ).val();
-//   var testToRun = /*"satisfaction";*/ "environmental index";
+   var testToRun = $( "#reportCombo" ).val(); // TODO - remove
    var location = getActiveNodeKey();
    if (location)
-      runColorReport(location, getTimeRange(), false, 500, 375, true, true, testToRun);
+      runColorReport(location, getTimeRange(), false, 500, 375, true, true, testToRun); // TODO - remove reportCombo ref
 }
 
 function sortByName(data)
@@ -127,14 +143,14 @@ function sortByAttribute(data, propertyName)
     {
         data = data.sort(function(a, b)
         {
-            return b["rowChart"][propertyName] - a["rowChart"][propertyName];
+            return b[propertyName] - a[propertyName];
         });
     }
     else
     {
         data = data.sort(function(a, b)
         {
-            return a["rowChart"][propertyName] - b["rowChart"][propertyName];
+            return a[propertyName] - b[propertyName];
         });
     }
 

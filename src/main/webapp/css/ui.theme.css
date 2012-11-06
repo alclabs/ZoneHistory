@@ -35,9 +35,9 @@ ul.dynatree-container {
 
 th {
     font-size: 1em;
-    padding-right: 2px;
-    padding-left: 2px;
-    border-bottom: 2px solid;
+    padding-right: 3px;
+    padding-left: 3px;
+    border-bottom: 1px solid;
 }
 
 td {
