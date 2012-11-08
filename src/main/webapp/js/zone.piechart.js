@@ -77,6 +77,7 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
         params.legendpos = "east";
         params.legendcolor = useWhiteTextForLegend ? '#fff' : '#000';
     }
+
     var pie = chartLocation.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
     var popup;
 
@@ -91,6 +92,7 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
             this.label[0].attr({ r: 7.5 });
             this.label[1].attr({ "font-weight": 800 });
         }
+
         popup = chartLocation.popup(this.sector.middle.x,this.sector.middle.y, this.label[1].attr("text"), 'up');
 
     }, function ()

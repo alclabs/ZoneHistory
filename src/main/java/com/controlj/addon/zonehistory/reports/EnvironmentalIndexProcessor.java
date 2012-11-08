@@ -71,12 +71,16 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
         totalTime += deltaTime;
 
         // calculate average areas: total area / occupiedTime
-        averageArea = area / occupiedTime;
+        if (occupiedTime == 0)
+            averageArea = 0.0;
+        else
+            averageArea = area / occupiedTime;
     }
 
     @Override
     public void processHole(@NotNull Date start, @NotNull Date end)
     {
+
         lastTransitionTime = end.getTime();
         totalTime += end.getTime() - start.getTime();
         previousPoint = 0; // last point is at 0 so omit from totals

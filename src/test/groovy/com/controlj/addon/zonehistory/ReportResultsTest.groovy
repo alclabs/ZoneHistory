@@ -3,7 +3,6 @@ package com.controlj.addon.zonehistory
 import com.controlj.addon.zonehistory.charts.SatisfactionPieBuilder
 import com.controlj.addon.zonehistory.reports.ReportResults
 import com.controlj.addon.zonehistory.reports.ReportResultsData
-import com.controlj.addon.zonehistory.reports.ReportType
 import com.controlj.green.addonsupport.access.Location
 import com.controlj.green.addonsupport.access.aspect.TrendSource
 import spock.lang.Specification
@@ -12,7 +11,7 @@ import static com.controlj.green.addonsupport.access.EquipmentColor.*
 class ReportResultsTest<T extends TrendSource> extends Specification
 {
     def pieBuilder() { new SatisfactionPieBuilder() }
-    def reportResults() { new ReportResults(Mock(Location), ReportType.SatisfactionReport) }
+    def reportResults() { new ReportResults(Mock(Location)) }
 
     def "compute aggregated data"()
     {
