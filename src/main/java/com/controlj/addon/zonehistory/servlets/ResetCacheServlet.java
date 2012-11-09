@@ -20,5 +20,7 @@ public class ResetCacheServlet extends HttpServlet {
         ZoneHistoryCache.CACHE.reset();
         PrintWriter writer = resp.getWriter();
         writer.println("<html><body><h1>Cached data has been cleared.</h1></body></html>");
+
+        // TODO: make in to javascipt alert
     }
 }

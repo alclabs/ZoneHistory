@@ -1,12 +1,10 @@
 package com.controlj.addon.zonehistory
 
-import com.controlj.addon.zonehistory.charts.SatisfactionPieBuilder
 import com.controlj.addon.zonehistory.reports.ReportResultsData
 import com.controlj.green.addonsupport.access.EquipmentColor
-import org.json.JSONObject
 import spock.lang.Specification
 
-class SatisfactionTests extends Specification
+class CalculationTests extends Specification
 {
     def makeReportResultsData(long time)
     {
@@ -16,7 +14,7 @@ class SatisfactionTests extends Specification
     def "Given many colors, get the correct total time" ()
     {
         given:
-            ReportResultsData data = makeReportResultsData(300000L)
+            ReportResultsData data = makeReportResultsData(0L)
             data.addData(EquipmentColor.UNOCCUPIED, 50000L)
             data.addData(EquipmentColor.OPERATIONAL, 40000L)
             data.addData(EquipmentColor.MODERATE_COOLING, 10000L)
@@ -26,7 +24,7 @@ class SatisfactionTests extends Specification
             data.addData(EquipmentColor.HEATING_ALARM, 20000L)
             data.addData(EquipmentColor.UNKNOWN, 40000L)
 
-        when: "pie calculates satisfaction"
+        when: "pie calculates total time"
             long totalTime = data.getTotalTime();
         then:
             totalTime == 300000L

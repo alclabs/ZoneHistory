@@ -39,42 +39,52 @@ $(function()
             }
     );
 
-    $("#dateCombo").simpleCombo().change(function() {
+    $("#dateCombo").simpleCombo().change(function()
+    {
         runReport();
     });
 
-    $("#equipmentLocation").click(function() {
+    $("#equipmentLocation").click(function()
+    {
         clearTable();
         drawTable(sortByName(tableData), 30);
     });
 
-    $("#heatingpercent").click(function() {
+    $("#heatingpercent").click(function()
+    {
         clearTable();
-        drawTable(sortByAttribute(tableData, "heatingpercent" ), 30);
+        drawTable(sortByAttribute(tableData, "heatingpercent"), 30);
     });
 
-    $("#coolingpercent").click(function() {
+    $("#coolingpercent").click(function()
+    {
         clearTable();
-        drawTable(sortByAttribute(tableData, "coolingpercent" ), 30);
+        drawTable(sortByAttribute(tableData, "coolingpercent"), 30);
     });
 
-    $("#operationalpercent").click(function() {
+    $("#operationalpercent").click(function()
+    {
         clearTable();
         drawTable(sortByAttribute(tableData, "operationalpercent"), 30);
     });
 
-    $("#averageEI").click(function() {
+    $("#averageEI").click(function()
+    {
         clearTable();
-        drawTable(sortByAttribute(tableData, "averageei"), 30);
+        drawTable(sortByAttribute(tableData, "averageEI"), 30);
     });
 });
 
 // Will be used later to allow links from charts on a graphic to the whole application
-function treeInitialized() {
-    if (location.search) {
+function treeInitialized()
+{
+    if (location.search)
+    {
         var splits = location.split("=", 2);
-        if (splits.length === 2) {
-            if (splits[0] === "loc") {
+        if (splits.length === 2)
+        {
+            if (splits[0] === "loc")
+            {
                 jumpToTreeLocation(splits[1]);
             }
         }
@@ -84,8 +94,10 @@ function treeInitialized() {
 function jumpToTreeLocation(keyPath)
 {
     var dynatree = $('#tree').dynatree('getTree');
-    dynatree.loadKeyPath(keyPath, function(node,status) {
-        if (status == 'ok') {
+    dynatree.loadKeyPath(keyPath, function(node, status)
+    {
+        if (status == 'ok')
+        {
             node.activate();
         }
     });
@@ -93,92 +105,56 @@ function jumpToTreeLocation(keyPath)
 
 function runReport()
 {
-   $("#welcome").css('display','none');
-   clearTable();
+    $("#welcome").css('display', 'none');
+    clearTable();
 
     // get active tab to determine which test to run
-   var testToRun = $( "#reportCombo" ).val(); // TODO - remove
-   var location = getActiveNodeKey();
-   if (location)
-      runColorReport(location, getTimeRange(), false, 500, 375, true, true, testToRun); // TODO - remove reportCombo ref
+    var testToRun = $("#reportCombo").val(); // TODO - remove
+    var location = getActiveNodeKey();
+    if (location)
+        runColorReport(location, getTimeRange(), false, 500, 375, true, true, testToRun); // TODO - remove reportCombo ref
 }
 
 function sortByName(data)
 {
-    if (reverse)
+    data = data.sort(function(a, b)
     {
-        data = data.sort(function(a, b)
+        var eq1, eq2;
+        if (reverse)
         {
-            var eq1 = a["eqDisplayName"];
-            var eq2 = b["eqDisplayName"];
-            if (eq1 < eq2)
-                return -1;
-            if (eq1 > eq2)
-                return 1;
-            return 0;
-        });
-    }
-    else
-    {
-         data = data.sort(function(a, b)
+            eq1 = a["eqDisplayName"];
+            eq2 = b["eqDisplayName"];
+        }
+        else
         {
-            var eq1 = a["eqDisplayName"];
-            var eq2 = b["eqDisplayName"];
-            if (eq1 > eq2)
-                return -1;
-            if (eq1 < eq2)
-                return 1;
-            return 0;
-        });
-    }
+            eq1 = b["eqDisplayName"];
+            eq2 = a["eqDisplayName"];
+        }
+
+        if (eq1 < eq2)
+            return -1;
+        if (eq1 > eq2)
+            return 1;
+        return 0;
+    });
 
     reverse = !reverse;
     return data;
 }
 
-// feature to replace sorting
 function sortByAttribute(data, propertyName)
 {
-    if (reverse)
+    data = data.sort(function(a, b)
     {
-        data = data.sort(function(a, b)
-        {
-            return b[propertyName] - a[propertyName];
-        });
-    }
-    else
-    {
-        data = data.sort(function(a, b)
-        {
-            return a[propertyName] - b[propertyName];
-        });
-    }
+        var var1 = a[propertyName];
+        var var2 = b[propertyName];
 
-    reverse = !reverse;
-    return data;
-}
+        if (reverse)
+            return var1 - var2;
+        else
+            return var2 - var1;
 
-//
-//
-// deprecated
-//
-//
-function sortBySatisfaction(data)
-{
-    if (reverse)
-    {
-        data = data.sort(function(a, b)
-        {
-            return b["rowChart"]["percentlabel"] - a["rowChart"]["percentlabel"];
-        });
-    }
-    else
-    {
-        data = data.sort(function(a, b)
-        {
-            return a["rowChart"]["percentlabel"] - b["rowChart"]["percentlabel"];
-        });
-    }
+    });
 
     reverse = !reverse;
     return data;
@@ -186,10 +162,10 @@ function sortBySatisfaction(data)
 
 function clearTable()
 {
-     var table = document.getElementById("detailsTable");
-     while (table.rows.length > 1)
-         table.deleteRow(table.rows.length - 1);
-     $("#zoneDetails").hide();
+    var table = document.getElementById("detailsTable");
+    while (table.rows.length > 1)
+        table.deleteRow(table.rows.length - 1);
+    $("#zoneDetails").hide();
 }
 
 function getActiveNodeKey()
