@@ -1,7 +1,7 @@
 var mainChartLocation;
 var animationScale = 1.2;
 
-function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showTotal, testToRun)
+function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showTotal)
 {
     if (!node)
     {
@@ -16,7 +16,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 //    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
 
     var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
-    var textColor = isWebContext ? "#FFFFFF" : "#000000";
+    var textColor = "#FFFFFF";//isWebContext ? "#FFFFFF" : "#000000";
     var locationToDraw = "graph";
 
     if (!mainChartLocation)
@@ -25,14 +25,14 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
     mainChartLocation.clear();
     mainChartLocation.text(canvasWidth / 2, canvasHeight / 3, "Loading...").attr({"fill": textColor});
 
-    var obj = { "location":node, "prevdays":prevDays, "action": testToRun};
+    var obj = { "location":node, "prevdays":prevDays};
     $.getJSON("servlets/results", obj,
             function(data)
             {
                 mainChartLocation.clear();
 
                 var mainChartData = data.mainChart;
-                drawChart(mainChartData.colors, showLegend, isWebContext, mainChartLocation, radius);
+                drawChart(mainChartData.colors, showLegend, true, mainChartLocation, radius);
 
                 if (!isWebContext)
                 {

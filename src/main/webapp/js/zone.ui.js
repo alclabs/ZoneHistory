@@ -109,10 +109,9 @@ function runReport()
     clearTable();
 
     // get active tab to determine which test to run
-    var testToRun = $("#reportCombo").val(); // TODO - remove
     var location = getActiveNodeKey();
     if (location)
-        runColorReport(location, getTimeRange(), false, 500, 375, true, true, testToRun); // TODO - remove reportCombo ref
+        runColorReport(location, getTimeRange(), false, 500, 375, true, true); // TODO - remove reportCombo ref
 }
 
 function sortByName(data)
