@@ -22,12 +22,6 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
         {
             long colorTime = colorMap.get(color);
             totalTime += colorTime;
-
-//            if (color != EquipmentColor.UNKNOWN)
-//                totalKnownTime += colorTime;
-//
-//            if (color == EquipmentColor.UNOCCUPIED || color == EquipmentColor.OPERATIONAL || color == EquipmentColor.SPECKLED_GREEN || color == EquipmentColor.OCCUPIED)
-//                satisfiedTime += colorTime;
         }
 
         // compute percentages per slice - make the pie itself
@@ -35,26 +29,32 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
         for (EquipmentColor color : colorMap.keySet())
         {
             String colorString = color.name();
+
+            /*
+             * There are some inconsistencies with the Equipment Color concept and the way a user would interpret the titles.
+             * EqColor.Operational implies that conditions are ideal or within the heatin/cooling conditions where as operational
+             * may mean Operational as in without error (but that includes heating, cooling, and ideal conditions).
+             *
+             * Speckled Green - it really means that the outside is cool enough to simply open the
+             * vents to the outside air to assist with cooling the site/area/source/etc.
+             *
+             * Eq.Coral means essentially control program error and saying "coral" would make no sense to a user
+             */
             if (color == EquipmentColor.OPERATIONAL)
-                colorString = "Ideal";  // this is actually a state of conditions being ideal (comfortable) whereas the concept of being operational is actually a state of having no errors.
+                colorString = "Ideal";
+            else if (color == EquipmentColor.CORAL)
+                colorString = "Ctrl Prgm Error";
+            else if (color == EquipmentColor.SPECKLED_GREEN)
+                colorString = "Free Cooling";
 
             jsonPieArray.put(super.singleSliceObject(colorString, getActualColor(color), getPercentage(colorMap.get(color), totalTime)));
         }
 
         JSONObject object = new JSONObject();
         object.put("colors", jsonPieArray);
-//        object.put("percentlabel", getSatisfaction(totalKnownTime, satisfiedTime));
 
         return object;
     }
-
-//    private double getSatisfaction(long totalKnownTime, long satisfiedTime)
-//    {
-//        if (totalKnownTime == 0)
-//            return -1;  // marker value for all unknown
-//
-//        return satisfiedTime * 100.0 / totalKnownTime;
-//    }
 
     private Color getActualColor(EquipmentColor color)
     {

@@ -10,7 +10,7 @@ import java.util.Date;
 public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
 {
     private long totalTime, lastTransitionTime, unoccupiedTime, occupiedTime;
-    private double previousPoint, area, averageArea;
+    private double previousPoint, area, averageEI;
 
     public EnvironmentalIndexProcessor()
     {
@@ -30,9 +30,14 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
         return totalTime - unoccupiedTime;
     }
 
-    public double getAverageArea()
+    public double getArea()
     {
-        return averageArea;
+        return area;
+    }
+
+    public double getAverageEI()
+    {
+        return averageEI;
     }
 
     @Override
@@ -72,9 +77,9 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
 
         // calculate average areas: total area / occupiedTime
         if (occupiedTime == 0)
-            averageArea = 0.0;
+            averageEI = 0.0;
         else
-            averageArea = area / occupiedTime;
+            averageEI = area / occupiedTime;
     }
 
     @Override

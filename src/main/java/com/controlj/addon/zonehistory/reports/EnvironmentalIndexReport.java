@@ -71,8 +71,9 @@ public class EnvironmentalIndexReport implements Report
                             if (cachedData == null)
                                 cachedData = new ReportResultsData(processor.getTotalTime(), transLookup, transLookupPath, displayPath, Collections.<EquipmentColor, Long>emptyMap(),
                                                                   0, 0, 0);
-                            cachedData.setAvgAreaForEI(processor.getAverageArea());
+                            cachedData.setAvgAreaForEI(processor.getAverageEI());
                             cachedData.setOccupiedTime(processor.getOccupiedTime());
+                            cachedData.setArea(processor.getArea());
 
                             // avoid caching today's results
                             if (dateRange.getEnd().getTime() - dateRange.getStart().getTime() > day)

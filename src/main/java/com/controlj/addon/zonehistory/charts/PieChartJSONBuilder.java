@@ -21,6 +21,35 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
         return makeSinglePieChart(combineData);
     }
 
+    public JSONObject buildTotalsForGraphicsPage(ReportResults reportResults) throws Exception
+    {
+        JSONObject tableData = new JSONObject();
+        Collection<T> sources = reportResults.getSources();
+
+        long operationalTime = 0, coolingTime = 0, heatingTime = 0, totalTime = 0;
+        double areaForEI = 0;
+
+        for (T source : sources)
+        {
+            ReportResultsData data = reportResults.getDataFromSource(source);
+
+            coolingTime += data.getActiveCoolingTime();
+            heatingTime += data.getActiveHeatingTime();
+            operationalTime += data.getOperationalTime();
+            areaForEI += data.getRawAreaForEICalculations();
+            totalTime += data.getTotalTime();
+        }
+
+        tableData.put("operationalvalue", operationalTime);
+        tableData.put("heatingvalue", heatingTime);
+        tableData.put("coolingvalue", coolingTime);
+        tableData.put("eivalue", areaForEI);
+        tableData.put("totalTime", totalTime);
+
+        return tableData;
+    }
+
+
     public JSONArray buildAreaDetailsTable(ReportResults reportResults) throws Exception
     {
         JSONArray tableData = new JSONArray();
@@ -33,11 +62,12 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
             tableRow.put("eqDisplayName",      data.getDisplayPath());
             tableRow.put("eqTransLookup",      data.getTransLookupString());
             tableRow.put("eqTransLookupPath",  data.getTransLookupPath());
-            tableRow.put("operationalpercent", 100 * data.getOperationalTime()   / data.getTotalTime());
-            tableRow.put("coolingpercent",     100 * data.getActiveCoolingTime() / data.getTotalTime());
-            tableRow.put("heatingpercent",     100 * data.getActiveHeatingTime() / data.getTotalTime());
+            tableRow.put("operationalvalue",   data.getOperationalTime());
+            tableRow.put("coolingvalue",       data.getActiveCoolingTime());
+            tableRow.put("heatingvalue",       data.getActiveHeatingTime());
             tableRow.put("rowChart",           makeSinglePieChart(data)); // generate a pie per source data
-            tableRow.put("averageEI",          data.getAvgAreaForEI());
+            tableRow.put("eivalue",            data.getAvgAreaForEI());
+            tableRow.put("totalTime",          data.getTotalTime());
 
             tableData.put(tableRow);
         }

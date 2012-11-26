@@ -33,6 +33,7 @@
     <link rel='stylesheet' type='text/css' href='skin/jquery.svg.css'/>
     <link rel='stylesheet' type='text/css' href="css/ui.theme.css"/>
 
+
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
     <script type="text/javascript" src="js/jquery.dynatree.min.js"></script>
@@ -41,8 +42,11 @@
     <script type="text/javascript" src="js/g.pie-min.js"></script>
     <script type="text/javascript" src="js/jquery.sparkline.min.js"></script>
     <script type="text/javascript" src="js/jquery.simpleCombo.js"></script>
-    <script type="text/javascript" src="js/zone.piechart.js"></script>
+    <script type="text/javascript" src="js/dataretriever.js"></script>
+    <script type="text/javascript" src="js/piechart.js"></script>
+    <script type="text/javascript" src="js/zh_table.js"></script>
     <script type="text/javascript" src="js/zone.ui.js"></script>
+
 
 </head>
 
@@ -76,10 +80,9 @@
 <!--right-hand content -->
 <div id="rhs">
     <div id="satisfaction_content">
-        <div id="graph" class="graph">
-        </div>
-        <div id="zoneDetails" style="display: none;">
-            <table id="detailsTable" cellpadding="0" cellspacing="0">
+        <div id="graph" class="graph"></div>
+        <!--<div id="zoneDetails" style="display: none;">-->
+            <table id="detailsTable" cellpadding="0" cellspacing="0" style="display: none;">
                 <thead>
                 <tr>
                     <th id="equipmentLocation">Equipment Location</th>
@@ -93,7 +96,7 @@
                 <tbody>
                 </tbody>
             </table>
-        </div>
+        <!--</div>-->
     </div>
 </div>
 </body>

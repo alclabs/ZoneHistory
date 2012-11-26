@@ -1,9 +1,9 @@
-var mainChartLocation;
-var animationScale = 1.2;
+//var mainChartLocation;
+//var animationScale = 1.2;
 
-function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showTotal)
-{
-    if (!node)
+function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight, showLegend, showCooling, showHeating, showOperational, showEI)
+{ }
+    /*if (!node)
     {
         alert("Please select a node.");
         return;
@@ -15,7 +15,7 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
 // change to show table for areas
 //    showTotal = showTotal && checkCanvasDimensionsForTotal(canvasWidth, canvasHeight);
 
-    var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend, showTotal);
+    var radius = determineChartRadius(canvasWidth, canvasHeight, showLegend);
     var textColor = "#FFFFFF";//isWebContext ? "#FFFFFF" : "#000000";
     var locationToDraw = "graph";
 
@@ -34,18 +34,21 @@ function runColorReport(node, prevDays, isWebContext, canvasWidth, canvasHeight,
                 var mainChartData = data.mainChart;
                 drawChart(mainChartData.colors, showLegend, true, mainChartLocation, radius);
 
-                if (!isWebContext)
+                var tableChartData = data.table;
+
+                if (isWebContext)
+                    drawGrafxPageTable(tableChartData, showCooling, showHeating, showOperational, showEI);
+                else
                 {
-                    var tableChartData = data.table;
                     if (tableChartData)
                     {
-                        // sort by percentage - low to high                       2
-                        tableData = tableChartData.sort(function(a, b)
+                        // sort by percentage - low to high
+                        tableChartData = tableChartData.sort(function(a, b)
                         {
-                            return a.operationalpercent - b.operationalpercent;
+                            return a.operationalvalue - b.operationalvalue;
                         });
                         clearTable();
-                        drawTable(tableData, 30);
+                        drawTable(tableChartData, 30, showCooling, showHeating, showOperational, showEI);
                     }
                 }
             }).error(function (a, textStatus, error)
@@ -78,7 +81,8 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
         params.legendcolor = useWhiteTextForLegend ? '#fff' : '#000';
     }
 
-    var pie = chartLocation.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
+//    var pie = chartLocation.piechart(getCoords(radius, animationScale), getCoords(radius, animationScale), radius, piePercentages, params);
+    var pie = chartLocation.piechart(300, 300, 75, piePercentages, params);
     var popup;
 
     pie.hover(function ()
@@ -93,8 +97,8 @@ function drawChart(data, drawLegend, useWhiteTextForLegend, chartLocation, radiu
             this.label[1].attr({ "font-weight": 800 });
         }
 
-        popup = chartLocation.popup(this.sector.middle.x,this.sector.middle.y, this.label[1].attr("text"), 'up');
-
+        var popupText = makePopupText(this.value.valueOf(), pieLabels[this.value.order]);
+        popup = chartLocation.popup(this.sector.middle.x, this.sector.middle.y, popupText, 'up');
     }, function ()
     {
         this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
@@ -151,6 +155,14 @@ function combineDataBelowCutoff(data, cutoff, piePercentages, pieLabels, pieColo
     }
 }
 
+//  function to take the existing text and replace the "%%.%%" with the numbers in the pie chart's percentages
+function makePopupText(number, existingLabel)
+{
+    if (existingLabel.charAt(0) != '%')
+        return existingLabel;
+    return existingLabel.substring(7) + ": " + Math.round(number) + "%";
+}
+
 function sumOfArray(data)
 {
     var sum = 0;
@@ -160,7 +172,7 @@ function sumOfArray(data)
     return sum;
 }
 
-function drawTable(tableData, sparklineDiameter)
+function drawTable(tableData, sparklineDiameter, showCooling, showHeating, showOperational, showEI)
 {
     $("#zoneDetails").show();
 
@@ -173,20 +185,23 @@ function drawTable(tableData, sparklineDiameter)
         var transientLookup = item.eqTransLookup;
         var path = item.eqTransLookupPath;
 
-        var heatingpercent = Math.round(item.heatingpercent);
-        var coolingpercent = Math.round(item.coolingpercent);
-        var operationalpercent = Math.round(item.operationalpercent);
-        var averageEI = Math.round(item.averageEI);
+        var heatingvalue = Math.round(item.heatingvalue);
+        var coolingvalue = Math.round(item.coolingvalue);
+        var operationalvalue = Math.round(item.operationalvalue);
+        var eivalue = Math.round(item.eivalue);
 
+        var tableRow = "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" + "<td>" + eqLink + '</td>';
 
-        var tableRow =
-                "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" +
-                        "<td>" + eqLink + '</td>' +
-                        '<td style="text-align: center;">' + (heatingpercent + "%") + '</td>' +
-                        '<td style="text-align: center;">' + (coolingpercent + "%") + '</td>' +
-                        '<td style="text-align: center;">' + (operationalpercent + "%") + '</td>' +
-                        '<td style="text-align: center;">' + (averageEI == -1 ? "N/A" : (averageEI + "%")) + '</td>' +
-                        '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
+        if (showHeating === true)
+            tableRow += '<td style="text-align: center;">' + (heatingvalue + "%") + '</td>';
+        if (showCooling === true)
+            tableRow += '<td style="text-align: center;">' + (coolingvalue + "%") + '</td>';
+        if (showOperational === true)
+            tableRow += '<td style="text-align: center;">' + (operationalvalue + "%") + '</td>';
+        if (showEI === true)
+            tableRow += '<td style="text-align: center;">' + (eivalue == -1 ? "N/A" : (eivalue + "%")) + '</td>';
+
+        tableRow += '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
 
         $("#detailsTable tbody").append(tableRow);
@@ -257,4 +272,4 @@ function readablizeString(str)
     }
 
     return result;
-}
+}       */

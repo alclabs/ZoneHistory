@@ -5,8 +5,6 @@ import com.controlj.addon.zonehistory.reports.*;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.access.aspect.TrendSource;
-import com.controlj.green.addonsupport.web.WebContext;
-import com.controlj.green.addonsupport.web.WebContextFactory;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -24,8 +22,8 @@ public class ResultsServlet extends HttpServlet
     {
         response.setContentType("application/json");
         final String loc = request.getParameter("location");
-        final WebContext webContext = extractWebContext(request); // this will be null if NOT from an ViewBuilder include
-        String daysString = request.getParameter("prevdays");
+        final Boolean isFromWeb = request.getParameter("isFromGfxPge").contains("true");
+        final String daysString = request.getParameter("prevdays");
         final Date startDate = determineStartDate(daysString);
         final Date endDate = determineEndDate(daysString);
         final HttpServletResponse finalResponse = response;
@@ -38,12 +36,8 @@ public class ResultsServlet extends HttpServlet
                 @Override
                 public void execute(@NotNull SystemAccess systemAccess) throws Exception
                 {
-                    Location location;
                     Tree geoTree = systemAccess.getTree(SystemTree.Geographic);
-                    if (webContext != null)
-                        location = webContext.getLinkedFromLocation(geoTree);
-                    else
-                        location = geoTree.resolve(loc);
+                    Location location = geoTree.resolve(loc);
 
                     SatisfactionReport satisfactionReport = new SatisfactionReport(startDate, endDate, location, systemConnection);
                     ReportResults satisfactionResults = satisfactionReport.runReport();
@@ -51,8 +45,7 @@ public class ResultsServlet extends HttpServlet
                     EnvironmentalIndexReport environmentalIndexReport = new EnvironmentalIndexReport(startDate, endDate, location, systemConnection);
                     ReportResults environmentalIndexReportResults = environmentalIndexReport.runReport();
 
-                    // the results need to be combined to incorporate the EI results with the color results
-
+                    // The report results need to be combined to incorporate both EI results and color trend results
                     ReportResults combinedResult = new ReportResults(location);
                     if (environmentalIndexReportResults.getSources().size() == 0) // there were no ei trends - use the other trends
                         combinedResult = satisfactionResults;
@@ -67,10 +60,14 @@ public class ResultsServlet extends HttpServlet
                             {
                                 ReportResultsData data2 = environmentalIndexReportResults.getDataFromSource((TrendSource) source2);
                                 if (lus.equals(data2.getTransLookupString()))
+                                {
                                     data.setAvgAreaForEI(data2.getAvgAreaForEI());
+                                    data.setArea(data2.getRawAreaForEICalculations());
+                                    data.setOccupiedTime(data2.getOccupiedTime());
+                                }
                             }
 
-                            combinedResult.addData((TrendSource)source, data);
+                            combinedResult.addData((TrendSource) source, data);
                         }
 
                     }
@@ -78,8 +75,9 @@ public class ResultsServlet extends HttpServlet
                     JSONObject results = new JSONObject();
                     results.put("mainChart", new SatisfactionPieBuilder().buildMainPieChart(combinedResult));
 
-                    // if there is more than 1 eq, create table with their respective charts
-                    if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
+                    if (isFromWeb)
+                        results.put("table", new SatisfactionPieBuilder().buildTotalsForGraphicsPage(combinedResult));
+                    else //if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
                         results.put("table", new SatisfactionPieBuilder().buildAreaDetailsTable(combinedResult));
 
                     results.write(finalResponse.getWriter());
@@ -100,18 +98,9 @@ public class ResultsServlet extends HttpServlet
         finalResponse.flushBuffer();
     }
 
-    private WebContext extractWebContext(HttpServletRequest request)
-    {
-        if (WebContextFactory.hasLinkedWebContext(request))
-            return WebContextFactory.getLinkedWebContext(request);
-        else
-            return null;
-    }
-
     private Date determineStartDate(String daysString)
     {
         int numberOfDays = getNumberOfDays(daysString);
-
         return getMidnight(numberOfDays);
     }
 

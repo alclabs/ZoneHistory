@@ -13,7 +13,7 @@ public class ReportResultsData<T>
     private final long time; // occupied time? - check to make sure it is
     private long operationalTime, coolingTime, heatingTime, occupiedTime;
     private final String transientLookup, transientLookupPath, displayPath;
-    private double avgAreaForEI;
+    private double avgAreaForEI, area;
 
     public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath)
     {
@@ -27,6 +27,7 @@ public class ReportResultsData<T>
         this.heatingTime = 0;
         this.occupiedTime = 0;
         this.avgAreaForEI = -1;
+        this.area = -1;
 
         this.data = new HashMap<T, Long>();
     }
@@ -43,6 +44,11 @@ public class ReportResultsData<T>
         this.operationalTime = operationalTime;
         this.coolingTime = activeCoolingTime;
         this.heatingTime = activeHeatingTime;
+    }
+
+    public void setArea(double area)
+    {
+        this.area = area;
     }
 
     public long getOccupiedTime()
@@ -125,5 +131,10 @@ public class ReportResultsData<T>
     public long getOperationalTime()
     {
         return operationalTime;
+    }
+
+    public double getRawAreaForEICalculations()
+    {
+        return area;
     }
 }

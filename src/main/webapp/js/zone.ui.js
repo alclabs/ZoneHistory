@@ -1,5 +1,5 @@
-var tableData, reverse = true;
-
+//var tableData, reverse = true;
+var table;
 $(function()
 {
     // Attach the dynatree widget to an existing <div id="tree"> element
@@ -46,33 +46,34 @@ $(function()
 
     $("#equipmentLocation").click(function()
     {
-        clearTable();
-        drawTable(sortByName(tableData), 30);
+        table.clearTable();
+        table.sortByName();
     });
 
     $("#heatingpercent").click(function()
     {
-        clearTable();
-        drawTable(sortByAttribute(tableData, "heatingpercent"), 30);
+        table.clearTable();
+        table.sortByAttribute("heatingpercent");
     });
 
     $("#coolingpercent").click(function()
     {
-        clearTable();
-        drawTable(sortByAttribute(tableData, "coolingpercent"), 30);
+        table.clearTable();
+        table.sortByAttribute("coolingpercent");
     });
 
     $("#operationalpercent").click(function()
     {
-        clearTable();
-        drawTable(sortByAttribute(tableData, "operationalpercent"), 30);
+        table.clearTable();
+        table.sortByAttribute("operationalpercent");
     });
 
     $("#averageEI").click(function()
     {
-        clearTable();
-        drawTable(sortByAttribute(tableData, "averageEI"), 30);
+        table.clearTable();
+        table.sortByAttribute("eivalue");
     });
+
 });
 
 // Will be used later to allow links from charts on a graphic to the whole application
@@ -106,65 +107,20 @@ function jumpToTreeLocation(keyPath)
 function runReport()
 {
     $("#welcome").css('display', 'none');
-    clearTable();
 
     // get active tab to determine which test to run
     var location = getActiveNodeKey();
     if (location)
-        runColorReport(location, getTimeRange(), false, 500, 375, true, true); // TODO - remove reportCombo ref
-}
-
-function sortByName(data)
-{
-    data = data.sort(function(a, b)
     {
-        var eq1, eq2;
-        if (reverse)
-        {
-            eq1 = a["eqDisplayName"];
-            eq2 = b["eqDisplayName"];
-        }
-        else
-        {
-            eq1 = b["eqDisplayName"];
-            eq2 = a["eqDisplayName"];
-        }
+        if (!mainChartPaperLocation)
+            mainChartPaperLocation = new Raphael("graph", 500, 500);
 
-        if (eq1 < eq2)
-            return -1;
-        if (eq1 > eq2)
-            return 1;
-        return 0;
-    });
+        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, 140, 150, 150);
+        table = new ZoneHistoryTable("detailsTable", true, true, true, true, true, 30);
 
-    reverse = !reverse;
-    return data;
-}
-
-function sortByAttribute(data, propertyName)
-{
-    data = data.sort(function(a, b)
-    {
-        var var1 = a[propertyName];
-        var var2 = b[propertyName];
-
-        if (reverse)
-            return var1 - var2;
-        else
-            return var2 - var1;
-
-    });
-
-    reverse = !reverse;
-    return data;
-}
-
-function clearTable()
-{
-    var table = document.getElementById("detailsTable");
-    while (table.rows.length > 1)
-        table.deleteRow(table.rows.length - 1);
-    $("#zoneDetails").hide();
+        var report = new DataRetriever(pieChart, table, false);
+        report.runReportForData(location, getTimeRange(), true);
+    }
 }
 
 function getActiveNodeKey()
