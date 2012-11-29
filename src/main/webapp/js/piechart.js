@@ -31,7 +31,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         if (tinySlices.length == 1)
             bigSlices.push(tinySlices[0]);
         else if (sumOfTiny > 0 && tinySlices.length > 1)
-            bigSlices.push({"rgb-red":0, "rgb-green": 0, "rgb-blue": 0, "percent": sumOfTiny, "color": "Others (<1%)"});
+            bigSlices.push({"rgb-red":0, "rgb-green": 0, "rgb-blue": 0, "percent": sumOfTiny, "color": "Others (<1%)  "});
 
 //    sort the bigSlices so that the values are all sorted with the correct colors and labels associated with the percentages large to small
         bigSlices.sort(function(a, b)
@@ -45,7 +45,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
             var onlyItem = bigSlices[index2];
             piePercentages.push(onlyItem.percent);
             pieColors.push("rgb(" + onlyItem["rgb-red"] + ", " + onlyItem["rgb-green"] + ", " + onlyItem["rgb-blue"] + ")");
-            pieLabels.push("%%.%%: " + readablizeString(onlyItem.color.toString().replace("_", " ").toLocaleLowerCase()) + "");
+            pieLabels.push("%%.%%: " + readablizeString(onlyItem.color.toString().replace("_", " ").toLocaleLowerCase()) + "  ");
         }
     }
 
@@ -119,32 +119,33 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         }
 
         var popup;
-        raphaelPaper.piechart(x, y, radius, piePercentages, params).hover(function ()
-        {
-            this.sector.stop();
-            this.sector.animate({ transform: 's1.1 1.1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
+        raphaelPaper.piechart(x, y, radius, piePercentages, params)
+                .hover(function ()
+                {
+                    this.sector.stop();
+                    this.sector.animate({ transform: 's1.1 1.1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
 
-            if (this.label)
-            {
-                this.label[0].stop();
-                this.label[0].attr({ r: 7.5 });
-                this.label[1].attr({ "font-weight": 800 });
-            }
+                    if (this.label)
+                    {
+                        this.label[0].stop();
+                        this.label[0].attr({ r: 7.5 });
+                        this.label[1].attr({ "font-weight": 800 });
+                    }
 
-            var popupText = makePopupText(this.value.valueOf(), pieLabels[this.value.order]);
-            popup = raphaelPaper.popup(this.sector.middle.x, this.sector.middle.y, popupText, 'up');
-        }, function ()
-        {
-            this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
+                    var popupText = makePopupText(this.value.valueOf(), pieLabels[this.value.order]);
+                    popup = raphaelPaper.popup(this.sector.middle.x, this.sector.middle.y, popupText, 'up');
+                }, function ()
+                {
+                    this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
 
-            if (this.label)
-            {
-                this.label[0].animate({ r: 5 }, 500, "bounce");
-                this.label[1].attr({ "font-weight": 400 });
-            }
+                    if (this.label)
+                    {
+                        this.label[0].animate({ r: 5 }, 500, "bounce");
+                        this.label[1].attr({ "font-weight": 400});
+                    }
 
-            popup.hide();
-        });
+                    popup.hide();
+                });
     };
 
     this.clear = function()

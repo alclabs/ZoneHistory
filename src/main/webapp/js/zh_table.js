@@ -1,9 +1,9 @@
-function ZoneHistoryTable(renderTargetElement, isFromGfxPage, showCool, showHeat, showOperation, show_EI, inlinePieDiameter)
+function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHeat, showOperation, show_EI, inlinePieDiameter)
 {
     // private stuff
     var renderTarget = renderTargetElement;
     var reverse = false;
-    var isFromGfxPage = isFromGfxPage;
+    var isFromGfxPage = _isFromGfxPage;
     var showCooling = showCool;
     var showHeating = showHeat;
     var showOperational = showOperation;
@@ -68,23 +68,23 @@ function ZoneHistoryTable(renderTargetElement, isFromGfxPage, showCool, showHeat
 
     function drawGfxPageTable(tableData, showCooling, showHeating, showOperational, showEI)
     {
-        var heatingvalue = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
-        var coolingvalue = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
+        var heatingvalue     = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
+        var coolingvalue     = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
         var operationalvalue = Math.round(100 * tableData.operationalvalue / tableData.totalTime);
-        var eivalue = Math.round(100 * tableData.eivalue / tableData.operationalvalue);
+        var eivalue          = Math.round(tableData.eivalue / tableData.operationalvalue);
 
         document.getElementById(renderTarget).style.display = 'block';
 
-        var tableRow = "<tr class='odd'>";
+        var tableRow = "<tr class='blackRow'>";
 
         if (showHeating === true)
-            tableRow += '<td style="text-align: center;">' + (heatingvalue + "%") + '</td>';
+            tableRow += '<tr class="blackRow"><td>Time Heating:</td><td style="text-align: center;">' + (heatingvalue + "%") + '</td></tr>';
         if (showCooling === true)
-            tableRow += '<td style="text-align: center;">' + (coolingvalue + "%") + '</td>';
+            tableRow += '<tr class="blackRow"><td>Time Cooling:</td><td style="text-align: center;">' + (coolingvalue + "%") + '</td></tr>';
         if (showOperational === true)
-            tableRow += '<td style="text-align: center;">' + (operationalvalue + "%") + '</td>';
+            tableRow += '<tr class="blackRow"><td>Time Operational:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
         if (showEI === true)
-            tableRow += '<td style="text-align: center;">' + (eivalue == -1 ? "N/A" : (eivalue + "%")) + '</td>';
+            tableRow += '<tr class="blackRow"><td>Average EI:</td><td style="text-align: center;">' + (eivalue == -1 ? "N/A" : (eivalue + "%")) + '</td></tr>';
 
         tableRow += '</tr>';
         $('#' + renderTarget + " tbody").append(tableRow);
@@ -148,7 +148,7 @@ function ZoneHistoryTable(renderTargetElement, isFromGfxPage, showCool, showHeat
     this.renderTable = function(tableData)
     {
         localTableData = tableData;
-        if (this.isFromGfxPge)
+        if (isFromGfxPage)
             drawGfxPageTable(localTableData, showCooling, showHeating, showOperational, showEI);
         else
         {
@@ -156,10 +156,13 @@ function ZoneHistoryTable(renderTargetElement, isFromGfxPage, showCool, showHeat
                 return;
 
             // sort by operational percentage - low to high
-            tableData = tableData.sort(function(a, b)
+            if (tableData.length !== undefined)
             {
-                return a.operationalvalue - b.operationalvalue;
-            });
+                tableData = tableData.sort(function(a, b)
+                {
+                    return a.operationalvalue - b.operationalvalue;
+                });
+            }
             drawTable(localTableData);
         }
     };

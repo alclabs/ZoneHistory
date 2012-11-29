@@ -27,7 +27,7 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
         Collection<T> sources = reportResults.getSources();
 
         long operationalTime = 0, coolingTime = 0, heatingTime = 0, totalTime = 0;
-        double areaForEI = 0;
+        double areaForEI = 0, eipercent;
 
         for (T source : sources)
         {

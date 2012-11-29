@@ -81,43 +81,41 @@
 </head>
 <body>
     <div id="graph" class="graph"></div>
-    <%--<div id="zoneDetails" style="display: none;">--%>
         <table id="detailsTable" cellpadding="0" cellspacing="0">
             <thead>
-            <tr>
-                <%--<th id="equipmentLocation">Equipment Location</th>--%>
-                <c:if test="<%=showHeating.contains("true")%>"> <th id="heatingpercent">Time Heating</th>  </c:if>
-                <c:if test="<%=showCooling.contains("true")%>"> <th id="coolingpercent">Time Cooling</th> </c:if>
-                <c:if test="<%=showOperational.contains("true")%>"> <th id="operationalpercent">Time Operational</th> </c:if>
-                <c:if test="<%=showEI.contains("true")%>"> <th id="averageEI">Average EI</th> </c:if>
-                <%--<th>Colors</th>--%>
-            </tr>
+                <%--<c:if test="<%=showHeating.contains("true")%>"> <th id="heatingpercent"></th>  </c:if>--%>
+                <%--<c:if test="<%=showCooling.contains("true")%>"> <th id="coolingpercent"></th> </c:if>--%>
+                <%--<c:if test="<%=showOperational.contains("true")%>"> <th id="operationalpercent"></th> </c:if>--%>
+                <%--<c:if test="<%=showEI.contains("true")%>"> <th id="averageEI"></th> </c:if>--%>
             </thead>
             <tbody>
+            <tr>
+
+            </tr>
             </tbody>
         </table>
-    <%--</div>--%>
 
     <script type="text/javascript" >
         var showLegendTemp = <%=showLegend.contains("true")%>;
         var xcoord = <%=positionX%>;
         var ycoord = <%=positionY%>;
         var radius = <%=pieRadius%>;
+        var diameter = 2 * radius;
+        var showCooling = <%=showCooling.contains("true")%>;
+        var showHeating = <%=showHeating.contains("true")%>;
+        var showOperational = <%=showOperational.contains("true")%>;
+        var showEI = <%=showEI.contains("true")%>;
 
         // initialize raphael paper here to give to zonehistorypiechart
         if (!mainChartPaperLocation)
-            mainChartPaperLocation = new Raphael("graph", 500, 500);
+            mainChartPaperLocation = new Raphael("graph", diameter + (showLegendTemp === true ? 150 : 0), diameter);
 
         // draw pie chart...pass in its object here in order to initialize and such
         var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, xcoord, ycoord, radius);
-        var table = new ZoneHistoryTable("detailsTable", true, true, true, true, true, 30);
+        var table = new ZoneHistoryTable("detailsTable", true, showCooling, showHeating, showOperational, showEI, 30);
 
         var report = new DataRetriever(pieChart, table, true);
-        report.runReportForData('<%=loc%>', '<%=range%>', '<%=showLegend.contains("true")%>');
-        <%--runColorReport('<%=loc%>', '<%=range%>', true,     <%=canvasWidth%>, <%=canvasHeight%>,--%>
-                        <%--<%=showLegend.contains("true")%>,  <%=showCooling.contains("true")%>,--%>
-                        <%--<%=showHeating.contains("true")%>, <%=showOperational.contains("true")%>,--%>
-                        <%--<%=showEI.contains("true")%>);--%>
+        report.runReportForData('<%=loc%>', '<%=range%>', showLegendTemp);
     </script>
 </body>
 </html>

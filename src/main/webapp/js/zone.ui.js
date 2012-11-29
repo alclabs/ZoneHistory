@@ -113,10 +113,10 @@ function runReport()
     if (location)
     {
         if (!mainChartPaperLocation)
-            mainChartPaperLocation = new Raphael("graph", 500, 500);
+            mainChartPaperLocation = new Raphael("graph", 500, 350);
 
         var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, 140, 150, 150);
-        table = new ZoneHistoryTable("detailsTable", true, true, true, true, true, 30);
+        table = new ZoneHistoryTable("detailsTable", false, true, true, true, true, 30);
 
         var report = new DataRetriever(pieChart, table, false);
         report.runReportForData(location, getTimeRange(), true);

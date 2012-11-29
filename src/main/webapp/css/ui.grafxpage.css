@@ -29,9 +29,9 @@ td {
 div.graph {
     float: left;
     padding-right: 10px;
+    width: 100%;
 }
 
-tr.odd {
-    background-color: #696969;
+tr.blackRow {
     color: white;
 }

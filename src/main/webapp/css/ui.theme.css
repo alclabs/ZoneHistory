@@ -21,6 +21,7 @@ html, body {
 #rhs {
     height: auto;
     padding: 5px;
+    padding-left: 10%;
     overflow: auto;
     /*border: 1px;*/
 }

@@ -9,13 +9,12 @@ import java.util.Date;
 
 public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
 {
-    private long totalTime, lastTransitionTime, unoccupiedTime, occupiedTime;
+    private long totalTime, lastTransitionTime, occupiedTime;
     private double previousPoint, area, averageEI;
 
     public EnvironmentalIndexProcessor()
     {
         totalTime = 0;
-        unoccupiedTime = 0;
         occupiedTime = 0;
         previousPoint = 0;
     }
@@ -27,7 +26,7 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
 
     public long getOccupiedTime()
     {
-        return totalTime - unoccupiedTime;
+        return occupiedTime;
     }
 
     public double getArea()
