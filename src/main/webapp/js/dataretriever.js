@@ -14,7 +14,10 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
             alert("Please select a node.");
             return;
         }
-        mainChartPaperLocation.text(10, 50, "Loading...");
+
+        mainChartPaperLocation.clear();
+        zoneHistoryTable.clearTable();
+        mainChartPaperLocation.text((mainChartPaperLocation.height / 3), (mainChartPaperLocation.width / 4), "Loading...").attr({fill: "#fff"});
 
         // run report and draw chart/table when done or display an error
         $.getJSON("servlets/results", { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},

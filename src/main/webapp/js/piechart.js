@@ -147,6 +147,8 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
 
                     popup.hide();
                 });
+        mainChartPaperLocation.renderfix();
+
     };
 }
 
