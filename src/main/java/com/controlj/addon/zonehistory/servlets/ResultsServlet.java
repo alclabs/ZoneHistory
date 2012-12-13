@@ -1,9 +1,13 @@
 package com.controlj.addon.zonehistory.servlets;
 
+import com.controlj.addon.zonehistory.cache.GeoTreeSourceRetriever;
 import com.controlj.addon.zonehistory.charts.SatisfactionPieBuilder;
 import com.controlj.addon.zonehistory.reports.*;
+import com.controlj.addon.zonehistory.util.LocationUtilities;
 import com.controlj.addon.zonehistory.util.Logging;
 import com.controlj.green.addonsupport.access.*;
+import com.controlj.green.addonsupport.access.aspect.AnalogTrendSource;
+import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
 import com.controlj.green.addonsupport.access.aspect.TrendSource;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -13,8 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 public class ResultsServlet extends HttpServlet
 {
@@ -25,7 +28,10 @@ public class ResultsServlet extends HttpServlet
         final Boolean isFromWeb = request.getParameter("isFromGfxPge").contains("true");
         final String daysString = request.getParameter("prevdays");
         final Date startDate = determineStartDate(daysString);
+//        final Date startDate = new GregorianCalendar(2012, 9, 19).getTime();
         final Date endDate = determineEndDate(daysString);
+//        final Date endDate = new GregorianCalendar(2012, 9, 20).getTime();
+
         final HttpServletResponse finalResponse = response;
 
         try
@@ -38,39 +44,46 @@ public class ResultsServlet extends HttpServlet
                 {
                     Tree geoTree = systemAccess.getTree(SystemTree.Geographic);
                     Location location = geoTree.resolve(loc);
+                    Location equipmentLoc = location.getType() == LocationType.Equipment ? LocationUtilities.findMyEquipment(location) : location;
+
+                    // start logging times for performance
+                    ReportResults reportResults = new ReportResults(location);
+                    GeoTreeSourceRetriever retriever = new GeoTreeSourceRetriever(reportResults);
+
+                    // split list into Color and Analog Lists
+                    Collection<AnalogTrendSource> analogTrendSources = retriever.collectForAnalogSources();
+                    Collection<EquipmentColorTrendSource> colorTrendSources = retriever.collectForColorSources();
 
                     SatisfactionReport satisfactionReport = new SatisfactionReport(startDate, endDate, location, systemConnection);
-                    ReportResults satisfactionResults = satisfactionReport.runReport();
+                    ReportResults satisfactionResults = satisfactionReport.runReport(colorTrendSources);
 
                     EnvironmentalIndexReport environmentalIndexReport = new EnvironmentalIndexReport(startDate, endDate, location, systemConnection);
-                    ReportResults environmentalIndexReportResults = environmentalIndexReport.runReport();
+                    ReportResults environmentalIndexReportResults = environmentalIndexReport.runReport(analogTrendSources);
 
-                    // The report results need to be combined to incorporate both EI results and color trend results
-                    ReportResults combinedResult = new ReportResults(location);
-                    if (environmentalIndexReportResults.getSources().size() == 0) // there were no ei trends - use the other trends
-                        combinedResult = satisfactionResults;
-                    else
+                    /*
+                    * Combine the color results (for the pie) with the EI results to get both ei and the colors from the pie chart
+                    * */
+                    ReportResults combinedResult = new ReportResults(equipmentLoc);
+                    for (Object source : satisfactionResults.getSources())
                     {
-                        for (Object source : satisfactionResults.getSources())
+                        ReportResultsData data = satisfactionResults.getDataFromSource((TrendSource) source);
+                        String lus = data.getTransLookupString();
+
+                        for (Object source2 : environmentalIndexReportResults.getSources())
                         {
-                            ReportResultsData data = satisfactionResults.getDataFromSource((TrendSource) source);
-                            String lus = data.getTransLookupString();
-
-                            for (Object source2 : environmentalIndexReportResults.getSources())
+                            ReportResultsData data2 = environmentalIndexReportResults.getDataFromSource((TrendSource) source2);
+                            if (lus.equals(data2.getTransLookupString()))
                             {
-                                ReportResultsData data2 = environmentalIndexReportResults.getDataFromSource((TrendSource) source2);
-                                if (lus.equals(data2.getTransLookupString()))
-                                {
-                                    data.setAvgAreaForEI(data2.getAvgAreaForEI());
-                                    data.setArea(data2.getRawAreaForEICalculations());
-                                    data.setOccupiedTime(data2.getOccupiedTime());
-                                }
+                                data.setAvgAreaForEI(data2.getAvgAreaForEI());
+                                data.setArea(data2.getRawAreaForEICalculations());
+                                data.setOccupiedTime(data2.getOccupiedTime());
                             }
-
-                            combinedResult.addData((TrendSource) source, data);
                         }
 
+                        combinedResult.addData((TrendSource) source, data);
                     }
+
+//                    }
 
                     JSONObject results = new JSONObject();
                     results.put("mainChart", new SatisfactionPieBuilder().buildMainPieChart(combinedResult));
@@ -87,12 +100,7 @@ public class ResultsServlet extends HttpServlet
         catch (Exception e)
         {
             e.printStackTrace(Logging.LOGGER);
-
-            String str = e.getCause().getMessage();
-            if (e.getCause() instanceof NoEnviroIndexSourcesException)
-                str = "Error!: " + str.substring(str.lastIndexOf(':') + 1) + "\nPick another location that has an environmental index microblock.";
-
-            response.sendError(500, str);
+            response.sendError(500, e.getCause().getMessage());
         }
 
         finalResponse.flushBuffer();

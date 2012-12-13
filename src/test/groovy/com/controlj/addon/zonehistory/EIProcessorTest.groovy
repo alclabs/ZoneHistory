@@ -108,7 +108,7 @@ class EIProcessorTest extends Specification
             processor.processEnd(end, endBookend)
 
         then: "average ei should be 90 * value of time between changes + 95 + day of change + 0 * day divided by the total operational time"
-            processor.averageEI == 22.5;
+            processor.averageEI == 68.75;
 
         when: "there is data, but no ending bookend"
             processor = new EnvironmentalIndexProcessor()
@@ -117,6 +117,6 @@ class EIProcessorTest extends Specification
             processor.processEnd(end, (TestSample) null)
 
         then: "no ending bookend will not be the same value"
-            processor.averageEI == 45.0;
+            processor.averageEI == 67.5;
     }
  }

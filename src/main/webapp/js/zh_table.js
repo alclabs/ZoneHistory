@@ -147,6 +147,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
 
     this.renderTable = function(tableData)
     {
+        this.clearTable();
         localTableData = tableData;
         if (isFromGfxPage)
             drawGfxPageTable(localTableData, showCooling, showHeating, showOperational, showEI);

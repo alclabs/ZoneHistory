@@ -91,20 +91,20 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
     // public stuff
     this.renderChart = function(data, drawLegend)
     {
-        // sort data coming in by percentage of slice largest to smallest
+        // sort data coming in by percentage of slice largest to smallest - we need to do this
+        // because we need to handle the smallest slices in a special case down below
         data = data.sort(function(a, b)
         {
             return b.percent - a.percent;
         });
 
         // define the three vars for g.raphael's piechart
-
         var piePercentages = [];
         var pieLabels = [];
         var pieColors = [];
 
         // Graphael combines 2 or more slices less than 1.0% into an ambiguous 'Others' category
-        // Instead, we take control and combine them into a single "Values remaining" slice which will be rendered correctly
+        // Instead, we take control and combine them into our own "Others" slice which will be rendered to include the remaining percentage
         combineDataBelowCutoff(data, 1.0, piePercentages, pieLabels, pieColors);
 
         // set up for custom pie colors and whether or not to draw the legend
@@ -119,6 +119,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         }
 
         var popup;
+        raphaelPaper.clear();
         raphaelPaper.piechart(x, y, radius, piePercentages, params)
                 .hover(function ()
                 {
@@ -147,11 +148,6 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
                     popup.hide();
                 });
     };
-
-    this.clear = function()
-    {
-        raphaelPaper.clear();
-    }
 }
 
 

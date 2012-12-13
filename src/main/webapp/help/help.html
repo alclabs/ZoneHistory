@@ -133,28 +133,33 @@
     <table class="params">
         <thead>
         <tr>
-            <th>Name</th>
-            <th>Default Value</th>
-            <th>Meaning</th>
+            <th>Name</th> <th>Default Value</th> <th>Meaning</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>prevdays</td>
-            <td>0</td>
-            <td>Equipment color data is analyzed from midnight of this number of days ago until the current time.
-                Values are capped at 31.
-            </td>
+            <td>prevdays</td> <td>0</td>
+            <td>Equipment color data is analyzed from midnight of this number of days ago until the current time. Values are capped at 31.</td>
         </tr>
         <tr>
-            <td>showlegend</td>
-            <td>false</td>
+            <td>showlegend</td> <td>false</td>
             <td>Specify "true" to show the legend of what each color in the pie chart means.</td>
         </tr>
         <tr>
-            <td>showtotal</td>
-            <td>false</td>
-            <td>Specify "true" to show the total "satisfaction" below the pie chart.</td>
+            <td>showcooling</td> <td>false</td>
+            <td>Specify "true" to show the percentage of time the area or equipment has been spent cooling.</td>
+        </tr>
+        <tr>
+            <td>showheating</td> <td>false</td>
+            <td>Specify "true" to show the percentage of time the area or equipment has been spent heating.</td>
+        </tr>
+        <tr>
+            <td>showoperational</td> <td>false</td>
+            <td>Specify "true" to show the percentage of time the area or equipment has been spent occupied or without error.</td>
+        </tr>
+        <tr>
+            <td>showei</td> <td>false</td>
+            <td>Specify "true" to show the Environmental Index for the area or equipment. Note: The Environmental Index trend source must be named "zn_enviro_indx_tn"</td>
         </tr>
         </tbody>
     </table>

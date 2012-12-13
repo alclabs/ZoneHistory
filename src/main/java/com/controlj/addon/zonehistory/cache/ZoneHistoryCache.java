@@ -42,6 +42,7 @@ public enum ZoneHistoryCache
         synchronized (this)
         {
             trimCache(lus);
+
             Map<DateRange, ReportResultsData> currentZoneHistory = this.zoneHistoryCache.get(lus);
             if (currentZoneHistory == null)
                 currentZoneHistory = new HashMap<DateRange, ReportResultsData>();
@@ -58,7 +59,7 @@ public enum ZoneHistoryCache
         zoneHistoryCache.clear();
     }
 
-    private synchronized void trimCache(String lookup)
+    private void trimCache(String lookup)
     {
 //      get today at midnight
         Date today = getMidnightToday();

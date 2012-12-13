@@ -1,5 +1,6 @@
 //var tableData, reverse = true;
 var table;
+
 $(function()
 {
     // Attach the dynatree widget to an existing <div id="tree"> element
@@ -115,7 +116,7 @@ function runReport()
         if (!mainChartPaperLocation)
             mainChartPaperLocation = new Raphael("graph", 500, 350);
 
-        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, 140, 150, 150);
+        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, 150, 150, 150);
         table = new ZoneHistoryTable("detailsTable", false, true, true, true, true, 30);
 
         var report = new DataRetriever(pieChart, table, false);

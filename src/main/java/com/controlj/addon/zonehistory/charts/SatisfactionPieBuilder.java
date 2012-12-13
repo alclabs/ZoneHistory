@@ -28,18 +28,17 @@ public class SatisfactionPieBuilder extends PieChartJSONBuilder
         JSONArray jsonPieArray = new JSONArray();
         for (EquipmentColor color : colorMap.keySet())
         {
-            String colorString = color.name();
-
             /*
              * There are some inconsistencies with the Equipment Color concept and the way a user would interpret the titles.
-             * EqColor.Operational implies that conditions are ideal or within the heatin/cooling conditions where as operational
+             * EqColor.Operational implies that conditions are ideal or within the heating/cooling conditions where as operational
              * may mean Operational as in without error (but that includes heating, cooling, and ideal conditions).
              *
              * Speckled Green - it really means that the outside is cool enough to simply open the
              * vents to the outside air to assist with cooling the site/area/source/etc.
              *
-             * Eq.Coral means essentially control program error and saying "coral" would make no sense to a user
+             * Coral means essentially control program error and saying "Coral" would make no sense to a user
              */
+            String colorString = color.name();
             if (color == EquipmentColor.OPERATIONAL)
                 colorString = "Ideal";
             else if (color == EquipmentColor.CORAL)

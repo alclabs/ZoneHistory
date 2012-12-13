@@ -6,11 +6,11 @@ body {
     padding: 0;
     margin: 0;
     background-color: black;
+    font-size: 10pt;
 }
 
 
 th {
-    font-size: 1em;
     padding-right: 3px;
     padding-left: 3px;
     border-bottom: 1px solid;
@@ -28,7 +28,6 @@ td {
 
 div.graph {
     float: left;
-    padding-right: 10px;
     width: 100%;
 }
 

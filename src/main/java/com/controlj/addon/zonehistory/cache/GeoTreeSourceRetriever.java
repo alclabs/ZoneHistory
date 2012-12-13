@@ -1,7 +1,6 @@
 package com.controlj.addon.zonehistory.cache;
 
 import com.controlj.addon.zonehistory.reports.ReportResults;
-import com.controlj.addon.zonehistory.reports.ReportResultsData;
 import com.controlj.addon.zonehistory.util.EnabledColorTrendWithSetpointAcceptor;
 import com.controlj.green.addonsupport.access.AspectAcceptor;
 import com.controlj.green.addonsupport.access.aspect.AnalogTrendSource;
@@ -18,41 +17,54 @@ import java.util.Collection;
 public class GeoTreeSourceRetriever
 {
     private final ReportResults reportResults;
-    private final DateRange dateRange;
-    private final ZoneHistoryCache cache;
 
-    public GeoTreeSourceRetriever(ReportResults reportResults, DateRange range, ZoneHistoryCache cache)
+    public GeoTreeSourceRetriever(ReportResults reportResults)
     {
         this.reportResults = reportResults;
-        this.dateRange = range;
-        this.cache = cache;
     }
 
-    private <T extends TrendSource> void collect(Class<T> aspectClass, AspectAcceptor<T> acceptor)
+    public Collection<AnalogTrendSource> collectForAnalogSources()
     {
-//      Searches location for all sources that match the search parameters
-        Collection<T> sources = reportResults.getAncestor().find(aspectClass, acceptor);
+        return collect(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
+    }
 
-//      iterate through collection and check the caching system for any results data with the given DateRange, Report class, and Location
-        for (T source : sources)
+    public Collection<EquipmentColorTrendSource> collectForColorSources()
+    {
+        return collect(EquipmentColorTrendSource.class, new EnabledColorTrendWithSetpointAcceptor());
+    }
+
+    private <T extends TrendSource> Collection<T> collect(Class<T> aspectClass, AspectAcceptor<T> acceptor)
+    {
+        return reportResults.getAncestor().find(aspectClass, acceptor);
+    }
+
+
+
+//    private <T extends TrendSource> T getAspect(Class<T> aspectClass) throws NoSuchAspectException
+//    {
+//        return reportResults.getAncestor().getAspect(aspectClass);
+//    }
+
+//  This is here so that the potential for a speedup in the database query for trend sources
+
+//  This is here so that the potential for a speedup in the database query for trned sources - a bug in the 1.2.x api prevents us from using this
+    /*public Collection<TrendSource> collectTrendSources()
+    {
+        List<TrendSource> results = new ArrayList<TrendSource>();
+        results.addAll(collect(AnalogTrendSource.class, new AspectAcceptor<AnalogTrendSource>()
         {
-            ReportResultsData cachedData = cache.getCachedData(source.getLocation().getPersistentLookupString(true), dateRange);
-            reportResults.addData(source, cachedData);
+            @Override public boolean accept(@NotNull AnalogTrendSource source)
+            {
+                return source.isEnabled() && source.getLocation().getReferenceName().equals("zn_enviro_indx_tn");
+            }
+        }));
+        if (hasAspect(SetPoint.class))
+        {
+            try {
+                results.add(getAspect(EquipmentColorTrendSource.class));
+            } catch (NoSuchAspectException ignored) { /* ok, so we won't add one then  }
         }
-    }
 
-    public boolean hasEISources()
-    {
-        return reportResults.getAncestor().has(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
-    }
-
-    public void collectForAnalogSources()
-    {
-        collect(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
-    }
-
-    public void collectForColorSources()
-    {
-        collect(EquipmentColorTrendSource.class, new EnabledColorTrendWithSetpointAcceptor());
-    }
+        return results;
+    }   */
 }

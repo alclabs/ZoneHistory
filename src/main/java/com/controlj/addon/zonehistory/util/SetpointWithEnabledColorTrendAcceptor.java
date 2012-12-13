@@ -1,3 +1,7 @@
+
+// DEPRECATED CLASS REMOVE IF NO ISSUES
+
+/*
 package com.controlj.addon.zonehistory.util;
 
 import com.controlj.green.addonsupport.access.AspectAcceptor;
@@ -24,6 +28,6 @@ public class SetpointWithEnabledColorTrendAcceptor implements AspectAcceptor<Set
         });
         return !sources.isEmpty();
     }
-}
+}   */
 
 

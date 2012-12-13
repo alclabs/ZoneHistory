@@ -38,9 +38,9 @@ class ColorTrendProcessorTest extends Specification
     def "test when no data"()
     {
         given:
-            def processor = new SatisfactionProcessor()
             def start = date(2011, SEPTEMBER, 21)
             def end = date(2011, SEPTEMBER, 23)
+            def processor = new SatisfactionProcessor(start, end)
 
         when:
             processor.processStart(start, (TrendEquipmentColorSample) null)
@@ -59,16 +59,16 @@ class ColorTrendProcessorTest extends Specification
             def endBookend = new TestSample(UNOCCUPIED, end+1)
 
         when: "only have a start bookend (no end bookend)"
-            def processor = new SatisfactionProcessor()
+        def processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processEnd(end, (TrendEquipmentColorSample) null)
 
-        then: "the value should be occupied for the time requested"
-            processor.colorMap == [(OCCUPIED) : TWO_DAYS]
-            processor.percentCoverage == 100
+        then: "the value should be Unknown for the time requested because there is no data inside the range"
+            processor.colorMap == [(UNKNOWN) : TWO_DAYS]
+            processor.percentCoverage == 0
 
         when: "only have a end bookend (no start bookend)"
-            processor = new SatisfactionProcessor()
+            processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, (TrendEquipmentColorSample) null)
             processor.processEnd(end, endBookend)
         then: "the value should be unknown for the time requested"
@@ -76,12 +76,12 @@ class ColorTrendProcessorTest extends Specification
             processor.percentCoverage == 0
 
         when: "have both start and end bookend"
-            processor = new SatisfactionProcessor()
+            processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processEnd(end, endBookend)
         then: "the value of the start bookend should be the value for the whole time requested"
-            processor.colorMap == [(OCCUPIED) : TWO_DAYS]
-            processor.percentCoverage == 100.0
+            processor.colorMap == [(UNKNOWN) : TWO_DAYS]
+            processor.percentCoverage == 0.0
     }
 
     def "test change of color within range"()
@@ -90,11 +90,11 @@ class ColorTrendProcessorTest extends Specification
             def start = date(2011, SEPTEMBER, 21)
             def end = date(2011, SEPTEMBER, 23)
             def startBookend = new TestSample(OCCUPIED, start-1)
-            def endBookend = new TestSample(UNOCCUPIED, end+1)
-            def rangeSample = new TestSample(OPERATIONAL, date(2011, SEPTEMBER, 22))
+            def endBookend   = new TestSample(UNOCCUPIED, end+1)
+            def rangeSample  = new TestSample(OPERATIONAL, date(2011, SEPTEMBER, 22))
 
         when: "have all needed info and EqColorSource has changed within range"
-            def processor = new SatisfactionProcessor()
+            def processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processData(rangeSample)
             processor.processEnd(end, endBookend)
@@ -104,14 +104,14 @@ class ColorTrendProcessorTest extends Specification
             processor.percentCoverage == 100.0
 
         when: "there is data, but no ending bookend"
-            processor = new SatisfactionProcessor()
+            processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processData(rangeSample)
             processor.processEnd(end, (TrendEquipmentColorSample) null)
 
         then: "map should have only the first day, with unknown for the rest"
-            processor.colorMap == [(OCCUPIED) : ONE_DAY, (OPERATIONAL) : ONE_DAY]
-            processor.percentCoverage == 100.0
+            processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : ONE_DAY]
+            processor.percentCoverage == 50.0
     }
 
     def "test holes within range - same color at start, middle, and end"()
@@ -123,7 +123,7 @@ class ColorTrendProcessorTest extends Specification
             def endBookend = new TestSample(UNOCCUPIED, end+1)
 
         when: "a hole in the data within the range"
-            def processor = new SatisfactionProcessor()
+            def processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processHole(start+1, end-1)
             processor.processEnd(end, endBookend)
@@ -132,15 +132,15 @@ class ColorTrendProcessorTest extends Specification
             ((double)processor.percentCoverage) closeTo(33.3, 0.1)
 
         when: "a hole at the start of the beginning of the range"
-            processor = new SatisfactionProcessor();
+            processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processHole(start, start+1)
             processor.processEnd(end, endBookend)
         then: "should expect to see 0 days of Occupied and total duration of unknown"
-            processor.colorMap == [(OCCUPIED) : 0, (UNKNOWN) : ONE_DAY * 3]
+            processor.colorMap == [(UNKNOWN) : ONE_DAY * 3]
 
         when: "a hole at the end of the range"
-            processor = new SatisfactionProcessor();
+            processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processHole(end-2, end)
             processor.processEnd(end, endBookend)
@@ -159,7 +159,7 @@ class ColorTrendProcessorTest extends Specification
             def testSample2 = new TestSample(MODERATE_COOLING, end-2)
 
         when: "hole at start+2, 1 day hole, 1 day operational, 1 day hole, 3 day mod cool"
-            def processor = new SatisfactionProcessor()
+            def processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processHole(start+2, start+3)
             processor.processData(testSample1)

@@ -46,18 +46,6 @@
         String canvasHeight = request.getParameter("h_ctx");
         String canvasWidth = request.getParameter("w_ctx");
 
-        String posXStr = request.getParameter("pos-x");
-        if (posXStr == null) posXStr = "-1";
-        Integer positionX = Integer.parseInt(posXStr);
-
-        String posYStr = request.getParameter("pos-y");
-        if (posYStr == null) posYStr = "-1";
-        Integer positionY = Integer.parseInt(posYStr);
-
-        String radius = request.getParameter("radius");
-        if (radius == null) radius = "75";
-        Integer pieRadius = Integer.parseInt(radius);
-
         try
         {
             if (WebContextFactory.hasLinkedWebContext(request))
@@ -74,48 +62,60 @@
                 });
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Logging.LOGGER.print(e);
         }
     %>
 </head>
 <body>
-    <div id="graph" class="graph"></div>
-        <table id="detailsTable" cellpadding="0" cellspacing="0">
-            <thead>
-                <%--<c:if test="<%=showHeating.contains("true")%>"> <th id="heatingpercent"></th>  </c:if>--%>
-                <%--<c:if test="<%=showCooling.contains("true")%>"> <th id="coolingpercent"></th> </c:if>--%>
-                <%--<c:if test="<%=showOperational.contains("true")%>"> <th id="operationalpercent"></th> </c:if>--%>
-                <%--<c:if test="<%=showEI.contains("true")%>"> <th id="averageEI"></th> </c:if>--%>
-            </thead>
-            <tbody>
-            <tr>
+<div id="graph" class="graph"></div>
+<table id="detailsTable" cellpadding="0" cellspacing="0">
+    <thead></thead>
+    <tbody> <tr></tr> </tbody>
+</table>
 
-            </tr>
-            </tbody>
-        </table>
+<script type="text/javascript">
+    var showLegendTemp = <%=showLegend.contains("true")%>;
+    var showCooling = <%=showCooling.contains("true")%>;
+    var showHeating = <%=showHeating.contains("true")%>;
+    var showOperational = <%=showOperational.contains("true")%>;
+    var showEI = <%=showEI.contains("true")%>;
 
-    <script type="text/javascript" >
-        var showLegendTemp = <%=showLegend.contains("true")%>;
-        var xcoord = <%=positionX%>;
-        var ycoord = <%=positionY%>;
-        var radius = <%=pieRadius%>;
-        var diameter = 2 * radius;
-        var showCooling = <%=showCooling.contains("true")%>;
-        var showHeating = <%=showHeating.contains("true")%>;
-        var showOperational = <%=showOperational.contains("true")%>;
-        var showEI = <%=showEI.contains("true")%>;
+    <%-- we need to calcuate the radius of the pie chart as well as its location based on how big the canvas height/width are and
+whether the table shows the rows it requires--%>
+    var cHeight = <%=canvasHeight%>;
+    var cWidth = <%=canvasWidth%>;
 
+    cHeight -= showCooling === true ? 20 : 0;
+    cHeight -= showEI === true ? 20 : 0;
+    cHeight -= showHeating === true ? 20 : 0;
+    cHeight -= showOperational === true ? 20 : 0;
+    cHeight -= showLegendTemp === true ? 80 : 0;
+    cWidth -= showLegendTemp === true ? 200 : 0;
+
+    // we need to pass on the values so that we can determine the radius, alert the user, but not use an alert while using raphael...yay
+    var radius = 0.97 * (cWidth >= cHeight ? cHeight : cWidth) / 2;
+    if (cHeight < 20 || cWidth < 20)
+    {
+        mainChartPaperLocation = new Raphael("graph", 200, 200).text(0, 0, "Dimensions too small for zonehistory.\nMake this area larger.")
+    }
+    else
+    {
         // initialize raphael paper here to give to zonehistorypiechart
+
         if (!mainChartPaperLocation)
-            mainChartPaperLocation = new Raphael("graph", diameter + (showLegendTemp === true ? 150 : 0), diameter);
+            mainChartPaperLocation = new Raphael("graph", 0.96*<%=canvasWidth%>, 2 * radius + 5);
 
         // draw pie chart...pass in its object here in order to initialize and such
-        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, xcoord, ycoord, radius);
-        var table = new ZoneHistoryTable("detailsTable", true, showCooling, showHeating, showOperational, showEI, 30);
+        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, radius, radius, radius);
+        var isFromGrafxPage = true; // just for verbosity
+        var table = new ZoneHistoryTable("detailsTable", isFromGrafxPage, showCooling, showHeating, showOperational, showEI, 30);
 
         var report = new DataRetriever(pieChart, table, true);
         report.runReportForData('<%=loc%>', '<%=range%>', showLegendTemp);
-    </script>
+        mainChartPaperLocation.renderfix();
+    }
+</script>
 </body>
 </html>
