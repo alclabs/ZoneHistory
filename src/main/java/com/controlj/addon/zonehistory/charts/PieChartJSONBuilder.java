@@ -26,25 +26,26 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
         JSONObject tableData = new JSONObject();
         Collection<T> sources = reportResults.getSources();
 
-        long operationalTime = 0, coolingTime = 0, heatingTime = 0, totalTime = 0;
-        double areaForEI = 0, eipercent;
+        long occupiedTime = 0, coolingTime = 0, heatingTime = 0, totalTime = 0, operationalTime = 0;
+        double areaForEI = 0;
 
         for (T source : sources)
         {
             ReportResultsData data = reportResults.getDataFromSource(source);
 
-            coolingTime += data.getActiveCoolingTime();
-            heatingTime += data.getActiveHeatingTime();
+            coolingTime     += data.getActiveCoolingTime();
+            heatingTime     += data.getActiveHeatingTime();
             operationalTime += data.getOperationalTime();
-            areaForEI += data.getRawAreaForEICalculations();
-            totalTime += data.getTotalTime();
+            occupiedTime    += data.getOccupiedTime();
+            areaForEI       += data.getRawAreaForEICalculations();
+            totalTime       += data.getTotalTime();
         }
 
         tableData.put("operationalvalue", operationalTime);
-        tableData.put("heatingvalue", heatingTime);
-        tableData.put("coolingvalue", coolingTime);
-        tableData.put("eivalue", areaForEI);
-        tableData.put("totalTime", totalTime);
+        tableData.put("heatingvalue",     heatingTime);
+        tableData.put("coolingvalue",     coolingTime);
+        tableData.put("eivalue",          areaForEI == 0 ? 0 : areaForEI / occupiedTime);
+        tableData.put("totalTime",        totalTime);
 
         return tableData;
     }
@@ -60,7 +61,7 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
             ReportResultsData data = reportResults.getDataFromSource(source);
             JSONObject tableRow = new JSONObject();
             tableRow.put("eqDisplayName",      data.getDisplayPath());
-            tableRow.put("eqTransLookup",      data.getTransLookupString());
+            tableRow.put("eqTransLookup",      data.getPersistentLookupString());
             tableRow.put("eqTransLookupPath",  data.getTransLookupPath());
             tableRow.put("operationalvalue",   data.getOperationalTime());
             tableRow.put("coolingvalue",       data.getActiveCoolingTime());

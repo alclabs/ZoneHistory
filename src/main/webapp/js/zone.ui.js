@@ -54,19 +54,19 @@ $(function()
     $("#heatingpercent").click(function()
     {
         table.clearTable();
-        table.sortByAttribute("heatingpercent");
+        table.sortByAttribute("heatingvalue");
     });
 
     $("#coolingpercent").click(function()
     {
         table.clearTable();
-        table.sortByAttribute("coolingpercent");
+        table.sortByAttribute("coolingvalue");
     });
 
     $("#operationalpercent").click(function()
     {
         table.clearTable();
-        table.sortByAttribute("operationalpercent");
+        table.sortByAttribute("operationalvalue");
     });
 
     $("#averageEI").click(function()

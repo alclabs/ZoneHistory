@@ -83,10 +83,10 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
             area += ((previousPoint + sample.doubleValue()) / 2) * deltaTime;
             occupiedTime += deltaTime;
         }
-        else if (previousPoint > 0)
+        else if (sample == null)
         {
-            occupiedTime += deltaTime;
-            area += previousPoint * deltaTime;
+//            occupiedTime += deltaTime;
+//            area += previousPoint * deltaTime;
             if (trace)
                 Logging.LOGGER.print("End Sample was null" + " Average EI: " + area / occupiedTime + "\r\n");
         }

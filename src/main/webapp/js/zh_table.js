@@ -61,8 +61,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             if (chartData.length == 1)
                 chartData[1] = 0;
 
-            $("#" + rowId).sparkline(chartData,
-                    { type:'pie', height: inlinePieSize + 'px',  width: inlinePieSize + 'px', sliceColors: chartColors });
+            $("#" + rowId).sparkline(chartData, { type:'pie', height: inlinePieSize + 'px',  width: inlinePieSize + 'px', sliceColors: chartColors });
         }
     }
 
@@ -71,7 +70,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         var heatingvalue     = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
         var coolingvalue     = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
         var operationalvalue = Math.round(100 * tableData.operationalvalue / tableData.totalTime);
-        var eivalue          = Math.round(tableData.eivalue / tableData.operationalvalue);
+        var eivalue          = tableData.eivalue === 0 ? 0 : Math.round(tableData.eivalue); // check for 0 EI
 
         document.getElementById(renderTarget).style.display = 'block';
 

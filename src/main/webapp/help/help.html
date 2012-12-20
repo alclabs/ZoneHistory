@@ -45,15 +45,14 @@
 </head>
 <body>
 <p>
-    The Zone History add-on is intended to present historical information about the zone. Currently this amounts
-    to displaying the percentage of time that the zone is in different "equipment colors" using a pie chart. A
-    concept of "satisfaction" is also displayed. A zone is considered satisfied if it is either unoccupied or
-    it's occupied and operational (the color green).
+    The Zone History add-on is intended to present historical information about the zone or equipment selected. The results of the report show the amount of
+    time spent in each equipment color in the range of time selected.
 </p>
 
-<p>Zones that contain 'unknown' describe periods of time that
-    cannot be calculated due to events such as the Trend Historian being disabled or a time shift like Daylight Savings
-    time.
+<p>
+    The table shows percentages of time where similar colors are grouped together (i.e. Moderate and Maximum cooling are combined and divided by the total time. Same for heating).
+    However, the operational percentage is different. It combines all the colors that are not errors or unoccupied to give you a percentage of the time spent without error/unoccupied.
+    Zones that contain 'unknown' describe periods of time that cannot be calculated due to events such as the Trend Historian being disabled or a time shift like Daylight Savings time.
 </p>
 
 
@@ -67,8 +66,8 @@
         their parents (up to the system root). Selecting any item in the tree causes the page to immediately collect
         and display the results. If an area is selected, the main pie chart shows an aggregate view of all zone
         equipment below that area. Also, a table is shown below the pie chart that lists each zone equipment that
-        is aggregated together, and shows their individual satisfaction and pie charts. If an equipment is selected, the
-        individual pie chart for that equipment is shown as the main pie chart and no zone equipment table is
+        is aggregated together, and shows their individual percentages and pie charts. If an equipment is selected, the
+        individual pie chart for that equipment is shown as the main pie chart but the zone equipment table is
         displayed.
     </p>
 
@@ -76,9 +75,8 @@
 
     <p>
         At the top of the page is a drop down menu that allows for the selection of the time range that is analyzed.
-        The time range always ends at the present time (which means that field communications will almost always need
-        to be performed to display the result). The drop down allows you to decide how far back in time to analyze.
-        Either today, yesterday, last week or last month (always starting at midnight on that day) up until the current
+        The time range always ends at the present time. The drop down allows you to decide how far back in time to analyze:
+        Today, yesterday, last week, or last month (always starting at midnight on that day) up until the current
         time.
     </p>
 
@@ -87,11 +85,9 @@
     <p>
         Once an item in the tree has been selected (and the data collected and processed) a large pie chart is
         displayed to the right of the tree. This pie chart contains the results for the tree item that was selected.
-        If the item is a single zone equipment, then the pie chart shows the percentage of time over the requested
-        time range that the equipment was in each color and a "satisfaction" total below the pie chart. If the
-        selected tree item is an area, then the pie chart shows the average for all the zone equipment beneath it.
+        If the selected tree item is an area, then the pie chart shows the combined results for all the zone equipment beneath it.
         Moving the mouse over a section of the pie expands it and highlights the associated entry in the color legend
-        (which is to the right of the tree).
+        (which is to the right of the chart).
     </p>
 
     <p>
@@ -101,9 +97,9 @@
     <h2>Zone Equipment Table</h2>
 
     <p>
-        If an area is selected in the system tree, a table that shows the individual details for each zone equipment
-        beneath that area is show below the main pie chart. Each row of the table contains the display path to the
-        equipment, the "satisfaction" total and a small pie chart for the zone. Clicking anywhere in a row
+        The table that shows the individual details for each zone equipment  beneath that area is show below the main
+        pie chart. Each row of the table contains the display path to the
+        equipment, the time spent in cooling, heating, operating, and the environmental index and a small pie chart for the zone. Clicking anywhere in a row
         will select that zone equipment in the system tree and therefore display the zone using the large pie chart.
     </p>
 </div>

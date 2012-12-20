@@ -26,13 +26,19 @@ public enum ZoneHistoryCache
             Map<DateRange, ReportResultsData> zoneHistories = zoneHistoryCache.get(lus);
             if (zoneHistories == null)
             {
-                zoneHistoryCache.put(lus, new HashMap<DateRange, ReportResultsData>());
+//                Logging.LOGGER.println("Cache (get) at lookup(" + lus + ") is null; returning null");
                 return null;
             }
 
-            if (zoneHistories.get(dateRange) == null)
-                return null;
+//            Logging.LOGGER.println("Cache get range: " + dateRange.getStart() + " to " + dateRange.getEnd());
 
+            if (zoneHistories.get(dateRange) == null)
+            {
+//                Logging.LOGGER.println("Cache Data not found for range");
+                return null;
+            }
+
+//            Logging.LOGGER.println("Cache Data FOUND for range");
             return zoneHistories.get(dateRange);
         }
     }
@@ -43,12 +49,16 @@ public enum ZoneHistoryCache
         {
             trimCache(lus);
 
-            Map<DateRange, ReportResultsData> currentZoneHistory = this.zoneHistoryCache.get(lus);
+            Map<DateRange, ReportResultsData> currentZoneHistory = zoneHistoryCache.get(lus);
             if (currentZoneHistory == null)
+            {
+//                Logging.LOGGER.println("Cache Storage at lookup(" + lus + ") is null; creating new map");
                 currentZoneHistory = new HashMap<DateRange, ReportResultsData>();
+            }
 
             // make sure the days for the DateRange are set to the midnights of their respective start and end dates
             DateRange midnightedDateRange = this.setDateRangeToMidnight(dateRange);
+//            Logging.LOGGER.println("Midnighted range storage....: " + midnightedDateRange.getStart() + " to " + midnightedDateRange.getEnd());
             currentZoneHistory.put(midnightedDateRange, cachedResults);
             zoneHistoryCache.put(lus, currentZoneHistory);
         }
@@ -96,8 +106,9 @@ public enum ZoneHistoryCache
         long difference = dateRange.getEnd().getTime() - dateRange.getStart().getTime();
         int days = (int) (difference / ONE_DAY_MILLIS);
 
-        Date end = getMidnightToday();
         Date start = getMidnight(days);
+        Date end = getMidnightToday();
+//        Date end = getMidnight(1);
 
         return new DateRange(start, end);
     }

@@ -117,6 +117,6 @@ class EIProcessorTest extends Specification
             processor.processEnd(end, (TestSample) null)
 
         then: "no ending bookend will not be the same value"
-            processor.averageEI == 67.5;
+            processor.averageEI == 45.0;
     }
  }

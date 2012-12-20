@@ -114,7 +114,7 @@ whether the table shows the rows it requires--%>
 
         var report = new DataRetriever(pieChart, table, true);
         report.runReportForData('<%=loc%>', '<%=range%>', showLegendTemp);
-        mainChartPaperLocation.renderfix();
+        mainChartPaperLocation.renderfix();    // fix for IE subpixel rendering
     }
 </script>
 </body>

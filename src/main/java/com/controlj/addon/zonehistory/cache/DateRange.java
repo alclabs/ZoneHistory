@@ -71,4 +71,9 @@ public class DateRange
     {
         return (start.before(date) && end.after(date)) || start.equals(date) || end.equals(date);
     }
+
+    public boolean isRangeWithinRange(DateRange range)
+    {
+        return start.before(range.getStart()) && end.after(range.getEnd());
+    }
 }

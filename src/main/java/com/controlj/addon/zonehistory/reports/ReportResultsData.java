@@ -12,13 +12,13 @@ public class ReportResultsData<T>
     private final Map<T, Long> data;
     private final long time; // occupied time? - check to make sure it is
     private long operationalTime, coolingTime, heatingTime, occupiedTime;
-    private final String transientLookup, transientLookupPath, displayPath;
+    private String persistentLookupString, transientLookupPath, displayPath;
     private double avgAreaForEI, area;
 
-    public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath)
+    public ReportResultsData(long time, String lookup, String transLookupPath, String displayPath)
     {
         this.time = time;
-        this.transientLookup = transLookup;
+        this.persistentLookupString = lookup;
         this.transientLookupPath = transLookupPath;
         this.displayPath = displayPath;
 
@@ -32,9 +32,9 @@ public class ReportResultsData<T>
         this.data = new HashMap<T, Long>();
     }
 
-    public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath, Map<T, Long> rawData)
+    public ReportResultsData(long time, String lookup, String transLookupPath, String displayPath, Map<T, Long> rawData)
     {
-        this(time, transLookup, transLookupPath, displayPath);
+        this(time, lookup, transLookupPath, displayPath);
         this.data.putAll(rawData);
     }
 
@@ -61,6 +61,11 @@ public class ReportResultsData<T>
         this.occupiedTime = occupiedTime;
     }
 
+    public void setDisplayPath(String displayPath)
+    {
+        this.displayPath = displayPath;
+    }
+
     public double getAvgAreaForEI()
     {
         return avgAreaForEI;
@@ -76,9 +81,9 @@ public class ReportResultsData<T>
         return displayPath;
     }
 
-    public String getTransLookupString()
+    public String getPersistentLookupString()
     {
-        return transientLookup;
+        return persistentLookupString;
     }
 
     public String getTransLookupPath()

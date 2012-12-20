@@ -55,10 +55,12 @@ public class EnvironmentalIndexReport implements Report
                         Location sourceLocation = systemAccess.getTree(SystemTree.Geographic).resolve(source.getLocation().getTransientLookupString());
                         Location equipment = LocationUtilities.findMyEquipment(sourceLocation);
                         String persistentLookupString = equipment.getPersistentLookupString(true);
+                        String displayPath = LocationUtilities.relativeDisplayPath(location, equipment);
 
                         ReportResultsData cachedData = ZoneHistoryCache.CACHE.getCachedData(persistentLookupString, dateRange);
                         if (cachedData != null && cachedData.getAvgAreaForEI() > -1)
                         {
+                            cachedData.setDisplayPath(displayPath);
                             reportResults.addData(source, cachedData);
                             continue;
                         }
@@ -68,7 +70,6 @@ public class EnvironmentalIndexReport implements Report
                         {
                             EnvironmentalIndexProcessor processor = processTrendData(source, trendRange);
 
-                            String displayPath = LocationUtilities.relativeDisplayPath(location, sourceLocation);
                             String transLookupPath = LocationUtilities.createTransientLookupPathString(sourceLocation);
 
                             if (cachedData == null)

@@ -28,11 +28,14 @@ public class ResultsServlet extends HttpServlet
         final Boolean isFromWeb = request.getParameter("isFromGfxPge").contains("true");
         final String daysString = request.getParameter("prevdays");
         final Date startDate = determineStartDate(daysString);
-//        final Date startDate = new GregorianCalendar(2012, 9, 19).getTime();
+//        final Date startDate = getMidnight(2);
         final Date endDate = determineEndDate(daysString);
-//        final Date endDate = new GregorianCalendar(2012, 9, 20).getTime();
+//        final Date endDate = getMidnight(1);
 
         final HttpServletResponse finalResponse = response;
+
+//        Logging.LOGGER.println("Start date: " + startDate.toString());
+//        Logging.LOGGER.println("End Date: " + endDate.toString());
 
         try
         {
@@ -46,6 +49,8 @@ public class ResultsServlet extends HttpServlet
                     Location location = geoTree.resolve(loc);
                     Location equipmentLoc = location.getType() == LocationType.Equipment ? LocationUtilities.findMyEquipment(location) : location;
 
+//                    Logging.LOGGER.println("Location to search: " + location.getDisplayName());
+//                    Logging.LOGGER.println("Equipment to use?:  " + equipmentLoc.getDisplayName());
                     // start logging times for performance
                     ReportResults reportResults = new ReportResults(location);
                     GeoTreeSourceRetriever retriever = new GeoTreeSourceRetriever(reportResults);
@@ -67,12 +72,12 @@ public class ResultsServlet extends HttpServlet
                     for (Object source : satisfactionResults.getSources())
                     {
                         ReportResultsData data = satisfactionResults.getDataFromSource((TrendSource) source);
-                        String lus = data.getTransLookupString();
+                        String lus = data.getPersistentLookupString();
 
                         for (Object source2 : environmentalIndexReportResults.getSources())
                         {
                             ReportResultsData data2 = environmentalIndexReportResults.getDataFromSource((TrendSource) source2);
-                            if (lus.equals(data2.getTransLookupString()))
+                            if (lus.equals(data2.getPersistentLookupString()))
                             {
                                 data.setAvgAreaForEI(data2.getAvgAreaForEI());
                                 data.setArea(data2.getRawAreaForEICalculations());

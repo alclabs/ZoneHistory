@@ -20,16 +20,32 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
         mainChartPaperLocation.text((mainChartPaperLocation.height / 3), (mainChartPaperLocation.width / 4), "Loading...").attr({fill: "#fff"});
 
         // run report and draw chart/table when done or display an error
-        $.getJSON("servlets/results", { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},
-                function(data)
-                {
-                    zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend);
-                    zoneHistoryTable.renderTable(data.table);
-
-                }).error(function (a, textStatus, error)
-                {
-                    alert(error);
+        $.ajax({
+                    url: "servlets/results",
+                    dataType: 'json',
+                    timeout: 300000,
+                    data: { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},
+                    success: function(data)
+                    {
+                        zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend);
+                        zoneHistoryTable.renderTable(data.table);
+                    },
+                    error:  function(a, textStatus, error)
+                    {
+                        alert(error);
+                    }
                 });
-    }
 
+
+//        $.getJSON("servlets/results", { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},
+//                function(data)
+//                {
+//                    zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend);
+//                    zoneHistoryTable.renderTable(data.table);
+//
+//                }).error(function (a, textStatus, error)
+//                {
+//                    alert(error);
+//                });
+    }
 }
