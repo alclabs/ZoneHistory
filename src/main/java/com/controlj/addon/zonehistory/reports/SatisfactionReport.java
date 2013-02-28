@@ -45,7 +45,7 @@ public class SatisfactionReport implements Report
                 DateRange range = new DateRange(startDate, endDate);
                 ReportResults<EquipmentColorTrendSource> reportResults = new ReportResults<EquipmentColorTrendSource>(location);
 
-                Logging.LOGGER.println("-------------------------\nSatisfaction report started\n---------------------------- ");
+//                Logging.LOGGER.println("-------------------------\nSatisfaction report started\n---------------------------- ");
                 for (TrendSource indexSource : sources)
                 {
                     try
@@ -56,18 +56,18 @@ public class SatisfactionReport implements Report
                         String persistentLookupString = equipment.getPersistentLookupString(true);
                         String displayPath = LocationUtilities.relativeDisplayPath(location, equipment);
 
-                        Logging.LOGGER.println("Checking Cache for data - " + displayPath + "(" + persistentLookupString + ") at " + startDate + " to " + endDate);
+//                        Logging.LOGGER.println("Checking Cache for data - " + displayPath + "(" + persistentLookupString + ") at " + startDate + " to " + endDate);
                         ReportResultsData cachedResults = ZoneHistoryCache.CACHE.getCachedData(persistentLookupString, range);
 
                         if (cachedResults != null)
                         {
-                            Logging.LOGGER.println("Cached Results found! Continuing report");
+//                            Logging.LOGGER.println("Cached Results found! Continuing report");
                             cachedResults.setDisplayPath(displayPath);
                             reportResults.addData(source, cachedResults);
                             continue;
                         }
 
-                        Logging.LOGGER.println("Cached Results NOT found!");
+//                        Logging.LOGGER.println("Cached Results NOT found!");
 
                         AttachedEquipment eqAspect = equipment.getAspect(AttachedEquipment.class);
                         if (!eqAspect.getDevice().isOutOfService())
@@ -89,7 +89,7 @@ public class SatisfactionReport implements Report
                             long day = 24 * 60 * 60 * 1000;
                             if (range.getEnd().getTime() - range.getStart().getTime() >= day)
                             {
-                                Logging.LOGGER.println("(SatisfactionReport) Adding to cache at " + persistentLookupString + " (" + range.getStart() + "to" + range.getEnd() + ")");
+//                                Logging.LOGGER.println("(SatisfactionReport) Adding to cache at " + persistentLookupString + " (" + range.getStart() + "to" + range.getEnd() + ")");
                                 ZoneHistoryCache.CACHE.cacheResultsData(persistentLookupString, range, cachedResults);
                             }
 

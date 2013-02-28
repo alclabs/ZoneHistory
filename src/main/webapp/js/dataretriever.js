@@ -23,7 +23,7 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
         $.ajax({
                     url: "servlets/results",
                     dataType: 'json',
-                    timeout: 300000,
+                    timeout: 600000,
                     data: { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},
                     success: function(data)
                     {

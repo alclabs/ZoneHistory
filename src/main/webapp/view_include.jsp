@@ -108,7 +108,8 @@ whether the table shows the rows it requires--%>
             mainChartPaperLocation = new Raphael("graph", 0.96*<%=canvasWidth%>, 2 * radius + 5);
 
         // draw pie chart...pass in its object here in order to initialize and such
-        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, radius, radius, radius);
+        var horizontalCenter = <%=canvasWidth%> / 2;
+        var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, horizontalCenter, radius, radius);
         var isFromGrafxPage = true; // just for verbosity
         var table = new ZoneHistoryTable("detailsTable", isFromGrafxPage, showCooling, showHeating, showOperational, showEI, 30);
 

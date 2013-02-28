@@ -45,16 +45,10 @@
 </head>
 <body>
 <p>
-    The Zone History add-on is intended to present historical information about the zone or equipment selected. The results of the report show the amount of
-    time spent in each equipment color in the range of time selected.
+    The Zone History add-on is intended to present historical information about the area or equipment selected. The results of the report show the amount of
+    time spent in each equipment color in the range of time selected. Clicking on an equipment will show a pie chart of the time the equipment spent in each
+    color while clicking on an area or system will show a pie chart that combines the results from all of the equipment beneath the selected area.
 </p>
-
-<p>
-    The table shows percentages of time where similar colors are grouped together (i.e. Moderate and Maximum cooling are combined and divided by the total time. Same for heating).
-    However, the operational percentage is different. It combines all the colors that are not errors or unoccupied to give you a percentage of the time spent without error/unoccupied.
-    Zones that contain 'unknown' describe periods of time that cannot be calculated due to events such as the Trend Historian being disabled or a time shift like Daylight Savings time.
-</p>
-
 
 <h1>Using the Interface</h1>
 
@@ -95,12 +89,17 @@
     </p>
 
     <h2>Zone Equipment Table</h2>
-
+    <!--Explain about sorting and go into more details about what each percentage is and how it is calculated-->
     <p>
         The table that shows the individual details for each zone equipment  beneath that area is show below the main
-        pie chart. Each row of the table contains the display path to the
-        equipment, the time spent in cooling, heating, operating, and the environmental index and a small pie chart for the zone. Clicking anywhere in a row
-        will select that zone equipment in the system tree and therefore display the zone using the large pie chart.
+        pie chart. Each row of the table contains the display path to the equipment, the time spent in cooling, heating,
+        operating, and the environmental index and a small pie chart for the zone. These values are calculated by looking at
+        the amount of time spent in groups of colors. Cooling and heating time combine the amount of time spent in their
+        respective moderate, maximum, and alarm colors while operational time looks at all the colors related to the
+        equipment being operational and fully functioning with no errors.
+        Clicking on a column of the table will sort the column either largest to smallest or vice versa.
+
+        Clicking anywhere in a row will select that equipment in the system tree and therefore display the equipment using the large pie chart.
     </p>
 </div>
 <h1>Including in Views</h1>
@@ -135,7 +134,8 @@
         <tbody>
         <tr>
             <td>prevdays</td> <td>0</td>
-            <td>Equipment color data is analyzed from midnight of this number of days ago until the current time. Values are capped at 31.</td>
+            <td>Equipment color data is analyzed from midnight of this number of days ago until midnight of the current day with the exception of calculating today's values which range
+                from today at midnight until the time the test was requested. The maximum value is 31.</td>
         </tr>
         <tr>
             <td>showlegend</td> <td>false</td>
@@ -155,7 +155,7 @@
         </tr>
         <tr>
             <td>showei</td> <td>false</td>
-            <td>Specify "true" to show the Environmental Index for the area or equipment. Note: The Environmental Index trend source must be named "zn_enviro_indx_tn"</td>
+            <td>Specify "true" to show the average Environmental Index for the area or equipment. Note: The Environmental Index trend source must be named "zn_enviro_indx_tn"</td>
         </tr>
         </tbody>
     </table>
