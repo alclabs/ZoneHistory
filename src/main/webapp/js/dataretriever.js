@@ -17,7 +17,7 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
 
         mainChartPaperLocation.clear();
         zoneHistoryTable.clearTable();
-        mainChartPaperLocation.text((mainChartPaperLocation.height / 3), (mainChartPaperLocation.width / 4), "Loading...").attr({fill: "#fff"});
+        mainChartPaperLocation.text((mainChartPaperLocation.height / 3), (mainChartPaperLocation.width / 4), "Loading...").attr({fill: "#fff", "font-size": "15pt"});
 
         // run report and draw chart/table when done or display an error
         $.ajax({

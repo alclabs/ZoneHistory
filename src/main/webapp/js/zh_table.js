@@ -50,7 +50,13 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             // draw each sparkline pie chart (separate all data first)
             var chartData = [];
             var chartColors = [];
-            for (var innerindex in item.rowChart.colors)
+
+            var rowChartColors = item.rowChart.colors.sort(function(a, b)
+            {
+                return b.percent - a.percent;
+            });
+
+            for (var innerindex in rowChartColors)
             {
                 var temp = item.rowChart.colors[innerindex];
                 chartData[innerindex] = temp.percent;
@@ -61,7 +67,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             if (chartData.length == 1)
                 chartData[1] = 0;
 
-            $("#" + rowId).sparkline(chartData, { type:'pie', height: inlinePieSize + 'px',  width: inlinePieSize + 'px', sliceColors: chartColors });
+            $("#" + rowId).sparkline(chartData, { type:'pie', height: inlinePieSize + 'px',  width: inlinePieSize + 'px', sliceColors: chartColors, offset: 180 });
         }
     }
 

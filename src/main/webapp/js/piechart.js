@@ -31,7 +31,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         if (tinySlices.length == 1)
             bigSlices.push(tinySlices[0]);
         else if (sumOfTiny > 0 && tinySlices.length > 1)
-            bigSlices.push({"rgb-red":0, "rgb-green": 0, "rgb-blue": 0, "percent": sumOfTiny, "color": "Others (<1%)  "});
+            bigSlices.push({"rgb-red":255, "rgb-green": 255, "rgb-blue": 255, "percent": sumOfTiny, "color": "Others (<1%)  "});
 
 //    sort the bigSlices so that the values are all sorted with the correct colors and labels associated with the percentages large to small
         bigSlices.sort(function(a, b)
