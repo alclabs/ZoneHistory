@@ -17,7 +17,8 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
 
         mainChartPaperLocation.clear();
         zoneHistoryTable.clearTable();
-        mainChartPaperLocation.text((mainChartPaperLocation.height / 3), (mainChartPaperLocation.width / 4), "Loading...").attr({fill: "#fff", "font-size": "15pt"});
+        if (mainChartPaperLocation.height >= 30 && mainChartPaperLocation.width >= 100)
+            mainChartPaperLocation.text((mainChartPaperLocation.height / 3), (mainChartPaperLocation.width / 4), "Loading...").attr({fill: "#fff", "font-size": "15pt"});
 
         // run report and draw chart/table when done or display an error
         $.ajax({
@@ -27,7 +28,7 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
                     data: { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},
                     success: function(data)
                     {
-                        zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend);
+                        zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend, isFromGrafxPage);
                         zoneHistoryTable.renderTable(data.table);
                     },
                     error:  function(a, textStatus, error)

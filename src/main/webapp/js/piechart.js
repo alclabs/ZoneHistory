@@ -6,6 +6,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
     var x = (coordinateX == -1 ? pieRadius : coordinateX);
     var y = (coordinateY == -1 ? pieRadius : coordinateY);
     var radius = pieRadius / animationScale;
+    var popUpTextCutoff = pieRadius;
 
     function combineDataBelowCutoff(data, cutoff, piePercentages, pieLabels, pieColors)
     {
@@ -31,10 +32,10 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         if (tinySlices.length == 1)
             bigSlices.push(tinySlices[0]);
         else if (sumOfTiny > 0 && tinySlices.length > 1)
-            bigSlices.push({"rgb-red":255, "rgb-green": 255, "rgb-blue": 255, "percent": sumOfTiny, "color": "Others (<1%)  "});
+            bigSlices.push({"rgb-red": 255, "rgb-green": 255, "rgb-blue": 255, "percent": sumOfTiny, "color": "Others (<1%)  "});
 
 //    sort the bigSlices so that the values are all sorted with the correct colors and labels associated with the percentages large to small
-        bigSlices.sort(function(a, b)
+        bigSlices.sort(function (a, b)
         {
             return b.percent - a.percent;
         });
@@ -89,16 +90,16 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
     }
 
     // public stuff
-    this.renderChart = function(data, drawLegend)
+    this.renderChart = function (data, drawLegend, isFromGraphxPage)
     {
         // sort data coming in by percentage of slice largest to smallest - we need to do this
         // because we need to handle the smallest slices in a special case down below
-        data = data.sort(function(a, b)
+        data = data.sort(function (a, b)
         {
             return b.percent - a.percent;
         });
 
-        // define the three vars for g.raphael's piechart
+        // define the vars for g.raphael's piechart
         var piePercentages = [];
         var pieLabels = [];
         var pieColors = [];
@@ -107,9 +108,16 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         // Instead, we take control and combine them into our own "Others" slice which will be rendered to include the remaining percentage
         combineDataBelowCutoff(data, 1.0, piePercentages, pieLabels, pieColors);
 
+        // create hrefs for moving to this location
+        // parse out address to server + "/zonehistory"
+        var fullURL = document.URL;
+        var serverAddress = document.URL.substring(0, document.URL.indexOf("/", 9)) + '/zonehistory';
+
+
         // set up for custom pie colors and whether or not to draw the legend
         var params = {};
         params.colors = pieColors;
+
         if (drawLegend === true)
         {
             params.legend = pieLabels;
@@ -120,35 +128,78 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
 
         var popup;
         raphaelPaper.clear();
-        raphaelPaper.piechart(x, y, radius, piePercentages, params)
-                .hover(function ()
+        var pieThing = raphaelPaper.piechart(x, y, radius, piePercentages, params);
+
+        // assign the click events to the sectors
+        // ideally would place this into a new function but this is a quick fix
+        if (isFromGraphxPage)
+        {
+            var clickSomeSlice = function ()
+            {
+                // look for the first '/' after http://
+                var serverAddress = document.URL.substring(0, document.URL.indexOf("/", 9)) + '/zonehistory';
+                var decodedAddress = decodeURIComponent(decodeURIComponent(document.URL)); // for whatever reason it needs to be done twice to get completely correct
+
+                // find loc
+                var tempIndex = decodedAddress.lastIndexOf("loc=");
+                var tempEnd = decodedAddress.indexOf("&", tempIndex);
+                var location = decodedAddress.substring(decodedAddress.lastIndexOf("loc=") + 4, tempEnd);
+
+                // find prevdays
+                tempIndex = decodedAddress.lastIndexOf("prevdays=") + 9;
+                tempEnd = decodedAddress.indexOf("&", tempIndex);
+                var prevdays;
+                if (tempEnd == -1)
+                    prevdays = decodedAddress.substring(tempIndex);
+                else
+                    prevdays = decodedAddress.substring(tempIndex, tempEnd);
+
+                // add to url
+//                var awesomeifiedURL = serverAddress + '/servlets/results?location=' + encodeURIComponent(location) +
+//                '&prevdays=' + encodeURIComponent(prevdays) + '&isFromGfxPge=false';
+//                window.open(awesomeifiedURL);
+                window.open(serverAddress);
+
+            };
+
+            for (var index_i = 0; index_i < pieThing.covers.items.length; index_i++)
+                pieThing.covers.items[index_i].click(clickSomeSlice);
+        }
+
+        // if the size of the chart is smaller than 75px, the label won't show up properly so we may as well not show it
+        if (popUpTextCutoff >= 75)
+        {
+            pieThing.hover(function ()
+            {
+                this.sector.stop();
+                this.sector.animate({ transform: 's1.1 1.1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
+
+                if (this.label)
                 {
-                    this.sector.stop();
-                    this.sector.animate({ transform: 's1.1 1.1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
+                    this.label[0].stop();
+                    this.label[0].attr({ r: 7.5 });
+                    this.label[1].attr({ "font-weight": 800 });
+                }
 
-                    if (this.label)
-                    {
-                        this.label[0].stop();
-                        this.label[0].attr({ r: 7.5 });
-                        this.label[1].attr({ "font-weight": 800 });
-                    }
+                var popupText = makePopupText(this.value.valueOf(), pieLabels[this.value.order]);
+                popup = raphaelPaper.popup(this.sector.middle.x, this.sector.middle.y, popupText, 'up');
 
-                    var popupText = makePopupText(this.value.valueOf(), pieLabels[this.value.order]);
-                    popup = raphaelPaper.popup(this.sector.middle.x, this.sector.middle.y, popupText, 'up');
-                }, function ()
+            }, function ()
+            {
+                this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
+
+                if (this.label)
                 {
-                    this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
+                    this.label[0].animate({ r: 5 }, 500, "bounce");
+                    this.label[1].attr({ "font-weight": 400});
+                }
 
-                    if (this.label)
-                    {
-                        this.label[0].animate({ r: 5 }, 500, "bounce");
-                        this.label[1].attr({ "font-weight": 400});
-                    }
+                popup.hide();
+            });
+        }
 
-                    popup.hide();
-                });
+        // this for IE not rendering subpixels correctly
         mainChartPaperLocation.renderfix();
-
     };
 }
 

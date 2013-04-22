@@ -95,7 +95,7 @@ whether the table shows the rows it requires--%>
     cWidth -= showLegendTemp === true ? 200 : 0;
 
     // we need to pass on the values so that we can determine the radius, alert the user, but not use an alert while using raphael...yay
-    var radius = 0.97 * (cWidth >= cHeight ? cHeight : cWidth) / 2;
+    var radius = (cWidth >= cHeight ? cHeight : cWidth) / 2;
     if (cHeight < 20 || cWidth < 20)
     {
         mainChartPaperLocation = new Raphael("graph", 200, 200).text(0, 0, "Dimensions too small for zonehistory.\nMake this area larger.")
@@ -105,7 +105,7 @@ whether the table shows the rows it requires--%>
         // initialize raphael paper here to give to zonehistorypiechart
 
         if (!mainChartPaperLocation)
-            mainChartPaperLocation = new Raphael("graph", 0.96*<%=canvasWidth%>, 2 * radius + 5);
+            mainChartPaperLocation = new Raphael("graph", 0.96*<%=canvasWidth%>, 2 * radius);
 
         // draw pie chart...pass in its object here in order to initialize and such
         var horizontalCenter = <%=canvasWidth%> / 2;

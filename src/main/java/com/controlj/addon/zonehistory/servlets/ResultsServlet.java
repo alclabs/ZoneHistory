@@ -46,7 +46,7 @@ public class ResultsServlet extends HttpServlet
                 public void execute(@NotNull SystemAccess systemAccess) throws Exception
                 {
                     Tree geoTree = systemAccess.getTree(SystemTree.Geographic);
-                    Location location = geoTree.resolve(loc);
+                    Location location = loc.charAt(0)!='#' ? geoTree.resolve(loc) : systemAccess.resolveGQLPath(loc);
                     Location equipmentLoc = location.getType() == LocationType.Equipment ? LocationUtilities.findMyEquipment(location) : location;
 
 //                    Logging.LOGGER.println("Location to search: " + location.getDisplayName());
