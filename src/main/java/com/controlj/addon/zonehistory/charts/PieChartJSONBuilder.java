@@ -44,7 +44,9 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
         tableData.put("operationalvalue", operationalTime);
         tableData.put("heatingvalue",     heatingTime);
         tableData.put("coolingvalue",     coolingTime);
-        tableData.put("eivalue",          areaForEI == 0 ? 0 : areaForEI / occupiedTime);
+
+        // handle possible result in a NaN result (which cannot be placed into a JSON object)
+        tableData.put("eivalue", occupiedTime == 0 ? -1 : areaForEI / occupiedTime);
         tableData.put("totalTime",        totalTime);
 
         return tableData;
