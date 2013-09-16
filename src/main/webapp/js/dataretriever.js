@@ -23,6 +23,7 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
         // run report and draw chart/table when done or display an error
         $.ajax({
                     url: "servlets/results",
+                    cache: false,
                     dataType: 'json',
                     timeout: 600000,
                     data: { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},

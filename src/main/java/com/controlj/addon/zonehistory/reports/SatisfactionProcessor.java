@@ -77,7 +77,7 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
     public void processEnd(@NotNull Date endTime, TrendEquipmentColorSample endBookend)
     {
         if (trace) Logging.LOGGER.println("Processing end @" + endTime);
-
+/*
         if (lastTransitionTime == desiredStart.getTime())
         {
 //            if the processor has just come from the process start method and has found no data points within the range, the data is unknown within the range
@@ -93,10 +93,11 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         }
         else
         {
+        */
 //            everything is ok, just add the duration since the lastTransitionTime to the lastColor known to us
             updateColorTotal(lastColor, endTime.getTime() - lastTransitionTime);
             if (trace) Logging.LOGGER.println("End has bookend at " + endBookend.getTime());
-        }
+        //}
     }
 
     private void updateColorTotal(EquipmentColor color, long timeInterval)

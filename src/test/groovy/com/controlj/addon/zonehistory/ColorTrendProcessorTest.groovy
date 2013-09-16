@@ -63,9 +63,9 @@ class ColorTrendProcessorTest extends Specification
             processor.processStart(start, startBookend)
             processor.processEnd(end, (TrendEquipmentColorSample) null)
 
-        then: "the value should be Unknown for the time requested because there is no data inside the range"
-            processor.colorMap == [(UNKNOWN) : TWO_DAYS]
-            processor.percentCoverage == 0
+        then: "the value should be OCCUPIED for the time requested because the data doesn't change from the initial condition"
+            processor.colorMap == [(OCCUPIED) : TWO_DAYS]
+            processor.percentCoverage == 100
 
         when: "only have a end bookend (no start bookend)"
             processor = new SatisfactionProcessor(start, end)
@@ -80,8 +80,8 @@ class ColorTrendProcessorTest extends Specification
             processor.processStart(start, startBookend)
             processor.processEnd(end, endBookend)
         then: "the value of the start bookend should be the value for the whole time requested"
-            processor.colorMap == [(UNKNOWN) : TWO_DAYS]
-            processor.percentCoverage == 0.0
+            processor.colorMap == [(OCCUPIED) : TWO_DAYS]
+            processor.percentCoverage == 100
     }
 
     def "test change of color within range"()
@@ -109,9 +109,9 @@ class ColorTrendProcessorTest extends Specification
             processor.processData(rangeSample)
             processor.processEnd(end, (TrendEquipmentColorSample) null)
 
-        then: "map should have only the first day, with unknown for the rest"
-            processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : ONE_DAY]
-            processor.percentCoverage == 50.0
+        then: "the lack of an end bookend shouldn't matter"
+            processor.colorMap == [(OCCUPIED) : ONE_DAY, (OPERATIONAL) : ONE_DAY]
+            processor.percentCoverage == 100.0
     }
 
     def "test holes within range - same color at start, middle, and end"()
@@ -156,7 +156,7 @@ class ColorTrendProcessorTest extends Specification
             def startBookend = new TestSample(OCCUPIED, start-1)
             def endBookend = new TestSample(UNOCCUPIED, end+1)
             def testSample1 = new TestSample(OPERATIONAL, start+3)
-            def testSample2 = new TestSample(MODERATE_COOLING, end-2)
+            def testSample2 = new TestSample(MODERATE_COOLING, start+5)
 
         when: "hole at start+2, 1 day hole, 1 day operational, 1 day hole, 3 day mod cool"
             def processor = new SatisfactionProcessor(start, end)

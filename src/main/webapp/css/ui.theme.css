@@ -54,6 +54,19 @@ ul.dynatree-container {
     margin-left: 0px;
 }
 
+ul.dynatree-container a:hover
+{
+/*	text-decoration: underline; */
+	background: #555; /* light blue */
+	border-color: #B8D6FB; /* darker light blue */
+}
+
+ul.dynatree-container a:focus,
+span.dynatree-focused a:link  /* @IE */
+{
+	background-color: #000; /* black */
+}
+
 th {
     font-size: 1em;
     padding-right: 3px;

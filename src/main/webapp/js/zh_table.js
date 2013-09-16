@@ -83,11 +83,11 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         var tableRow = "<tr class='blackRow'>";
 
         if (showHeating === true)
-            tableRow += '<tr class="blackRow"><td>Time Heating:</td><td style="text-align: center;">' + (heatingvalue + "%") + '</td></tr>';
+            tableRow += '<tr class="blackRow"><td>Heating:</td><td style="text-align: center;">' + (heatingvalue + "%") + '</td></tr>';
         if (showCooling === true)
-            tableRow += '<tr class="blackRow"><td>Time Cooling:</td><td style="text-align: center;">' + (coolingvalue + "%") + '</td></tr>';
+            tableRow += '<tr class="blackRow"><td>Cooling:</td><td style="text-align: center;">' + (coolingvalue + "%") + '</td></tr>';
         if (showOperational === true)
-            tableRow += '<tr class="blackRow"><td>Time Operational:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
+            tableRow += '<tr class="blackRow"><td>Operational:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
         if (showEI === true)
             tableRow += '<tr class="blackRow"><td>Average EI:</td><td style="text-align: center;">' + (eivalue == -1 ? "N/A" : (eivalue + "%")) + '</td></tr>';
 
