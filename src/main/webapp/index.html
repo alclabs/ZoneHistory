@@ -36,6 +36,7 @@
 
     <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.18.custom.min.js"></script>
+    <script type="text/javascript" src="js/jquery.ba-bbq.min.js"></script>
     <script type="text/javascript" src="js/jquery.dynatree.min.js"></script>
     <script type="text/javascript" src="js/raphael-min.js"></script>
     <script type="text/javascript" src="js/g.raphael-min.js"></script>
@@ -87,11 +88,11 @@
             <table id="detailsTable" cellpadding="0" cellspacing="0" style="display: none;">
                 <thead>
                 <tr>
-                    <th id="equipmentLocation">Equipment Location</th>
-                    <th id="heatingpercent">Time Heating</th>
-                    <th id="coolingpercent">Time Cooling</th>
-                    <th id="operationalpercent">Time Operational</th>
-                    <th id="averageEI">Average EI</th>
+                    <th class="sortable" propname="eqDisplayName" defsort="inc">Equipment Location</th>
+                    <th class="sortable" propname="heatingvalue" defsort="dec">Time Heating</th>
+                    <th class="sortable" propname="coolingvalue" defsort="dec">Time Cooling</th>
+                    <th class="sortable" propname="operationalvalue" defsort="dec">Time Occupied</th>
+                    <th class="sortable" propname="eivalue" defsort="inc">Average EI</th>
                     <th>Colors</th>
                 </tr>
                 </thead>

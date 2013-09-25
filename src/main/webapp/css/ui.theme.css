@@ -57,7 +57,7 @@ ul.dynatree-container {
 ul.dynatree-container a:hover
 {
 /*	text-decoration: underline; */
-	background: #555; /* light blue */
+	background: #555; /* light grey */
 	border-color: #B8D6FB; /* darker light blue */
 }
 
@@ -67,13 +67,32 @@ span.dynatree-focused a:link  /* @IE */
 	background-color: #000; /* black */
 }
 
-th {
-    font-size: 1em;
-    padding-right: 3px;
-    padding-left: 3px;
-    border-bottom: 1px solid;
-    color: white;
+/*
+#detailsTable {
+    border-spacing: 4px;
+    border-collapse: separate;
 }
+*/
+
+th {
+
+    font-size: 1em;
+    color: white;
+    padding-right: 14px;
+    padding-left: 14px;
+    border-bottom: 1px solid;
+}
+
+th span {
+}
+
+th.sortable:hover {
+    background-color: #555;
+}
+
+th.down { background: transparent url(img/down.png)  center right no-repeat; }
+th.up   { background: transparent url(img/up.png)  center right no-repeat; }
+
 
 td {
     vertical-align: top;
@@ -104,4 +123,12 @@ tr.even {
 
 a.dim:link, a.dim:visited {
     color: #999;
+}
+
+a:link {
+    color:#ddd;
+}
+
+a:visited {
+    color:#ddd;
 }

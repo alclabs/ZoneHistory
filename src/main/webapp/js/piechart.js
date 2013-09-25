@@ -90,7 +90,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
     }
 
     // public stuff
-    this.renderChart = function (data, drawLegend, isFromGraphxPage)
+    this.renderChart = function (data, drawLegend, metaData)
     {
         // sort data coming in by percentage of slice largest to smallest - we need to do this
         // because we need to handle the smallest slices in a special case down below
@@ -107,11 +107,6 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
         // Graphael combines 2 or more slices less than 1.0% into an ambiguous 'Others' category
         // Instead, we take control and combine them into our own "Others" slice which will be rendered to include the remaining percentage
         combineDataBelowCutoff(data, 1.0, piePercentages, pieLabels, pieColors);
-
-        // create hrefs for moving to this location
-        // parse out address to server + "/zonehistory"
-        var fullURL = document.URL;
-        var serverAddress = document.URL.substring(0, document.URL.indexOf("/", 9)) + '/zonehistory';
 
 
         // set up for custom pie colors and whether or not to draw the legend
@@ -132,33 +127,15 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
 
         // assign the click events to the sectors
         // ideally would place this into a new function but this is a quick fix
-        if (isFromGraphxPage)
+        if (metaData.isFromGrafxPage)
         {
             var clickSomeSlice = function ()
             {
-                // look for the first '/' after http://
-                var serverAddress = document.URL.substring(0, document.URL.indexOf("/", 9)) + '/zonehistory';
-                var decodedAddress = decodeURIComponent(decodeURIComponent(document.URL)); // for whatever reason it needs to be done twice to get completely correct
-
-                // find loc
-                var tempIndex = decodedAddress.lastIndexOf("loc=");
-                var tempEnd = decodedAddress.indexOf("&", tempIndex);
-                var location = decodedAddress.substring(decodedAddress.lastIndexOf("loc=") + 4, tempEnd);
-
-                // find prevdays
-                tempIndex = decodedAddress.lastIndexOf("prevdays=") + 9;
-                tempEnd = decodedAddress.indexOf("&", tempIndex);
-                var prevdays;
-                if (tempEnd == -1)
-                    prevdays = decodedAddress.substring(tempIndex);
-                else
-                    prevdays = decodedAddress.substring(tempIndex, tempEnd);
-
+                var serverAddress = '/'+metaData.addOnName;
                 // add to url
-//                var awesomeifiedURL = serverAddress + '/servlets/results?location=' + encodeURIComponent(location) +
-//                '&prevdays=' + encodeURIComponent(prevdays) + '&isFromGfxPge=false';
-//                window.open(awesomeifiedURL);
-                window.open(serverAddress);
+                var linkURL = serverAddress + '/?locationPath=' + encodeURIComponent(metaData.locationPath) +
+                '&prevdays=' + encodeURIComponent(metaData.prevdays) + '&isFromGfxPge=false';
+                window.open(linkURL);
 
             };
 

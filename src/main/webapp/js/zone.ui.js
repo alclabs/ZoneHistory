@@ -34,64 +34,53 @@ $(function()
                     runReport();
                 },
 
-                //onPostInit : treeInitialized, // see comment in treeInitialized below
+                onPostInit : treeInitialized, // see comment in treeInitialized below
 
                 cache: false
             }
     );
 
+    $("th.sortable").click(function() {
+        table.clearTable();
+
+        var th = $(this);
+        var increasing = false;
+        if (th.hasClass('down'))
+        {
+            increasing = false;
+        } else if (th.hasClass('up')) {
+            increasing = true;
+        } else {
+            increasing = (th.attr('defsort') != 'inc')
+        }
+        $("th.sortable").removeClass('down up');
+
+        increasing = !increasing;
+        th.addClass(increasing ? 'up' : 'down');
+        table.sortByAttribute($(this).attr('propname'), increasing);
+    });
+
+    var params = $.deparam.querystring();
+
+    function treeInitialized()
+    {
+        if (params.locationPath)
+        {
+            jumpToTreeLocation(params.locationPath);
+        }
+    }
+
+    var prevdays = params.prevdays;
+    if ($.inArray(prevdays, ['0','1','7','31']) != -1 ) {
+        $('#dateCombo').val(prevdays);
+    }
+
     $("#dateCombo").simpleCombo().change(function()
     {
         runReport();
     });
-
-    $("#equipmentLocation").click(function()
-    {
-        table.clearTable();
-        table.sortByName();
-    });
-
-    $("#heatingpercent").click(function()
-    {
-        table.clearTable();
-        table.sortByAttribute("heatingvalue");
-    });
-
-    $("#coolingpercent").click(function()
-    {
-        table.clearTable();
-        table.sortByAttribute("coolingvalue");
-    });
-
-    $("#operationalpercent").click(function()
-    {
-        table.clearTable();
-        table.sortByAttribute("operationalvalue");
-    });
-
-    $("#averageEI").click(function()
-    {
-        table.clearTable();
-        table.sortByAttribute("eivalue");
-    });
-
 });
 
-// Will be used later to allow links from charts on a graphic to the whole application
-function treeInitialized()
-{
-    if (location.search)
-    {
-        var splits = location.split("=", 2);
-        if (splits.length === 2)
-        {
-            if (splits[0] === "loc")
-            {
-                jumpToTreeLocation(splits[1]);
-            }
-        }
-    }
-}
 
 function jumpToTreeLocation(keyPath)
 {
@@ -115,6 +104,8 @@ function runReport()
     {
         if (!mainChartPaperLocation)
             mainChartPaperLocation = new Raphael("graph", 500, 350);
+
+        $("th.sortable").removeClass('down up');
 
         var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, 150, 150, 150);
         table = new ZoneHistoryTable("detailsTable", false, true, true, true, true, 30);

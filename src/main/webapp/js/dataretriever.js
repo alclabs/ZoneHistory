@@ -6,7 +6,7 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
     var zoneHistoryTable = zhTable;
     var isFromGrafxPage = isFromGraphicsPage;
 
-    this.runReportForData = function(location, daysSinceToday, drawLegend)
+    this.runReportForData = function(location, daysSinceToday, drawLegend, addOnName)
     {
         // defensive
         if (!location)
@@ -29,7 +29,12 @@ function DataRetriever(zhPie, zhTable, isFromGraphicsPage)
                     data: { "location":location, "prevdays":daysSinceToday, "isFromGfxPge": isFromGrafxPage},
                     success: function(data)
                     {
-                        zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend, isFromGrafxPage);
+                        zoneHistoryPiechart.renderChart(data.mainChart.colors, drawLegend, {
+                            'isFromGrafxPage' : isFromGrafxPage,
+                            'locationPath' : data.locationPath,
+                            'addOnName' : addOnName,
+                            'prevdays' : daysSinceToday
+                        } );
                         zoneHistoryTable.renderTable(data.table);
                     },
                     error:  function(a, textStatus, error)

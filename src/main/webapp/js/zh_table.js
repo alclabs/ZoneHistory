@@ -1,4 +1,4 @@
-function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHeat, showOperation, show_EI, inlinePieDiameter)
+function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHeat, showOccupied, show_EI, inlinePieDiameter)
 {
     // private stuff
     var renderTarget = renderTargetElement;
@@ -6,7 +6,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
     var isFromGfxPage = _isFromGfxPage;
     var showCooling = showCool;
     var showHeating = showHeat;
-    var showOperational = showOperation;
+    var showOccupied = showOccupied;
     var showEI = show_EI;
     var inlinePieSize = inlinePieDiameter;
     var localTableData;
@@ -37,7 +37,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
                 tableRow += '<td style="text-align: center;">' + (heatingvalue + "%") + '</td>';
             if (showCooling === true)
                 tableRow += '<td style="text-align: center;">' + (coolingvalue + "%") + '</td>';
-            if (showOperational === true)
+            if (showOccupied === true)
                 tableRow += '<td style="text-align: center;">' + (operationalvalue + "%") + '</td>';
             if (showEI === true)
                 tableRow += '<td style="text-align: center;">' + (item.eivalue === -1 ? "N/A" : (eivalue + "%")) + '</td>';
@@ -71,7 +71,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         }
     }
 
-    function drawGfxPageTable(tableData, showCooling, showHeating, showOperational, showEI)
+    function drawGfxPageTable(tableData, showCooling, showHeating, showOccuipied, showEI)
     {
         var heatingvalue     = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
         var coolingvalue     = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
@@ -86,8 +86,8 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             tableRow += '<tr class="blackRow"><td>Heating:</td><td style="text-align: center;">' + (heatingvalue + "%") + '</td></tr>';
         if (showCooling === true)
             tableRow += '<tr class="blackRow"><td>Cooling:</td><td style="text-align: center;">' + (coolingvalue + "%") + '</td></tr>';
-        if (showOperational === true)
-            tableRow += '<tr class="blackRow"><td>Operational:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
+        if (showOccuipied === true)
+            tableRow += '<tr class="blackRow"><td>Occupied:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
         if (showEI === true)
             tableRow += '<tr class="blackRow"><td>Average EI:</td><td style="text-align: center;">' + (eivalue == -1 ? "N/A" : (eivalue + "%")) + '</td></tr>';
 
@@ -106,13 +106,13 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         document.getElementById(renderTarget).style.display = 'none';
     };
 
-    this.sortByName = function()
+    this.sortByName = function(increasing)
     {
         reverse = !reverse;
         localTableData = localTableData.sort(function(a, b)
         {
             var eq1, eq2;
-            if (reverse)
+            if (increasing)
             {
                 eq1 = a["eqDisplayName"];
                 eq2 = b["eqDisplayName"];
@@ -133,15 +133,18 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         drawTable(localTableData);
     };
 
-    this.sortByAttribute = function(propertyName)
+    this.sortByAttribute = function(propertyName, increasing)
     {
-        reverse = !reverse;
+        if (propertyName == "eqDisplayName") {
+            return this.sortByName(increasing);
+        }
+
         localTableData = localTableData.sort(function(a, b)
         {
             var var1 = a[propertyName];
             var var2 = b[propertyName];
 
-            if (reverse)
+            if (increasing)
                 return var1 - var2;
             else
                 return var2 - var1;
@@ -155,12 +158,15 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         this.clearTable();
         localTableData = tableData;
         if (isFromGfxPage)
-            drawGfxPageTable(localTableData, showCooling, showHeating, showOperational, showEI);
+            drawGfxPageTable(localTableData, showCooling, showHeating, showOccupied, showEI);
         else
         {
             if (tableData === undefined)
                 return;
 
+            this.sortByAttribute("eivalue", true);
+            $('#detailsTable th[propname="eivalue"]').addClass("up");
+            /*
             // sort by operational percentage - low to high
             if (tableData.length !== undefined)
             {
@@ -170,6 +176,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
                 });
             }
             drawTable(localTableData);
+            */
         }
     };
 }

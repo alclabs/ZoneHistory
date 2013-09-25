@@ -98,6 +98,8 @@ public class ResultsServlet extends HttpServlet
                     else //if ((location.getType() == LocationType.Area || location.getType() == LocationType.System) && webContext == null)
                         results.put("table", new SatisfactionPieBuilder().buildAreaDetailsTable(combinedResult));
 
+                    results.put("locationPath", getTreePath(location));
+
                     results.write(finalResponse.getWriter());
                 }
             });
@@ -109,6 +111,20 @@ public class ResultsServlet extends HttpServlet
         }
 
         finalResponse.flushBuffer();
+    }
+
+    private String getTreePath(@NotNull Location loc) throws UnresolvableException
+    {
+      StringBuffer result = new StringBuffer();
+      while(loc.hasParent())
+      {
+         result.insert(0, loc.getTransientLookupString());
+         result.insert(0, '/');
+         loc = loc.getParent();
+      }
+      result.insert(0, loc.getTransientLookupString());
+      result.insert(0, '/');
+      return result.toString();
     }
 
     private Date determineStartDate(String daysString)

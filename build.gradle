@@ -10,7 +10,7 @@ info {
   description =
       'Displays a pie chart showing historical equipment color for zones (i.e. equipment with a set point). '+
       'Can also display the pie chart on an ViewBuilder graphic using the webapp content control.'
-  version = '1.0.5'
+  version = '1.0.6'
   vendor = 'ALC Labs'
 }
 
