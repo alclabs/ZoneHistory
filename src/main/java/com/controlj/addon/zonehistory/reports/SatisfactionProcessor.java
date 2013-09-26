@@ -17,7 +17,7 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
 
     private final Date desiredStart, desiredEnd;
     private EquipmentColor lastColor;
-    private long lastTransitionTime, operationalTime, coolingTime, heatingTime;
+    private long lastTransitionTime, operatingTime, coolingTime, heatingTime;
     public static boolean trace = false;
 
     public SatisfactionProcessor(Date start, Date end)
@@ -31,7 +31,7 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         if (trace)
             Logging.LOGGER.println("---------------Satisfaction Processor Start------------");
 
-        operationalTime = 0;
+        operatingTime = 0;
         coolingTime = 0;
         heatingTime = 0;
         lastColor = startBookend != null ? startBookend.value() : EquipmentColor.UNKNOWN;
@@ -113,8 +113,8 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         colorMap.put(color, time + timeInterval);
 
         // add time to other categories
-        if (ColorUtilities.isOperational(color))
-            operationalTime += timeInterval;
+        if (ColorUtilities.isOperating(color))
+            operatingTime += timeInterval;
         if (ColorUtilities.isActiveHeating(color))
             heatingTime += timeInterval;
         else if (ColorUtilities.isActiveCooling(color))
@@ -138,9 +138,9 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         return colorMap;
     }
 
-    public long getOperationalTime()
+    public long getOperatingTime()
     {
-        return operationalTime;
+        return operatingTime;
     }
 
     public long getCoolingTime()

@@ -14,10 +14,8 @@ public abstract class ColorUtilities
         return color == EquipmentColor.HEATING_ALARM || color == EquipmentColor.MAXIMUM_HEATING || color == EquipmentColor.MODERATE_HEATING;
     }
 
-    public static boolean isOperational(EquipmentColor color)
+    public static boolean isOperating(EquipmentColor color)
     {
-         return color != EquipmentColor.CORAL && color != EquipmentColor.DOWNLOAD_REQUIRED &&
-                color != EquipmentColor.HARDWARE_COMM_ERROR && color != EquipmentColor.SOFTWARE_COMM_ERROR &&
-                color != EquipmentColor.UNKNOWN && color != EquipmentColor.UNOCCUPIED;
+         return (isActiveCooling(color) || isActiveHeating(color));
     }
 }

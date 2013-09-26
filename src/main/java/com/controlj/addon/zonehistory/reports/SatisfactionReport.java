@@ -76,14 +76,14 @@ public class SatisfactionReport implements Report
                                 Logging.LOGGER.println("------ Processing " + equipment.getDisplayName());
 
                             SatisfactionProcessor processor = processTrendData(source, trendRange);
-                            long operationalTime = processor.getOperationalTime();
+                            long operatingTime = processor.getOperatingTime();
                             long coolingTime = processor.getCoolingTime();
                             long heatingTime = processor.getHeatingTime();
                             colorMap.putAll(processor.getColorMap());
                             String transLookupPath = LocationUtilities.createTransientLookupPathString(equipment);
 
                             cachedResults = new ReportResultsData(processor.getTotalTime(), persistentLookupString, transLookupPath, displayPath, processor.getColorMap(),
-                                    operationalTime, coolingTime, heatingTime);
+                                    operatingTime, coolingTime, heatingTime);
 
                             // caching results except for today's results
                             long day = 24 * 60 * 60 * 1000;

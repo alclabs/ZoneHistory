@@ -35,7 +35,7 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
 
             coolingTime     += data.getActiveCoolingTime();
             heatingTime     += data.getActiveHeatingTime();
-            operationalTime += data.getOperationalTime();
+            operationalTime += data.getOperatingTime();
             occupiedTime    += data.getOccupiedTime();
             areaForEI       += data.getRawAreaForEICalculations();
             totalTime       += data.getTotalTime();
@@ -66,7 +66,7 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
             tableRow.put("eqDisplayName",      data.getDisplayPath());
             tableRow.put("eqTransLookup",      data.getPersistentLookupString());
             tableRow.put("eqTransLookupPath",  data.getTransLookupPath());
-            tableRow.put("operationalvalue",   data.getOperationalTime());
+            tableRow.put("operationalvalue",   data.getOperatingTime());
             tableRow.put("occupiedvalue",      data.getOccupiedTime());
             tableRow.put("coolingvalue",       data.getActiveCoolingTime());
             tableRow.put("heatingvalue",       data.getActiveHeatingTime());

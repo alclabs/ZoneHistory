@@ -11,7 +11,7 @@ public class ReportResultsData<T>
 
     private final Map<T, Long> data;
     private final long time; // occupied time? - check to make sure it is
-    private long operationalTime, coolingTime, heatingTime, occupiedTime;
+    private long operatingTime, coolingTime, heatingTime, occupiedTime;
     private String persistentLookupString, transientLookupPath, displayPath;
     private double avgAreaForEI, area;
 
@@ -22,7 +22,7 @@ public class ReportResultsData<T>
         this.transientLookupPath = transLookupPath;
         this.displayPath = displayPath;
 
-        this.operationalTime = 0;
+        this.operatingTime = 0;
         this.coolingTime = 0;
         this.heatingTime = 0;
         this.occupiedTime = 0;
@@ -38,10 +38,10 @@ public class ReportResultsData<T>
         this.data.putAll(rawData);
     }
 
-    public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath, Map<T, Long> rawData, long operationalTime, long activeCoolingTime, long activeHeatingTime)
+    public ReportResultsData(long time, String transLookup, String transLookupPath, String displayPath, Map<T, Long> rawData, long operatingTime, long activeCoolingTime, long activeHeatingTime)
     {
         this(time, transLookup, transLookupPath, displayPath, rawData);
-        this.operationalTime = operationalTime;
+        this.operatingTime = operatingTime;
         this.coolingTime = activeCoolingTime;
         this.heatingTime = activeHeatingTime;
     }
@@ -133,9 +133,9 @@ public class ReportResultsData<T>
         return heatingTime;
     }
 
-    public long getOperationalTime()
+    public long getOperatingTime()
     {
-        return operationalTime;
+        return operatingTime;
     }
 
     public double getRawAreaForEICalculations()
