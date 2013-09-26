@@ -38,6 +38,9 @@
         String showHeating = request.getParameter("showheating");
         if (showHeating == null) showHeating = "false";
 
+        String showOperational = request.getParameter("showoperating");
+        if (showOperational == null) showOperational = "false";
+
         String showOccupied = request.getParameter("showoccupied");
         if (showOccupied == null) showOccupied = "false";
 
@@ -80,6 +83,7 @@
     var showLegendTemp = <%=showLegend.contains("true")%>;
     var showCooling = <%=showCooling.contains("true")%>;
     var showHeating = <%=showHeating.contains("true")%>;
+    var showOperational = <%=showOperational.contains("true")%>;
     var showOccupied = <%=showOccupied.contains("true")%>;
     var showEI = <%=showEI.contains("true")%>;
 
@@ -91,7 +95,7 @@ whether the table shows the rows it requires--%>
     cHeight -= showCooling === true ? 20 : 0;
     cHeight -= showEI === true ? 20 : 0;
     cHeight -= showHeating === true ? 20 : 0;
-    cHeight -= showOccupied === true ? 20 : 0;
+    cHeight -= showOperational === true ? 20 : 0;
     cHeight -= showLegendTemp === true ? 80 : 0;
     cWidth -= showLegendTemp === true ? 200 : 0;
 
@@ -112,7 +116,7 @@ whether the table shows the rows it requires--%>
         var horizontalCenter = <%=canvasWidth%> / 2;
         var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, horizontalCenter, radius, radius);
         var isFromGrafxPage = true; // just for verbosity
-        var table = new ZoneHistoryTable("detailsTable", isFromGrafxPage, showCooling, showHeating, showOccupied, showEI, 30);
+        var table = new ZoneHistoryTable("detailsTable", isFromGrafxPage, showCooling, showHeating, showOperational, showOccupied, showEI, 30);
 
         var report = new DataRetriever(pieChart, table, true);
         report.runReportForData('<%=loc%>', '<%=range%>', showLegendTemp, 'zonehistory');

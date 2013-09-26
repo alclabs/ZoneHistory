@@ -44,6 +44,10 @@
         .examp {
             font-family: monospace;
         }
+
+        .b {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -54,9 +58,10 @@
     It also provides a sortable table of equipment statistics that can be very valuable when looking for problem zones.
 </p>
 
-<h1>Using the Interface</h1>
+<h1>Using the Main Page</h1>
 
 <div class="innerDiv">
+    <p>The ZoneHistory add-on has a main page at <span class="examp">http://&lt;webctrl-server&gt;/zonehistory</span>. </p>
     <h2>System Tree</h2>
 
     <p>
@@ -72,10 +77,11 @@
     <p>
         The drop down menu at the top of the page controls the time range that is analyzed:
         <ul>
-            <li>Today includes from midnight of the current day up to the current time.</li>
-            <li>Yesterday includes all of the previous day.</li>
-            <li>Previous 7 (or 31) days includes the specified number of previous days (not including today).</li>
+            <li>Today - includes from midnight of the current day up to the current time.</li>
+            <li>Yesterday - includes all of the previous day.</li>
+            <li>Previous 7 (or 31) days - includes the specified number of previous days (not including today).</li>
         </ul>
+        Note that all options other than &quot;Today&quot; will cache the values until midnight.
     </p>
 
     <h2>Main Pie Chart</h2>
@@ -94,16 +100,26 @@
     <h2>Zone Equipment Table</h2>
     <p>
         The table that shows the individual details for each zone equipment  beneath that area is show below the main
-        pie chart. Each row of the table contains the display path to the equipment, the time spent in cooling, heating,
+        pie chart. Clicking on a column of the table will sort the column.
+        Clicking anywhere in a row will select that equipment in the system tree and display the equipment using the large pie chart.
+        The columns are:
+        <ul>
+            <li><span class="b">Equipment Location</span>  - the display path to the equipment</li>
+            <li><span class="b">Time Heating</span> - percent of time spent in any of the heating colors</li>
+            <li><span class="b">Time Cooling</span> - percent of time spent in any of the cooling colors</li>
+            <li><span class="b">Time Operating</span> - percent of time spent in any color other than green or gray</li>
+            <li><span class="b">Time Occupied</span> - percent of time occupied (either scheduled or due to override)</li>
+            <li><span class="b">Average EI</span> - average value for EI over the time range</li>
+            <li><span class="b">Colors</span> - pie chart of the amount of time spent in each color</li>
+        </ul>
+        Each row of the table contains the display path to the equipment, the time spent in cooling, heating,
         occupied, the average environmental index, and a small pie chart for the zone. These values are calculated by looking at
         the amount of time spent in groups of colors. Cooling and heating times are the percent of time spent in their
         respective moderate, maximum, and alarm colors.
         Time Occupied is the percent of time that the zone was occupied (either because of schedule or a local override).
         Average EI is the average value of the EI trend over the specified time range.
 
-        Clicking on a column of the table will sort the column.
 
-        Clicking anywhere in a row will select that equipment in the system tree and display the equipment using the large pie chart.
     </p>
 </div>
 <h1>Including in Views</h1>
@@ -166,6 +182,10 @@
             <td>Specify "true" to show the percentage of time the area or equipment has been spent heating.</td>
         </tr>
         <tr>
+            <td>showoperating</td> <td>false</td>
+            <td>Specify "true" to show the percentage of time the area or equipment has been operating (not green or gray).</td>
+        </tr>
+        <tr>
             <td>showoccupied</td> <td>false</td>
             <td>Specify "true" to show the percentage of time the area or equipment has been spent occupied.</td>
         </tr>
@@ -182,6 +202,10 @@
     <p>
         Zone History relies on trends of zone color and Environmental Index.  The name of the color trend does not matter,
         but EI must be trended with a wire trend that has a reference name of &quot;<span class="examp">zn_enviro_indx_tn</span>&quot;.
+        The EI trend is used to calculate the values for the &quot;Occupied&quot; and &quot;Average EI&quot; columns.  If you don't have
+        an EI trend, you will get a value of 0 in these columns.
+    </p>
+    <p>
         For performance reasons, the Zone History add-on only uses trend information that has already been captured by
         Trend Historian.  Reading the most recent information from the field would just take too long for most systems.
         You must ensure that both color and EI are trended and that the values are regularly sent to the server.

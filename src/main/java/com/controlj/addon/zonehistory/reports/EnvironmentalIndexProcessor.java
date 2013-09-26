@@ -10,15 +10,15 @@ import java.util.Date;
 
 public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
 {
-    private long totalTime, lastTransitionTime, occupiedTime;
-    private double previousPoint, area, averageEI;
+    private long totalTime, occupiedTime, lastTransitionTime;
+    private TrendAnalogSample previousSample, startBookend;
+    private double area, averageEI;
     public static boolean trace = false;
 
     public EnvironmentalIndexProcessor()
     {
         totalTime = 0;
         occupiedTime = 0;
-        previousPoint = 0;
     }
 
     public long getTotalTime()
@@ -45,50 +45,113 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
     public void processStart(@NotNull Date date, @Nullable TrendAnalogSample sample)
     {
         lastTransitionTime = date.getTime();
-        if (sample != null)
-            previousPoint = sample.doubleValue();
+        startBookend = sample;
         if (trace)
-            Logging.LOGGER.print("Start @ " + date.getTime() + " with sample value of: " + previousPoint + "\r\n");
+            Logging.LOGGER.print("Start @ " + date.getTime() + " with sample value of: " + previousSample.doubleValue() + "\r\n");
+    }
+
+    private double interpolate(long t1, double val1, long t2, double val2, long t) {
+        return ((val2 - val1) / (t2 - t1) * (t - t1)) + val1;
     }
 
     @Override
     public void processData(@NotNull TrendAnalogSample sample)
     {
+        double lastSampleValue;
+
         long deltaTime = sample.getTimeInMillis() - lastTransitionTime;
-        if (sample.doubleValue() > 0)
+
+        if (startBookend != null || previousSample != null)
         {
-//            Use midpoint between the two points as the height and multiply by the change in time to get the area. This is similar to the area for a trapezoid.
-            area += ((previousPoint + sample.doubleValue()) / 2) * deltaTime;
-            previousPoint = sample.doubleValue();
-            occupiedTime += deltaTime;
+            if (startBookend != null) {
+                lastSampleValue = interpolate(  startBookend.getTimeInMillis(), startBookend.doubleValue(),
+                                                sample.getTimeInMillis(), sample.doubleValue(),
+                                                lastTransitionTime);
+                startBookend = null;
+            } else {
+                lastSampleValue = previousSample.doubleValue();
+            }
+
+            if (lastSampleValue > 0)
+            {
+                if (sample.doubleValue() > 0)
+                {
+                    // Assume value linearly changed between last two samples
+                    area += ((lastSampleValue + sample.doubleValue()) / 2) * deltaTime;
+                } else
+                {
+                    // Assume value stayed the same until it went to 0
+                    area += (lastSampleValue * deltaTime);
+                }
+                occupiedTime += deltaTime;
+            }
+        } else  // extend backwards to fill for holes or missing start data
+        {
+            if (sample.doubleValue() > 0)
+            {
+                area += sample.doubleValue() * deltaTime;
+                occupiedTime += deltaTime;
+            }
         }
 
         totalTime += deltaTime;
+        previousSample = sample;
         lastTransitionTime = sample.getTimeInMillis();
 
         if (trace)
-            Logging.LOGGER.print("Data @ " + sample.getTime().getTime() + " with sample value of: " + previousPoint +
+            Logging.LOGGER.print("Data @ " + sample.getTime().getTime() + " with sample value of: " + previousSample.doubleValue() +
                     " Area at " + area + " Occupied Time: " + occupiedTime + " Average EI: " + area / occupiedTime + "\r\n");
     }
 
     @Override
-    public void processEnd(@NotNull Date date, @Nullable TrendAnalogSample sample)
+    public void processEnd(@NotNull Date date, @Nullable TrendAnalogSample endBookend)
     {
+        // todo handle only start/end bookends
+        //todo handle no bookends
+
+        double lastSampleValue, finalSampleValue;
         long deltaTime = date.getTime() - lastTransitionTime;
-        // finalize the areas by adding up the last sample? is the bookend included? I believe no since it will be during or after the allotted time frame we're looking back through.
-        if (sample != null && sample.doubleValue() > 0)
-        {
-            if (trace)
-                Logging.LOGGER.print("End Sample not null" + " Average EI: " + area / occupiedTime + "\r\n");
-            area += ((previousPoint + sample.doubleValue()) / 2) * deltaTime;
-            occupiedTime += deltaTime;
+
+        if (endBookend != null) {
+            if (startBookend != null)   // there were no samples, only bookends
+            {
+                lastSampleValue = interpolate(  startBookend.getTimeInMillis(), startBookend.doubleValue(),
+                                                endBookend.getTimeInMillis(), endBookend.doubleValue(),
+                                                lastTransitionTime);
+                // note that lastTransitionTime is already set to start time
+            } else if (previousSample != null)  // there was a previous sample
+            {
+                lastSampleValue = previousSample.doubleValue();
+            } else {                            // no start bookend or previous samples
+                lastSampleValue = endBookend.doubleValue();    // extend last bookend backwards
+            }
+
+            finalSampleValue = interpolate( lastTransitionTime, lastSampleValue,
+                                            endBookend.getTimeInMillis(), endBookend.doubleValue(),
+                                            date.getTime());
+        } else {    // no end bookend
+            if (startBookend != null) {
+                lastSampleValue = startBookend.doubleValue();
+            } else if (previousSample != null){
+                lastSampleValue = previousSample.doubleValue();
+            } else {
+                lastSampleValue = 0;
+            }
+            finalSampleValue = lastSampleValue;
         }
-        else if (sample == null)
+
+        if (lastSampleValue > 0)
         {
-//            occupiedTime += deltaTime;
-//            area += previousPoint * deltaTime;
-            if (trace)
-                Logging.LOGGER.print("End Sample was null" + " Average EI: " + area / occupiedTime + "\r\n");
+            if (finalSampleValue > 0)
+            {
+                // Assume value linearly changed between last two samples
+                area += ((lastSampleValue + finalSampleValue) / 2) * deltaTime;
+            } else
+            {
+                // Assume value stayed the same until it went to 0
+                area += (lastSampleValue * deltaTime);
+            }
+            occupiedTime += deltaTime;
         }
 
         totalTime += deltaTime;
@@ -99,18 +162,40 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
         else
             averageEI = area / occupiedTime;
         if (trace)
-            Logging.LOGGER.print("End @ " + date.getTime() + " with sample value of: " + previousPoint +
+            Logging.LOGGER.print("End @ " + date.getTime() + " with sample value of: " + previousSample.doubleValue() +
                     " Area at " + area + " Occupied Time: " + occupiedTime + " Average EI: " + area / occupiedTime + "\r\n");
     }
 
     @Override
     public void processHole(@NotNull Date start, @NotNull Date end)
     {
+        double lastSampleValue;
         if (trace)
-            Logging.LOGGER.print("Hole @ " + start.getTime() + " Average EI: " + area / occupiedTime + "\r\n");
+            Logging.LOGGER.print("Hole @ " + start.getTime() + " Average EI: " + (occupiedTime!=0 ? area / occupiedTime : 0) + "\r\n");
 
-        totalTime += end.getTime() - start.getTime() + lastTransitionTime;
-        lastTransitionTime = end.getTime() - start.getTime() + lastTransitionTime;
+        long deltaTime = (start.getTime() - lastTransitionTime);
+
+        if (startBookend != null || previousSample != null)
+        {
+            if (startBookend != null) {
+                lastSampleValue = startBookend.doubleValue();
+                startBookend = null;
+            } else {
+                lastSampleValue = previousSample.doubleValue();
+            }
+
+            if (lastSampleValue > 0)
+            {
+                    // Assume value stayed the same until it went to 0
+                area += (lastSampleValue * deltaTime);
+                occupiedTime += deltaTime;
+            }
+        }
+
+        totalTime += (end.getTime() - lastTransitionTime);
+        previousSample = null;
+        startBookend = null;
+        lastTransitionTime = end.getTime();
 //        previousPoint = 0; // last point is at 0 so omit from totals
     }
 }

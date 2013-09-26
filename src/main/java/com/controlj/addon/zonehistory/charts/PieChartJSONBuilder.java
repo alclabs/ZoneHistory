@@ -42,11 +42,12 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
         }
 
         tableData.put("operationalvalue", operationalTime);
+        tableData.put("occupiedvalue",    occupiedTime);
         tableData.put("heatingvalue",     heatingTime);
         tableData.put("coolingvalue",     coolingTime);
 
         // handle possible result in a NaN result (which cannot be placed into a JSON object)
-        tableData.put("eivalue", occupiedTime == 0 ? -1 : areaForEI / occupiedTime);
+        tableData.put("eivalue", occupiedTime == 0 ? 0 : areaForEI / occupiedTime);
         tableData.put("totalTime",        totalTime);
 
         return tableData;
@@ -66,6 +67,7 @@ public abstract class PieChartJSONBuilder<T extends TrendSource>
             tableRow.put("eqTransLookup",      data.getPersistentLookupString());
             tableRow.put("eqTransLookupPath",  data.getTransLookupPath());
             tableRow.put("operationalvalue",   data.getOperationalTime());
+            tableRow.put("occupiedvalue",      data.getOccupiedTime());
             tableRow.put("coolingvalue",       data.getActiveCoolingTime());
             tableRow.put("heatingvalue",       data.getActiveHeatingTime());
             tableRow.put("rowChart",           makeSinglePieChart(data)); // generate a pie per source data

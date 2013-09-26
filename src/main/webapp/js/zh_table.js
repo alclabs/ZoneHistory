@@ -1,4 +1,4 @@
-function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHeat, showOccupied, show_EI, inlinePieDiameter)
+function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHeat, showOperational, showOccupied, show_EI, inlinePieDiameter)
 {
     // private stuff
     var renderTarget = renderTargetElement;
@@ -6,6 +6,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
     var isFromGfxPage = _isFromGfxPage;
     var showCooling = showCool;
     var showHeating = showHeat;
+    var showOperational = showOperational;
     var showOccupied = showOccupied;
     var showEI = show_EI;
     var inlinePieSize = inlinePieDiameter;
@@ -29,6 +30,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             var heatingvalue = Math.round(100 * item.heatingvalue / totalTime);
             var coolingvalue = Math.round(100 * item.coolingvalue / totalTime);
             var operationalvalue = Math.round(100 * item.operationalvalue / totalTime);
+            var occupiedvalue = Math.round(100 * item.occupiedvalue / totalTime);
             var eivalue = Math.round(item.eivalue);
 
             var tableRow = "<tr class=" + style + " onclick=\"jumpToTreeLocation(\'" + path + "\')\">" + "<td>" + eqLink + '</td>';
@@ -37,10 +39,12 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
                 tableRow += '<td style="text-align: center;">' + (heatingvalue + "%") + '</td>';
             if (showCooling === true)
                 tableRow += '<td style="text-align: center;">' + (coolingvalue + "%") + '</td>';
-            if (showOccupied === true)
+            if (showOperational === true)
                 tableRow += '<td style="text-align: center;">' + (operationalvalue + "%") + '</td>';
+            if (showOccupied === true)
+                tableRow += '<td style="text-align: center;">' + (occupiedvalue + "%") + '</td>';
             if (showEI === true)
-                tableRow += '<td style="text-align: center;">' + (item.eivalue === -1 ? "N/A" : (eivalue + "%")) + '</td>';
+                tableRow += '<td style="text-align: center;">' + (eivalue + "%") + '</td>';
 
             tableRow += '<td style="text-align: center;"><span id="' + rowId + "\" class=\"sparkline\"></span>" + '</td></tr>';
 
@@ -76,6 +80,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         var heatingvalue     = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
         var coolingvalue     = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
         var operationalvalue = Math.round(100 * tableData.operationalvalue / tableData.totalTime);
+        var occupiedvalue    = Math.round(100 * tableData.occupiedvalue / tableData.totalTime);
         var eivalue          = tableData.eivalue === 0 ? 0 : Math.round(tableData.eivalue); // check for 0 EI
 
         document.getElementById(renderTarget).style.display = 'block';
@@ -86,10 +91,12 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             tableRow += '<tr class="blackRow"><td>Heating:</td><td style="text-align: center;">' + (heatingvalue + "%") + '</td></tr>';
         if (showCooling === true)
             tableRow += '<tr class="blackRow"><td>Cooling:</td><td style="text-align: center;">' + (coolingvalue + "%") + '</td></tr>';
+        if (showOperational === true)
+            tableRow += '<tr class="blackRow"><td>Operating:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
         if (showOccuipied === true)
-            tableRow += '<tr class="blackRow"><td>Occupied:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
+            tableRow += '<tr class="blackRow"><td>Occupied:</td><td style="text-align: center;">' + (occupiedvalue + "%") + '</td></tr>';
         if (showEI === true)
-            tableRow += '<tr class="blackRow"><td>Average EI:</td><td style="text-align: center;">' + (eivalue == -1 ? "N/A" : (eivalue + "%")) + '</td></tr>';
+            tableRow += '<tr class="blackRow"><td>Average EI:</td><td style="text-align: center;">' + (eivalue + "%") + '</td></tr>';
 
         tableRow += '</tr>';
         $('#' + renderTarget + " tbody").append(tableRow);
@@ -158,14 +165,14 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         this.clearTable();
         localTableData = tableData;
         if (isFromGfxPage)
-            drawGfxPageTable(localTableData, showCooling, showHeating, showOccupied, showEI);
+            drawGfxPageTable(localTableData, showCooling, showHeating, showOperational, showEI);
         else
         {
             if (tableData === undefined)
                 return;
 
-            this.sortByAttribute("eivalue", true);
-            $('#detailsTable th[propname="eivalue"]').addClass("up");
+            this.sortByAttribute("operationalvalue", false);
+            $('#detailsTable th[propname="operationalvalue"]').addClass("down");
             /*
             // sort by operational percentage - low to high
             if (tableData.length !== undefined)

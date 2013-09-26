@@ -6,6 +6,7 @@ import spock.lang.Specification
 import com.controlj.addon.zonehistory.reports.EnvironmentalIndexProcessor
 import static java.util.concurrent.TimeUnit.*
 import static java.util.Calendar.*
+import static org.hamcrest.Matchers.closeTo
 
 
 class EIProcessorTest extends Specification
@@ -25,6 +26,12 @@ class EIProcessorTest extends Specification
         {
             this.value = value
             this.date = date
+        }
+
+        TestSample(double value, long timestamp)
+        {
+            this.value = value;
+            this.date = new Date(timestamp);
         }
 
         @Override Date      getTime()         { date }
@@ -92,12 +99,166 @@ class EIProcessorTest extends Specification
             processor.totalTime == TWO_DAYS
     }
 
+    def day(float elapsed)
+    {
+        def time = new Date(113, SEPTEMBER, 1);
+        new Date(time.time + (long)(elapsed * 1000 * 60 * 60 * 24))
+    }
+
+    def inDays(long milliTime) {
+        milliTime / 1000.0 / 60 / 60 / 24
+    }
+
+    def makeSamples(data)   // array of arrays, inner array is [value, days elapsed]
+    {
+        data.collect([]) {
+            if (it)
+            {
+                if (it.size() == 2)
+                {
+                    return new TestSample(it[0], day(it[1]))
+                } else if (it.size() == 3)
+                {
+                    return [day(it[1]), day(it[2])]
+                }
+            }
+            return null
+        }
+    }
+
+    def processData(data, start, end)
+    {
+        def startTime = day(start);
+        def endTime = day(end);
+
+        assert(data.size() >= 2)
+
+        def startBookend = data.head();
+        def endBookend = data.last();
+        def samples = data.subList(1, data.size()-1)
+
+        def processor = new EnvironmentalIndexProcessor()
+
+        processor.processStart(startTime, (TrendAnalogSample) startBookend)
+
+        samples.each {
+            if (it instanceof TrendAnalogSample)
+                processor.processData(it)
+            else
+                processor.processHole(it[0], it[1])
+        }
+
+        processor.processEnd(endTime, (TrendAnalogSample) endBookend)
+        return processor
+    }
+
+
+    def "test both bookends and one sample"()
+    {
+        when:
+            def p = processData(makeSamples([
+                    [70, 0],    // start bookend
+                                // start range at 1
+                    [90, 2],
+                                // end range at 3
+                    [95, 4]     // end bookend
+            ]), 1, 3)
+        then:
+            p.averageEI == 88.125
+            inDays(p.occupiedTime) == 2
+            p.totalTime == p.occupiedTime
+
+
+        when: "move the start and end out by .5"
+            p = processData(makeSamples([
+                    [70, 0],    // start bookend
+                                // start range at .5
+                    [90, 2],
+                                // end range at 3.5
+                    [95, 4]     // end bookend
+            ]), 0.5, 3.5)
+        then:
+            p.averageEI == 87.1875
+            inDays(p.occupiedTime) == 3
+            p.totalTime == p.occupiedTime
+    }
+
+    def "test no end bookend"()
+    {
+        when:
+            def p = processData(makeSamples([
+                    [70, 0],    // start bookend
+                                // start range at 1
+                    [80, 2],
+                                // end range at 3
+                    null        // end bookend
+            ]), 1, 3)
+        then:
+            p.averageEI == 78.75    // assume last sample doesn't change until end of range
+            inDays(p.occupiedTime) == 2
+            p.totalTime == p.occupiedTime
+    }
+
+    def "test no start bookend"()
+    {
+        when:
+            def p = processData(makeSamples([
+                    null,       // start bookend
+                                // start range at 1
+                    [70, 1],
+                    [80, 2],
+                                // end range at 3
+                    [90, 4]     // end bookend
+            ]), 0.5, 3)
+        then:
+            p.averageEI == 77
+            inDays(p.occupiedTime) == 2.5
+            inDays(p.totalTime) == 2.5
+    }
+
+    def "no bookends"()
+    {
+        when:
+            def p = processData(makeSamples([
+                    null,       // start bookend
+                                // start range at 1
+                    [70, 1],
+                    [80, 2],
+                    [60, 3],
+                                // end range at 4
+                    null        // end bookend
+            ]), 0, 4)
+        then:
+            p.averageEI == 68.75
+            inDays(p.occupiedTime) == 4
+            inDays(p.totalTime) == 4
+    }
+
+
+    def "test both bookends, samples and a hole"()
+    {
+        when: "move the start and end out by .5"
+            def p = processData(makeSamples([
+                    [70, 0],    // start bookend
+                                // start range at 1
+                    [80, 2],
+                    [0,  3, 4], // hole from 3-4
+                                // end range at 5
+                    [90, 5]     // end bookend
+            ]), 1, 5)
+        then:
+            p.averageEI == 82.5
+            inDays(p.occupiedTime) == 3
+            inDays(p.totalTime) == 4
+    }
+
+
     def "test change of color within range"()
     {
         given:
             def start = date(2011, SEPTEMBER, 21)
             def end = date(2011, SEPTEMBER, 23)
-            def startBookend = new TestSample(0, start-1)
+            def startBookend = new TestSample(70, start-1)
             def endBookend = new TestSample(95, end+1)
             def rangeSample = new TestSample(90, date(2011, SEPTEMBER, 22))
 
@@ -108,15 +269,7 @@ class EIProcessorTest extends Specification
             processor.processEnd(end, endBookend)
 
         then: "average ei should be 90 * value of time between changes + 95 + day of change + 0 * day divided by the total operational time"
-            processor.averageEI == 68.75;
-
-        when: "there is data, but no ending bookend"
-            processor = new EnvironmentalIndexProcessor()
-            processor.processStart(start, startBookend)
-            processor.processData(rangeSample)
-            processor.processEnd(end, (TestSample) null)
-
-        then: "no ending bookend will not be the same value"
-            processor.averageEI == 45.0;
+            processor.averageEI == 88.125;
     }
+
  }

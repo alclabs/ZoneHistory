@@ -26,8 +26,8 @@ public class ReportResultsData<T>
         this.coolingTime = 0;
         this.heatingTime = 0;
         this.occupiedTime = 0;
-        this.avgAreaForEI = -1;
-        this.area = -1;
+        this.avgAreaForEI = 0;
+        this.area = 0;
 
         this.data = new HashMap<T, Long>();
     }

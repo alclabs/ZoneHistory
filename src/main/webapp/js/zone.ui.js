@@ -108,7 +108,7 @@ function runReport()
         $("th.sortable").removeClass('down up');
 
         var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, 150, 150, 150);
-        table = new ZoneHistoryTable("detailsTable", false, true, true, true, true, 30);
+        table = new ZoneHistoryTable("detailsTable", false, true, true, true, true, true, 30);
 
         var report = new DataRetriever(pieChart, table, false);
         report.runReportForData(location, getTimeRange(), true);
