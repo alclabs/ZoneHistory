@@ -79,24 +79,24 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
     {
         var heatingvalue     = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
         var coolingvalue     = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
-        var operationalvalue = Math.round(100 * tableData.operationalvalue / tableData.totalTime);
+        var operatingvalue   = Math.round(100 * tableData.operationalvalue / tableData.totalTime);
         var occupiedvalue    = Math.round(100 * tableData.occupiedvalue / tableData.totalTime);
         var eivalue          = tableData.eivalue === 0 ? 0 : Math.round(tableData.eivalue); // check for 0 EI
 
-        document.getElementById(renderTarget).style.display = 'block';
+        document.getElementById(renderTarget).style.display = 'table';
 
-        var tableRow = "<tr class='blackRow'>";
+        var tableRow = "<tr class='label'>";
 
         if (showHeating === true)
-            tableRow += '<tr class="blackRow"><td>Heating:</td><td style="text-align: center;">' + (heatingvalue + "%") + '</td></tr>';
+            tableRow += '<tr><td class="label">Heating:</td><td style="text-align: center;"><span class="value">' + heatingvalue + '</span> %</td></tr>';
         if (showCooling === true)
-            tableRow += '<tr class="blackRow"><td>Cooling:</td><td style="text-align: center;">' + (coolingvalue + "%") + '</td></tr>';
+            tableRow += '<tr><td class="label">Cooling:</td><td style="text-align: center;"><span class="value">' + coolingvalue + '</span> %</td></tr>';
         if (showOperational === true)
-            tableRow += '<tr class="blackRow"><td>Operating:</td><td style="text-align: center;">' + (operationalvalue + "%") + '</td></tr>';
+            tableRow += '<tr><td class="label">Operating:</td><td style="text-align: center;"><span class="value">' + operatingvalue + '</span> %</td></tr>';
         if (showOccuipied === true)
-            tableRow += '<tr class="blackRow"><td>Occupied:</td><td style="text-align: center;">' + (occupiedvalue + "%") + '</td></tr>';
+            tableRow += '<tr><td class="label">Occupied:</td><td style="text-align: center;"><span class="value">' + occupiedvalue + '</span> %</td></tr>';
         if (showEI === true)
-            tableRow += '<tr class="blackRow"><td>Average EI:</td><td style="text-align: center;">' + (eivalue + "%") + '</td></tr>';
+            tableRow += '<tr><td class="label">Average EI:</td><td style="text-align: center;"><span class="value">' + eivalue + '</span> %</td></tr>';
 
         tableRow += '</tr>';
         $('#' + renderTarget + " tbody").append(tableRow);

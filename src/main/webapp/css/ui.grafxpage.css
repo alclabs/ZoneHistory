@@ -21,9 +21,23 @@ td {
     vertical-align: top;
 }
 
+tr {
+    font-size: 10px;
+    line-height: 12px;
+    color: #8d9292;
+ }
+
 #detailsTable td {
     vertical-align: middle;
     padding: 2px;
+}
+
+#detailsTable {
+    margin: auto;
+}
+
+#detailsTable tr {
+    white-space: nowrap;
 }
 
 div.graph {
@@ -31,6 +45,10 @@ div.graph {
     width: 100%;
 }
 
-tr.blackRow {
-    color: white;
+td.label {
+    text-align: right;
+}
+
+span.value {
+    color:#fef55f;
 }

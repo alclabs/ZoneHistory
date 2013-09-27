@@ -26,7 +26,7 @@ public class ReportResultsData<T>
         this.coolingTime = 0;
         this.heatingTime = 0;
         this.occupiedTime = 0;
-        this.avgAreaForEI = 0;
+        this.avgAreaForEI = -1;   // note -1 is used in EnvironmentalIndexReport as a flag that EI has not been calculated
         this.area = 0;
 
         this.data = new HashMap<T, Long>();

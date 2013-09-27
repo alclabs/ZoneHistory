@@ -46,7 +46,7 @@ function ZoneHistoryPieChart(paper, coordinateX, coordinateY, pieRadius)
             var onlyItem = bigSlices[index2];
             piePercentages.push(onlyItem.percent);
             pieColors.push("rgb(" + onlyItem["rgb-red"] + ", " + onlyItem["rgb-green"] + ", " + onlyItem["rgb-blue"] + ")");
-            pieLabels.push("%%.%%: " + readablizeString(onlyItem.color.toString().replace("_", " ").toLocaleLowerCase()) + "  ");
+            pieLabels.push("%%.%: " + readablizeString(onlyItem.color.toString().replace("_", " ").toLocaleLowerCase()) + "  ");
         }
     }
 

@@ -75,8 +75,7 @@
 <body>
 <div id="graph" class="graph"></div>
 <table id="detailsTable" cellpadding="0" cellspacing="0">
-    <thead></thead>
-    <tbody> <tr></tr> </tbody>
+    <tbody></tbody>
 </table>
 
 <script type="text/javascript">
@@ -92,28 +91,29 @@ whether the table shows the rows it requires--%>
     var cHeight = <%=canvasHeight%>;
     var cWidth = <%=canvasWidth%>;
 
-    cHeight -= showCooling === true ? 20 : 0;
-    cHeight -= showEI === true ? 20 : 0;
-    cHeight -= showHeating === true ? 20 : 0;
-    cHeight -= showOperational === true ? 20 : 0;
-    cHeight -= showLegendTemp === true ? 80 : 0;
-    cWidth -= showLegendTemp === true ? 200 : 0;
+    var lineHeight = 16;
+    cHeight -= showCooling ? lineHeight : 0;
+    cHeight -= showEI ? lineHeight : 0;
+    cHeight -= showHeating ? lineHeight : 0;
+    cHeight -= showOperational ? lineHeight : 0;
+    cHeight -= showOccupied ? lineHeight : 0;
+    cWidth -= showLegendTemp ? 180 : 0;
 
     // we need to pass on the values so that we can determine the radius, alert the user, but not use an alert while using raphael...yay
     var radius = (cWidth >= cHeight ? cHeight : cWidth) / 2;
     if (cHeight < 20 || cWidth < 20)
     {
-        mainChartPaperLocation = new Raphael("graph", 200, 200).text(0, 0, "Dimensions too small for zonehistory.\nMake this area larger.")
+        $('#graph').append('<span style="color:#F44;">Error: Zone History area too small.</span>')
     }
     else
     {
         // initialize raphael paper here to give to zonehistorypiechart
-
         if (!mainChartPaperLocation)
-            mainChartPaperLocation = new Raphael("graph", 0.96*<%=canvasWidth%>, 2 * radius);
+            mainChartPaperLocation = new Raphael("graph", <%=canvasWidth%>, 2 * radius);
 
         // draw pie chart...pass in its object here in order to initialize and such
         var horizontalCenter = <%=canvasWidth%> / 2;
+        if (showLegendTemp) { horizontalCenter -= 90; }
         var pieChart = new ZoneHistoryPieChart(mainChartPaperLocation, horizontalCenter, radius, radius);
         var isFromGrafxPage = true; // just for verbosity
         var table = new ZoneHistoryTable("detailsTable", isFromGrafxPage, showCooling, showHeating, showOperational, showOccupied, showEI, 30);
