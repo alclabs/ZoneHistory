@@ -183,6 +183,37 @@ class EIProcessorTest extends Specification
             p.totalTime == p.occupiedTime
     }
 
+    def "test unoccupied"()
+    {
+        /*
+        when:
+            def p = processData(makeSamples([
+                    [90, 0],    // start bookend
+                                // start range at 1
+                    [90, 2],
+                    [0, 2],     // unoccupied for 2
+                                // end range at 3
+                    [90, 4]     // end bookend
+            ]), 1, 4)
+        then:
+            p.averageEI == 90
+            inDays(p.occupiedTime) == 1
+            inDays(p.totalTime) == 3
+
+        */
+        when:
+            def p = processData(makeSamples([
+                    [0, 0],    //start bookend
+                    [90, 1.5],
+                    [90, 2]
+
+            ]), 1, 2)
+        then:
+        p.averageEI == 90
+        inDays(p.occupiedTime) == 0.5
+        inDays(p.totalTime) == 1
+    }
+
     def "test no end bookend"()
     {
         when:

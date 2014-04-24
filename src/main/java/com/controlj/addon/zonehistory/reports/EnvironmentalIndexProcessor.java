@@ -64,9 +64,14 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
         if (startBookend != null || previousSample != null)
         {
             if (startBookend != null) {
-                lastSampleValue = interpolate(  startBookend.getTimeInMillis(), startBookend.doubleValue(),
-                                                sample.getTimeInMillis(), sample.doubleValue(),
-                                                lastTransitionTime);
+                if (startBookend.doubleValue() > 0)
+                {
+                    lastSampleValue = interpolate(  startBookend.getTimeInMillis(), startBookend.doubleValue(),
+                                                    sample.getTimeInMillis(), sample.doubleValue(),
+                                                    lastTransitionTime);
+                } else {
+                    lastSampleValue = startBookend.doubleValue();
+                }
                 startBookend = null;
             } else {
                 lastSampleValue = previousSample.doubleValue();

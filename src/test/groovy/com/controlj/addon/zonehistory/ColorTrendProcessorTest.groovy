@@ -13,6 +13,11 @@ import com.controlj.addon.zonehistory.reports.SatisfactionProcessor
 class ColorTrendProcessorTest extends Specification
 {
     def date(int year, int month, int day) { new Date(year-1900, month, day) }
+    def date(int year, int month, int day, int hour, int minute) { new Date(year-1900, month, day, hour, minute) }
+    def samp(EquipmentColor color, int year, int month, int day, int hour, int minute) {
+        new TestSample(color, date(year, month, day, hour, minute))
+    }
+
     class TestSample implements TrendEquipmentColorSample
     {
         EquipmentColor color
@@ -32,7 +37,7 @@ class ColorTrendProcessorTest extends Specification
     }
     def ONE_DAY = MILLISECONDS.convert(1, DAYS)
     def TWO_DAYS = MILLISECONDS.convert(2, DAYS)
-
+    def ONE_MINUTE = MILLISECONDS.convert(1, MINUTES) as float
 
 
     def "test when no data"()
@@ -172,5 +177,35 @@ class ColorTrendProcessorTest extends Specification
             ((double)processor.percentCoverage) closeTo(500.0/7.0, 0.1)
     }
 
+    def "test with actual data"()
+    {
+        given: "vav 4-2 data"
+            def start = date(2014, MARCH, 12)
+            def startBookend = samp(MAXIMUM_COOLING, 2014, MARCH, 11, 23, 0)
+            def end = date(2014, MARCH, 13)
+            def endBookend = samp(MODERATE_COOLING, 2014, MARCH, 13, 0, 15)
+            def samples = [
+                samp(MODERATE_COOLING,  2014, MARCH, 12, 1, 15),
+                samp(UNOCCUPIED,        2014, MARCH, 12, 2, 35),
+                samp(MODERATE_COOLING,  2014, MARCH, 12, 4, 25),
+                samp(MAXIMUM_COOLING,   2014, MARCH, 12, 5, 00),
+                samp(MODERATE_COOLING,  2014, MARCH, 12, 5, 55),
+                samp(MAXIMUM_COOLING,   2014, MARCH, 12, 7, 40),
+                samp(COOLING_ALARM,     2014, MARCH, 12, 10,30),
+                samp(MAXIMUM_COOLING,   2014, MARCH, 12, 16,00)
+            ]
+            def processor = new SatisfactionProcessor(start, end)
+        when:
+            processor.processStart(start, startBookend)
+            samples.each() { processor.processData(it) }
+            processor.processEnd(end, endBookend)
+
+        then:
+            processor.totalTime / ONE_MINUTE == 1440
+            (processor.colorMap[(MAXIMUM_COOLING)] / ONE_MINUTE) == 780
+            (processor.colorMap[(MODERATE_COOLING)] / ONE_MINUTE) == 220
+            (processor.colorMap[(UNOCCUPIED)] / ONE_MINUTE) == 110
+            (processor.colorMap[(COOLING_ALARM)] / ONE_MINUTE) == 330
+    }
 
 }

@@ -57,9 +57,9 @@ public enum ZoneHistoryCache
             }
 
             // make sure the days for the DateRange are set to the midnights of their respective start and end dates
-            DateRange midnightedDateRange = this.setDateRangeToMidnight(dateRange);
+            //DateRange midnightedDateRange = this.setDateRangeToMidnight(dateRange);
 //            Logging.LOGGER.println("Midnighted range storage....: " + midnightedDateRange.getStart() + " to " + midnightedDateRange.getEnd());
-            currentZoneHistory.put(midnightedDateRange, cachedResults);
+            currentZoneHistory.put(dateRange, cachedResults);
             zoneHistoryCache.put(lus, currentZoneHistory);
         }
     }
