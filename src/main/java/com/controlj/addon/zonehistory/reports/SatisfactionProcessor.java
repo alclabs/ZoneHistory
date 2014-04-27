@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColorSample>
 {
+    private static final long FIFTEEN_MINUTES = 15 * 60 * 1000;
     private Map<EquipmentColor, Long> colorMap = new HashMap<EquipmentColor, Long>();
 
     private final Date desiredStart, desiredEnd;
@@ -69,8 +70,10 @@ public class SatisfactionProcessor implements TrendProcessor<TrendEquipmentColor
         // Holes are 'unknown' values so we treat it as such and add the duration of the hole
         updateColorTotal(EquipmentColor.UNKNOWN, end.getTime() - start.getTime());
 
-        // yes this could be used above but it is here for the sake of any inheritors of the code
-        lastColor = EquipmentColor.UNKNOWN;
+        if (end.getTime() - start.getTime() > FIFTEEN_MINUTES)
+        {
+            lastColor = EquipmentColor.UNKNOWN;
+        }
         lastTransitionTime = end.getTime();
     }
 

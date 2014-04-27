@@ -10,6 +10,8 @@ import java.util.Date;
 
 public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSample>
 {
+    private static final long FIFTEEN_MINUTES = 15 * 60 * 1000;
+
     private long totalTime, occupiedTime, lastTransitionTime;
     private TrendAnalogSample previousSample, startBookend;
     private double area, averageEI;
@@ -175,6 +177,11 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
     public void processHole(@NotNull Date start, @NotNull Date end)
     {
         double lastSampleValue;
+
+        if ((end.getTime() - start.getTime()) <= FIFTEEN_MINUTES) {
+            return; // Ignore holes < 15 minutes
+            //todo - if we don't ignore hole, does this get counted as unknown?  Check
+        }
         if (trace)
             Logging.LOGGER.print("Hole @ " + start.getTime() + " Average EI: " + (occupiedTime!=0 ? area / occupiedTime : 0) + "\r\n");
 
@@ -182,11 +189,12 @@ public class EnvironmentalIndexProcessor implements TrendProcessor<TrendAnalogSa
 
         if (startBookend != null || previousSample != null)
         {
-            if (startBookend != null) {
+            if (previousSample != null) {
+                lastSampleValue = previousSample.doubleValue();
+            }
+            else {
                 lastSampleValue = startBookend.doubleValue();
                 startBookend = null;
-            } else {
-                lastSampleValue = previousSample.doubleValue();
             }
 
             if (lastSampleValue > 0)

@@ -37,6 +37,7 @@ class ColorTrendProcessorTest extends Specification
     }
     def ONE_DAY = MILLISECONDS.convert(1, DAYS)
     def TWO_DAYS = MILLISECONDS.convert(2, DAYS)
+    def THREE_DAYS = MILLISECONDS.convert(3, DAYS)
     def ONE_MINUTE = MILLISECONDS.convert(1, MINUTES) as float
 
 
@@ -124,10 +125,15 @@ class ColorTrendProcessorTest extends Specification
         given:
             def start = date(2011, SEPTEMBER, 20)
             def end = date(2011, SEPTEMBER, 23)
+            def startHole = date(2011, SEPTEMBER, 21)
+            def endShortHole = date(2011, SEPTEMBER, 21, 0, 2)
+
             def startBookend = new TestSample(OCCUPIED, start-1)
             def endBookend = new TestSample(UNOCCUPIED, end+1)
 
         when: "a hole in the data within the range"
+            // 20          21  22  23
+            // start occ    hole   end unocc
             def processor = new SatisfactionProcessor(start, end)
             processor.processStart(start, startBookend)
             processor.processHole(start+1, end-1)
@@ -135,6 +141,18 @@ class ColorTrendProcessorTest extends Specification
         then: "should expect one color with 2 days of data"
             processor.colorMap == [(OCCUPIED) : ONE_DAY, (UNKNOWN) : TWO_DAYS]
             ((double)processor.percentCoverage) closeTo(33.3, 0.1)
+
+        when: "a small hole that should be ignored within the range"
+            // 20          21 (+2min)  23
+            // start occ    hole       end unocc
+            processor = new SatisfactionProcessor(start, end)
+            processor.processStart(start, startBookend)
+            processor.processHole(startHole, endShortHole)
+            processor.processEnd(end, endBookend)
+
+        then: "should expect one color with 3 days of data"
+            processor.colorMap == [(OCCUPIED) : THREE_DAYS-(2*ONE_MINUTE), (UNKNOWN) : 2*ONE_MINUTE]
+            ((double)processor.percentCoverage) closeTo(((THREE_DAYS-(2*ONE_MINUTE))/THREE_DAYS*100), 0.001)
 
         when: "a hole at the start of the beginning of the range"
             processor = new SatisfactionProcessor(start, end)
