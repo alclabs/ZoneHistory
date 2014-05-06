@@ -76,4 +76,8 @@ public class DateRange
     {
         return start.before(range.getStart()) && end.after(range.getEnd());
     }
+
+    public String toString() {
+        return getStart().toString() + "-" + getEnd().toString();
+    }
 }

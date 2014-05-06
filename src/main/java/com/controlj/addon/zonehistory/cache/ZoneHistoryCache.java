@@ -1,12 +1,10 @@
 package com.controlj.addon.zonehistory.cache;
 
 import com.controlj.addon.zonehistory.reports.ReportResultsData;
+import com.controlj.addon.zonehistory.util.Logging;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -23,10 +21,12 @@ public enum ZoneHistoryCache
     {
         synchronized (this)
         {
+            Logging.LOGGER.println("Begin get cached data at "+lus+" for "+dateRange);
+
             Map<DateRange, ReportResultsData> zoneHistories = zoneHistoryCache.get(lus);
             if (zoneHistories == null)
             {
-//                Logging.LOGGER.println("Cache (get) at lookup(" + lus + ") is null; returning null");
+                Logging.LOGGER.println("No cache entry at " + lus);
                 return null;
             }
 
@@ -34,11 +34,12 @@ public enum ZoneHistoryCache
 
             if (zoneHistories.get(dateRange) == null)
             {
-//                Logging.LOGGER.println("Cache Data not found for range");
+                Logging.LOGGER.println("Cache entry at"+lus+" has no data for range "+dateRange);
                 return null;
             }
 
 //            Logging.LOGGER.println("Cache Data FOUND for range");
+            Logging.LOGGER.println("End get cached data at "+lus+" for "+dateRange);
             return zoneHistories.get(dateRange);
         }
     }
@@ -47,20 +48,27 @@ public enum ZoneHistoryCache
     {
         synchronized (this)
         {
+            Logging.LOGGER.println("Begin cache results at "+lus+" for "+dateRange);
             trimCache(lus);
 
-            Map<DateRange, ReportResultsData> currentZoneHistory = zoneHistoryCache.get(lus);
-            if (currentZoneHistory == null)
-            {
-//                Logging.LOGGER.println("Cache Storage at lookup(" + lus + ") is null; creating new map");
-                currentZoneHistory = new HashMap<DateRange, ReportResultsData>();
-            }
+            try {
+                Map<DateRange, ReportResultsData> currentZoneHistory = zoneHistoryCache.get(lus);
+                if (currentZoneHistory == null)
+                {
+    //                Logging.LOGGER.println("Cache Storage at lookup(" + lus + ") is null; creating new map");
+                    currentZoneHistory = new HashMap<DateRange, ReportResultsData>();
+                }
 
-            // make sure the days for the DateRange are set to the midnights of their respective start and end dates
-            //DateRange midnightedDateRange = this.setDateRangeToMidnight(dateRange);
-//            Logging.LOGGER.println("Midnighted range storage....: " + midnightedDateRange.getStart() + " to " + midnightedDateRange.getEnd());
-            currentZoneHistory.put(dateRange, cachedResults);
-            zoneHistoryCache.put(lus, currentZoneHistory);
+                // make sure the days for the DateRange are set to the midnights of their respective start and end dates
+                //DateRange midnightedDateRange = this.setDateRangeToMidnight(dateRange);
+    //            Logging.LOGGER.println("Midnighted range storage....: " + midnightedDateRange.getStart() + " to " + midnightedDateRange.getEnd());
+                currentZoneHistory.put(dateRange, cachedResults);
+                zoneHistoryCache.put(lus, currentZoneHistory);
+            }  catch (ConcurrentModificationException ex) {
+                Logging.LOGGER.println("************ Syncronization problem detected in cacheResultsData ***********");
+                throw ex;
+            }
+            Logging.LOGGER.println("End cache results at "+lus+" for "+dateRange);
         }
     }
 
@@ -71,6 +79,7 @@ public enum ZoneHistoryCache
 
     private void trimCache(String lookup)
     {
+        try {
 //      get today at midnight
         Date today = getMidnightToday();
 
@@ -89,15 +98,24 @@ public enum ZoneHistoryCache
         if (zoneHistories == null)
             return;
 
-        for (DateRange dateInCache : zoneHistories.keySet())
+        Iterator<DateRange> it = zoneHistories.keySet().iterator();
+        while (it.hasNext())
         {
+            DateRange dateInCache = it.next();
             if (dateInCache.equals(yesterdayRange) || dateInCache.equals(weekRange) || dateInCache.equals(monthRange))
                 continue;
-            zoneHistories.remove(dateInCache);
-            zoneHistoryCache.get(lookup).remove(dateInCache);
+            Logging.LOGGER.println("About to remove "+dateInCache+" from zoneHistories");
+            it.remove();
+            //Logging.LOGGER.println("About to remove "+dateInCache+" from zoneHistoryCache");
+            //zoneHistoryCache.get(lookup).remove(dateInCache);
+            //Logging.LOGGER.println("Successfully removed it");
         }
 
         zoneHistoryCache.put(lookup, zoneHistories);
+        } catch (ConcurrentModificationException ex) {
+            Logging.LOGGER.println("************ Syncronization problem detected in trimCache ***********");
+            throw ex;
+        }
     }
 
     private DateRange setDateRangeToMidnight(DateRange dateRange)

@@ -23,12 +23,12 @@ public class GeoTreeSourceRetriever
         this.reportResults = reportResults;
     }
 
-    public Collection<AnalogTrendSource> collectForAnalogSources()
+    public Collection<AnalogTrendSource> findEISources()
     {
         return collect(AnalogTrendSource.class, Acceptors.aspectByName(AnalogTrendSource.class, "zn_enviro_indx_tn"));
     }
 
-    public Collection<EquipmentColorTrendSource> collectForColorSources()
+    public Collection<EquipmentColorTrendSource> findColorSources()
     {
         return collect(EquipmentColorTrendSource.class, new EnabledColorTrendWithSetpointAcceptor());
     }
@@ -45,9 +45,7 @@ public class GeoTreeSourceRetriever
 //        return reportResults.getAncestor().getAspect(aspectClass);
 //    }
 
-//  This is here so that the potential for a speedup in the database query for trend sources
-
-//  This is here so that the potential for a speedup in the database query for trned sources - a bug in the 1.2.x api prevents us from using this
+//  This is here to potentially speedup the database query for trend sources - a bug in the 1.2.x api prevents us from using this
     /*public Collection<TrendSource> collectTrendSources()
     {
         List<TrendSource> results = new ArrayList<TrendSource>();

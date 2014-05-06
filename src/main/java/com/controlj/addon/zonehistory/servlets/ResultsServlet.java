@@ -9,6 +9,7 @@ import com.controlj.green.addonsupport.access.*;
 import com.controlj.green.addonsupport.access.aspect.AnalogTrendSource;
 import com.controlj.green.addonsupport.access.aspect.EquipmentColorTrendSource;
 import com.controlj.green.addonsupport.access.aspect.TrendSource;
+import org.apache.commons.lang.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -55,19 +56,39 @@ public class ResultsServlet extends HttpServlet
                     ReportResults reportResults = new ReportResults(location);
                     GeoTreeSourceRetriever retriever = new GeoTreeSourceRetriever(reportResults);
 
+                    StopWatch eiSearchWatch = new StopWatch();
+                    StopWatch colorSearchWatch = new StopWatch();
+                    StopWatch colorReportWatch = new StopWatch();
+                    StopWatch eiReportWatch = new StopWatch();
+                    StopWatch combineWatch = new StopWatch();
+
                     // split list into Color and Analog Lists
-                    Collection<AnalogTrendSource> analogTrendSources = retriever.collectForAnalogSources();
-                    Collection<EquipmentColorTrendSource> colorTrendSources = retriever.collectForColorSources();
+                    eiSearchWatch.start();
+                    Collection<AnalogTrendSource> analogTrendSources = retriever.findEISources();
+                    eiSearchWatch.stop();
+
+                    colorSearchWatch.start();
+                    Collection<EquipmentColorTrendSource> colorTrendSources = retriever.findColorSources();
+                    colorSearchWatch.stop();
 
                     SatisfactionReport satisfactionReport = new SatisfactionReport(startDate, endDate, location, systemConnection);
-                    ReportResults satisfactionResults = satisfactionReport.runReport(colorTrendSources);
 
+                    colorReportWatch.start();
+                    ReportResults satisfactionResults = satisfactionReport.runReport(colorTrendSources);
+                    colorReportWatch.stop();
+
+                    // Note that the caching logic in EnvironmentalIndexReport requires that the SatisfactionReport is run first.
+                    // Don't swap the order of the reports
                     EnvironmentalIndexReport environmentalIndexReport = new EnvironmentalIndexReport(startDate, endDate, location, systemConnection);
+
+                    eiReportWatch.start();
                     ReportResults environmentalIndexReportResults = environmentalIndexReport.runReport(analogTrendSources);
+                    eiReportWatch.stop();
 
                     /*
                     * Combine the color results (for the pie) with the EI results to get both ei and the colors from the pie chart
                     * */
+                    combineWatch.start();
                     ReportResults combinedResult = new ReportResults(equipmentLoc);
                     for (Object source : satisfactionResults.getSources())
                     {
@@ -87,6 +108,11 @@ public class ResultsServlet extends HttpServlet
 
                         combinedResult.addData((TrendSource) source, data);
                     }
+                    combineWatch.stop();
+
+                    Logging.LOGGER.println("Ran report at loc="+loc+", from "+startDate.toString()+" to "+endDate.toString());
+                    Logging.LOGGER.println("EI Source Search:"+eiSearchWatch+", Color Source Search:"+colorSearchWatch);
+                    Logging.LOGGER.println("Color Report:"+colorReportWatch+", EI Report:"+eiReportWatch+", Combining:"+combineWatch);
 
 //                    }
 
