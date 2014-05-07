@@ -15,18 +15,19 @@ public enum ZoneHistoryCache
 
     private final static long ONE_DAY_MILLIS = 1000L * 60 * 60 * 24;
     private Map<String, Map<DateRange, ReportResultsData>> zoneHistoryCache = new HashMap<String, Map<DateRange, ReportResultsData>>();
+    private final boolean log = false;
 
     @Nullable
     public ReportResultsData getCachedData(String lus, DateRange dateRange)
     {
         synchronized (this)
         {
-            Logging.LOGGER.println("Begin get cached data at "+lus+" for "+dateRange);
+            if (log) Logging.LOGGER.println("Begin get cached data at "+lus+" for "+dateRange);
 
             Map<DateRange, ReportResultsData> zoneHistories = zoneHistoryCache.get(lus);
             if (zoneHistories == null)
             {
-                Logging.LOGGER.println("No cache entry at " + lus);
+                if (log) Logging.LOGGER.println("No cache entry at " + lus);
                 return null;
             }
 
@@ -34,12 +35,12 @@ public enum ZoneHistoryCache
 
             if (zoneHistories.get(dateRange) == null)
             {
-                Logging.LOGGER.println("Cache entry at"+lus+" has no data for range "+dateRange);
+                if (log) Logging.LOGGER.println("Cache entry at"+lus+" has no data for range "+dateRange);
                 return null;
             }
 
 //            Logging.LOGGER.println("Cache Data FOUND for range");
-            Logging.LOGGER.println("End get cached data at "+lus+" for "+dateRange);
+            if (log) Logging.LOGGER.println("End get cached data at "+lus+" for "+dateRange);
             return zoneHistories.get(dateRange);
         }
     }
@@ -48,7 +49,7 @@ public enum ZoneHistoryCache
     {
         synchronized (this)
         {
-            Logging.LOGGER.println("Begin cache results at "+lus+" for "+dateRange);
+            if (log) Logging.LOGGER.println("Begin cache results at "+lus+" for "+dateRange);
             trimCache(lus);
 
             try {
@@ -68,7 +69,7 @@ public enum ZoneHistoryCache
                 Logging.LOGGER.println("************ Syncronization problem detected in cacheResultsData ***********");
                 throw ex;
             }
-            Logging.LOGGER.println("End cache results at "+lus+" for "+dateRange);
+            if (log) Logging.LOGGER.println("End cache results at "+lus+" for "+dateRange);
         }
     }
 
@@ -104,11 +105,8 @@ public enum ZoneHistoryCache
             DateRange dateInCache = it.next();
             if (dateInCache.equals(yesterdayRange) || dateInCache.equals(weekRange) || dateInCache.equals(monthRange))
                 continue;
-            Logging.LOGGER.println("About to remove "+dateInCache+" from zoneHistories");
+            if (log) Logging.LOGGER.println("About to remove "+dateInCache+" from zoneHistories");
             it.remove();
-            //Logging.LOGGER.println("About to remove "+dateInCache+" from zoneHistoryCache");
-            //zoneHistoryCache.get(lookup).remove(dateInCache);
-            //Logging.LOGGER.println("Successfully removed it");
         }
 
         zoneHistoryCache.put(lookup, zoneHistories);

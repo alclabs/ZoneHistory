@@ -22,6 +22,8 @@ import java.util.*;
 
 public class ResultsServlet extends HttpServlet
 {
+    private final boolean log = false;
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         response.setContentType("application/json");
@@ -110,11 +112,11 @@ public class ResultsServlet extends HttpServlet
                     }
                     combineWatch.stop();
 
-                    Logging.LOGGER.println("Ran report at loc="+loc+", from "+startDate.toString()+" to "+endDate.toString());
-                    Logging.LOGGER.println("EI Source Search:"+eiSearchWatch+", Color Source Search:"+colorSearchWatch);
-                    Logging.LOGGER.println("Color Report:"+colorReportWatch+", EI Report:"+eiReportWatch+", Combining:"+combineWatch);
-
-//                    }
+                    if (log) {
+                        Logging.LOGGER.println("Ran report at loc="+loc+", from "+startDate.toString()+" to "+endDate.toString());
+                        Logging.LOGGER.println("EI Source Search:"+eiSearchWatch+", Color Source Search:"+colorSearchWatch);
+                        Logging.LOGGER.println("Color Report:"+colorReportWatch+", EI Report:"+eiReportWatch+", Combining:"+combineWatch);
+                    }
 
                     JSONObject results = new JSONObject();
                     results.put("mainChart", new SatisfactionPieBuilder().buildMainPieChart(combinedResult));
