@@ -75,7 +75,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         }
     }
 
-    function drawGfxPageTable(tableData, showCooling, showHeating, showOccuipied, showEI)
+    function drawGfxPageTable(tableData, showCooling, showHeating, showOperational, showOccupied, showEI)
     {
         var heatingvalue     = Math.round(100 * tableData.heatingvalue / tableData.totalTime);
         var coolingvalue     = Math.round(100 * tableData.coolingvalue / tableData.totalTime);
@@ -93,7 +93,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
             tableRow += '<tr><td class="label">Cooling:</td><td style="text-align: center;"><span class="value">' + coolingvalue + '</span> %</td></tr>';
         if (showOperational === true)
             tableRow += '<tr><td class="label">Operating:</td><td style="text-align: center;"><span class="value">' + operatingvalue + '</span> %</td></tr>';
-        if (showOccuipied === true)
+        if (showOccupied === true)
             tableRow += '<tr><td class="label">Occupied:</td><td style="text-align: center;"><span class="value">' + occupiedvalue + '</span> %</td></tr>';
         if (showEI === true)
             tableRow += '<tr><td class="label">Average EI:</td><td style="text-align: center;"><span class="value">' + eivalue + '</span> %</td></tr>';
@@ -165,7 +165,7 @@ function ZoneHistoryTable(renderTargetElement, _isFromGfxPage, showCool, showHea
         this.clearTable();
         localTableData = tableData;
         if (isFromGfxPage)
-            drawGfxPageTable(localTableData, showCooling, showHeating, showOperational, showEI);
+            drawGfxPageTable(localTableData, showCooling, showHeating, showOperational,showOccupied, showEI);
         else
         {
             if (tableData === undefined)
